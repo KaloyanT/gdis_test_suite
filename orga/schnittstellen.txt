@@ -1,0 +1,18 @@
+Schnittstellendoumentation:
+
+1) Import:
+
+Frontend -> API:
+  - CSV Datei
+
+API -> Backend:
+  - JSON
+
+
+2) Export:
+
+Backend -> API:
+  - JSON
+
+API -> Frontend:
+  - CSV
