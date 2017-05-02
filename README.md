@@ -22,7 +22,7 @@ Alternatively: cd backend, mvn clean install, mvn spring-boot:run.
 The front end app will be accessible at localhost:4200
 The back end APIs, including the example APIs, are accessible at localhost:4200/api/ and localhost:8080/api/. The example REST GET API is at localhost:4200/api/example
 
-### Angular's Routing Settings: 
+#### Angular's Routing Settings: 
 /frontend/proxy.conf.json
 
 [Spring Boot + Angular with Maven] (https://dzone.com/articles/angular-2-and-spring-boot-development-environment)
