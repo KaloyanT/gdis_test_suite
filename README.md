@@ -9,9 +9,12 @@ the front end files. For now however, the front end will be updated only through
 
 ## Requirements
 
+Back  end: 
 1. JDK 1.8+
 2. Eclipse with Spring Tool Suite Plug-In or Spring Tool Suite IDE. Alternatively everything can be build and run with Maven
-3. NodeJS + NPM 
+
+Front end: 
+1. NodeJS + NPM 
 
 ## Start the project: 
 1. Clone or download the repository with both projects
