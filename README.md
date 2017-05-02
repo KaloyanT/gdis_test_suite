@@ -1,7 +1,9 @@
 GDIS Test Suite
 ==
 
-Spring Boot Project (back end) + Angular 2 Project (front end)
+Note: The project actually uses Angular 4 instead of Angular 2.
+
+Spring Boot Project (back end) + Angular 4 Project (front end)
 
 At the moment our project basically consists of two individual projects. Maven is not used to connect
 both of them. It is also possible to connect both projects with Maven, so Spring Boot can serve 
