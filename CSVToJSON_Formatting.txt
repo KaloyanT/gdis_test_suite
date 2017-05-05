@@ -1,0 +1,84 @@
+1. Support different delimiters: (",", ";", ".")
+2. Assume the first row always contains headers, e.g. NAME,AGE,ADDRESS and the headers are in CAPS. Headers appended by the front-end/API will contain underscores (_)?
+
+
+Example Formatting: 
+
+CSV: 
+NAME,AGE,ADDRESS
+Max,20,Aachen
+John,30,Berlin
+
+Will produce: 
+
+JSON: 
+[
+  {
+    "NAME": "Alex",
+    "AGE": 20,
+    "ADDRESS": "Aachen"
+  },
+  {
+    "NAME": "Sam",
+    "AGE": 30,
+    "ADDRESS": "Berlin"
+  }
+]
+
+Other Formatting Options: 
+http://www.convertcsv.com/csv-to-json.htm
+
+It will be a good idea to have/to create IDs in the tables in the front end and to append them to the JSON
+Example: 
+
+CSV: 
+NAME,AGE,ADDRESS
+Max,20,Aachen
+John,30,Berlin
+
+JSON: 
+
+[
+  {
+  	"ID_EXAMPLE_CUSTOMER": 1
+    "NAME": "Alex",
+    "AGE": 20,
+    "ADDRESS": "Aachen"
+  },
+  {
+  	"ID_EXAMPLE_CUSTOMER": 2
+    "NAME": "Sam",
+    "AGE": 30,
+    "ADDRESS": "Berlin"
+  }
+]
+
+Also the story's name (e.g. Vertrag erstellen) and the name of the current test (name entered by the user before exporting) have to be appended (pass them from Front-End to API?) 
+Example: 
+
+CSV: 
+NAME,AGE,ADDRESS
+Max,20,Aachen
+John,30,Berlin
+
+JSON: 
+
+[
+  {
+  	"ID_EXAMPLE_CUSTOMER": 1
+  	"STORY_TYPE": "New Contract"
+  	"TEST_NAME_EXPORT": "new-contract-test"
+    "NAME": "Alex",
+    "AGE": 20,
+    "ADDRESS": "Aachen"
+
+  },
+  {
+  	"ID_EXAMPLE_CUSTOMER": 2
+  	"STORY_TYPE": "Extend Contract"
+  	"TEST_NAME_EXPORT": "extend-contract-test"
+    "NAME": "Sam",
+    "AGE": 30,
+    "ADDRESS": "Berlin"
+  }
+]
