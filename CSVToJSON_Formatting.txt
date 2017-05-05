@@ -14,12 +14,12 @@ Will produce:
 JSON: 
 [
   {
-    "NAME": "Alex",
+    "NAME": "Max",
     "AGE": 20,
     "ADDRESS": "Aachen"
   },
   {
-    "NAME": "Sam",
+    "NAME": "John",
     "AGE": 30,
     "ADDRESS": "Berlin"
   }
@@ -41,13 +41,13 @@ JSON:
 [
   {
   	"ID_EXAMPLE_CUSTOMER": 1
-    "NAME": "Alex",
+    "NAME": "Max",
     "AGE": 20,
     "ADDRESS": "Aachen"
   },
   {
   	"ID_EXAMPLE_CUSTOMER": 2
-    "NAME": "Sam",
+    "NAME": "John",
     "AGE": 30,
     "ADDRESS": "Berlin"
   }
@@ -68,7 +68,7 @@ JSON:
   	"ID_EXAMPLE_CUSTOMER": 1
   	"STORY_TYPE": "New Contract"
   	"TEST_NAME_EXPORT": "new-contract-test"
-    "NAME": "Alex",
+    "NAME": "Max",
     "AGE": 20,
     "ADDRESS": "Aachen"
 
@@ -77,7 +77,7 @@ JSON:
   	"ID_EXAMPLE_CUSTOMER": 2
   	"STORY_TYPE": "Extend Contract"
   	"TEST_NAME_EXPORT": "extend-contract-test"
-    "NAME": "Sam",
+    "NAME": "John",
     "AGE": 30,
     "ADDRESS": "Berlin"
   }
