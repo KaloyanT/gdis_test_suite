@@ -9,7 +9,7 @@
 	<packaging>jar</packaging>
 
 	<name>database</name>
-	<description>GDIS Test Suite Test Data Importer Microservice</description>
+	<description>GDIS Test Suite Database Microservice</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
