@@ -1,0 +1,6 @@
+version: "2"
+services:
+  api:
+    build: backend/api
+    ports:
+      - "80:8080"
