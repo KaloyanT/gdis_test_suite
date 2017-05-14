@@ -15,10 +15,12 @@ Exporter Micro services
 
 Front End Table/CSV: 
 
-|  NAME 		  | AGE  | ADDRESS  |
-|-----------------|:----:|---------:|
-| Max Mustermann  | 20   | Aachen   |
-| John Smith 	  | 30   | Berlin   |
+| ID |  NAME 		   | AGE  | ADDRESS  |
+|----|:----------------|:----:|---------:|
+|1   | Max Mustermann  | 20   | Aachen   |
+|2   | John Smith 	   | 30   | Berlin   |
+
+Note: If the data is imported from a CSV File, and there are no IDs for the rows, the Front End or the API have to add one
 
 API Formats to: 
 
