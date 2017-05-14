@@ -3,32 +3,32 @@ Option 1 (JSON Array, Contains Redudancy):
 [
 	{
 		"exampleCustomerID": "1",
-		"storyType": "New Contract",
-		"testNameExport": "asds",
+		"storyType": "newContract",
+		"testNameExport": "newContractTest",
 		"customerData": {"name": "jack", "age": "20"}
 	},
 
 	{
 		"exampleCustomerID": "2",
-		"storyType": "New Contract",
-		"testNameExport": "asds",
+		"storyType": "newContract",
+		"testNameExport": "newContractTest",
 		"customerData": {"name": "mike", "age": "20", "address": "somewhere}
 	}
 ]
 
 Option 2 (Better, JSON Wrapper, No Redudancy, A bit complex): 
 {
-	"storyType": "New Contract",
-	"testNameExport": "asds",
+	"storyType": "newContract",
+	"testNameExport": "newContractTest",
 	"testData": [
 		{
 			"exampleCustomerID": "1",
-			"customerData": {"name": "jack", "age": "20"}
+			"customerData": {"name": "Max Mustermann", "age": "20", "address": "Aachen"}
 		},
 
 		{
 			"exampleCustomerID": "2",
-			"customerData": {"name": "mike", "age": "20", "address": "somewhere"}
+			"customerData": {"name": "John Smith", "age": "30", "address": "Berlin"}
 		}
 	
 	]
