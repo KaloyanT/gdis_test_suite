@@ -1,0 +1,19 @@
+{
+	"storyType": "newContract",
+	"testNameExport": "newContractTest",
+	"testData": [
+		{
+			"exampleCustomerID": "1",
+			"customerData": {"name": "Max Mustermann", "age": "20", "address": "Aachen"}
+		},
+
+		{
+			"exampleCustomerID": "2",
+			"customerData": {"name": "John Smith", "age": "30", "address": "Berlin"}
+		}
+	
+	]
+}
+
+
+

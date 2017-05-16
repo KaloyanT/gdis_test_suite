@@ -1,0 +1,8 @@
+{
+	"headers": ["name", "age"],
+	"rows": [
+		["bananas", "oranges"], 
+		["bacon", "apples"]
+	]
+	
+}
