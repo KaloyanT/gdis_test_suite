@@ -6,10 +6,10 @@ Importer Micro services
 2. The User enters example customer data in a table or import the data from a CSV File
 3. The User clicks "Export" and enters a name for the test. 
 4. The API takes this data in a form of a table and formats it according to the JSON Schema
-5. The API makes A POST Request to the Exporter with the JSON (POST http://localhost:8082/exporter)
-6. The Exporter takes the JSON, checks if it's formatted correctly and if all the necessary fields are available (storyType and testData)
-7. The Exporter creates individual JSON chunks from the given JSON in order to export one entry (one row from the CSV) at a time to the Database
-8. The Exporter makes a POST Request to the Database in order to save the JSON chunks (POST http://localhost:8082/database/newContract)
+5. The API makes A POST Request to the Importer with the JSON (POST http://localhost:8082/exporter)
+6. The Importer takes the JSON, checks if it's formatted correctly and if all the necessary fields are available (storyType and testData)
+7. The Importer creates individual JSON chunks from the given JSON in order to export one entry (one row from the CSV) at a time to the Database
+8. The Importer makes a POST Request to the Database in order to save the JSON chunks (POST http://localhost:8082/database/newContract)
 
 ## Example Data for the given Work flow: 
 
@@ -43,7 +43,7 @@ API Formats to:
 }
 ```
 
-Exporter receives that and creates the following two JSON chunks: 
+Importer receives that and creates the following two JSON chunks: 
 ```json
 {
 	"storyType": "newContract",
@@ -66,4 +66,4 @@ Exporter receives that and creates the following two JSON chunks:
 }
 ```
 
-Exporter exports the given chunks one by one to the Database
+Importer exports the given chunks one by one to the Database
