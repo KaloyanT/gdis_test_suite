@@ -67,3 +67,5 @@ Importer receives that and creates the following two JSON chunks:
 ```
 
 Importer exports the given chunks one by one to the Database
+
+Note: The field "storyType" can be omitted from the JSON Chunks, if the Importer Microservice is doing a POST Request directly to http://localhost:DB_PORT/database/{storyType}
