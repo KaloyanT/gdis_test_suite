@@ -1,8 +1,8 @@
 {
 	"headers": ["name", "age"],
 	"rows": [
-		["bananas", "oranges"], 
-		["bacon", "apples"]
+		["max mustermann", "20"], 
+		["john smith", "30"]
 	]
 	
 }
