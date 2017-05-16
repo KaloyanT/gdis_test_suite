@@ -1,6 +1,6 @@
 {
 	"storyType": "newContract",
-	"testNameExport": "newContractTest",
+	"testNameImport": "newContractTest",
 	"testData": [
 		{
 			"exampleCustomerID": "1",
