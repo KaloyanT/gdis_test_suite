@@ -109,7 +109,7 @@ public class ImportTestCaseRequestController {
 
 	
 	/**
-	 * Chunk the received JSON into individual JSONs, that will be send to the 
+	 * Chunk the received JSON into individual JSONs, that will be sent to the 
 	 * Global Variable for all the chunks
 	 * JSON Format: 
 	 * "storyType": "new contract",
