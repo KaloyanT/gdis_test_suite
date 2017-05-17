@@ -13,10 +13,13 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
@@ -64,6 +67,21 @@ public class ImportTestCaseRequestController {
 		return new ResponseEntity<JSONWrapper>(jsonWrapper, HttpStatus.OK);
 		//return new ResponseEntity<JSONWrapper>(HttpStatus.OK);
 	}
+	
+	
+	@ExceptionHandler({HttpMessageNotReadableException.class})
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	@ResponseBody
+	public ResponseEntity<?> resolveException() {
+		
+		ObjectMapper mapper = new ObjectMapper();
+		ObjectNode response = mapper.createObjectNode();
+		
+		response.put("reason", "Empty Body");
+		
+		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+	}
+	
 	
 	private boolean missingStory(JSONWrapper jsonWrapper) {
 		// No Story Type. Can't export
