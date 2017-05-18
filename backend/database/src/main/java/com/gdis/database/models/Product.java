@@ -4,11 +4,24 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.Basic;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+@Entity(name = "Product")
 public class Product {
+	
+	@Id
 	private long id;
+	
+	@Basic(optional = false)
 	private String name;
+	
+	@Basic(optional = false)
 	private Date productBegin;
+	
 	private Date productEnd;
+	
 	private List<Contract> contracts = new ArrayList<Contract>();
 	
 	public long getId() {

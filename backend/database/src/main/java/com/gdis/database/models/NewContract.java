@@ -2,10 +2,23 @@ package com.gdis.database.models;
 
 import java.util.Date;
 
+import javax.persistence.Basic;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+@Entity(name = "NewContract")
 public class NewContract {
+	
+	@Id
 	private long id;
-	private ProductType productType ;
+	
+	@Basic(optional = false)
+	private ProductType productType;
+	
+	@Basic(optional = false)
 	private Customer customer;
+	
+	@Basic(optional = false)
 	private Date contractBegin;
 
 	public long getId() {

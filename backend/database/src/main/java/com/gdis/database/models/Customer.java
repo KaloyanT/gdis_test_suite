@@ -4,14 +4,31 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.Basic;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+@Entity(name = "Customer")
 public class Customer {
+	
+	@Id
 	private long id;
+	
+	@Basic(optional = false)
 	private String firstName;
+	
+	@Basic(optional = false)
 	private String lastName;
+	
+	@Basic(optional = false)
 	private Date birthday;
+	
 	private String address;
+	
 	private String job;
+	
 	private List<Contract> insuredBy = new ArrayList<Contract>();
+	
 	private List<Contract> ownedContracts = new ArrayList<Contract>();
 	
 	public long getId() {

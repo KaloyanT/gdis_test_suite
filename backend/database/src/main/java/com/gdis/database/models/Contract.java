@@ -1,9 +1,22 @@
 package com.gdis.database.models;
 
+import javax.persistence.Basic;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+@Entity(name = "Contract")
 public class Contract {
+	
+	@Id
 	private long id;
+	
+	@Basic(optional = false)
 	private Customer policyOwner;
+	
+	@Basic(optional = false)
 	private Customer insuredPerson;
+	
+	@Basic(optional = false)
 	private Product product;
 
 	
