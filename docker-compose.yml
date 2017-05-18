@@ -3,4 +3,4 @@ services:
   api:
     build: backend/api
     ports:
-      - "8090:8080"
+      - "40042:5000"

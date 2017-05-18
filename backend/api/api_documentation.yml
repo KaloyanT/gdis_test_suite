@@ -1,0 +1,84 @@
+swagger: '2.0'
+info:
+  description: This API is supposed to handle all Connections between Front and Backend of our Smart Insurance Project.
+  version: 1.0.0
+  title: Simple Insurance API
+
+  contact:
+    email: placeholder@rwth-aachen.de
+    
+  license:
+    name: GNU GPL v3
+    url: https://www.gnu.org/licenses/gpl.txt
+
+basePath: / #v1.0 of insuranceDb REST API
+host: localhost:40042
+
+tags:
+- name: record
+  description: Manipulate Records in MongoDB
+# schemes:
+# - http
+paths:
+  /record:
+    post:
+      tags:
+      - record
+      summary: Insert new Record(s)
+      operationId: insertRecords
+      description: Insert new Record(s)
+      consumes:
+      - csv file
+      parameters:
+      - in: body
+        name: csv_file
+        description: CSV File which is supposed to insert entries into the MongoDB
+        required: true
+        schema: {
+          $ref: '#/definitions/Record' }
+      responses:
+        204:
+          description: Insert successfull
+        400:
+          description: Bad request, bad content
+        500:
+          description: Internal Server error
+  /record/json:
+    get:
+      tags:
+      - record
+      summary: get all Records as JSON
+      operationId: listAllRecordsJson
+      description: Calling this will return the entirety of available Records in JSON format
+      produces:
+      - application/json
+      responses:
+        200:
+          description: returns all Records in database as JSON array
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Record'
+        404:
+          description: Ressource(s) not found
+        500:
+          description: Internal Server error
+  /record/csv:
+    get:
+      tags:
+      - record
+      summary: get all Records as csv
+      operationId: listAllRecordsCsv
+      description: Calling this will return the entirety of available Records as a CSV File
+      produces:
+      - csv
+      responses:
+        200:
+          description: returns all Recors in database as a CSV File
+        404:
+          description: Ressource(s) not found
+        500:
+          description: Internal Server error
+definitions:
+  Record:
+    type: object
