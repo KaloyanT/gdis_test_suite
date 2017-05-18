@@ -1,3 +1,24 @@
+<div *ngIf="!buttonClicked">
 <h1>
   {{title}}
 </h1>
+
+<pre>Username: <input type="text"
+                      (input)="onUsernameUpdate($event)">
+
+
+Password: <input type="text"
+                 (input)="onPasswordUpdate($event)">
+<li>Password must contain at least 5 symbols.
+
+
+
+<button
+  class="btn btn-primary"
+  [disabled]="!inputCorrect()"
+  (click)="onClickButon()"
+>Log In</button>
+</pre>
+</div>
+
+<app-dashboard *ngIf="buttonClicked"></app-dashboard>
