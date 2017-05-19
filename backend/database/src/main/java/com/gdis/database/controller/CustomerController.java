@@ -11,18 +11,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.gdis.database.model.Contract;
+import com.gdis.database.model.Customer;
+import com.gdis.database.service.CustomerRepository;
 
-import com.gdis.database.models.Contract;
-import com.gdis.database.models.Customer;
-import com.gdis.database.services.CustomerRepository;
-import util.PreCondition;
+import com.gdis.database.util.PreCondition;
 @RestController
-@RequestMapping("/contracts")
-public class CustomerController {
+@RequestMapping("/customers")
 
+public class CustomerController {
+	
 	@Autowired
 	private CustomerRepository customerRepository;
-		
+	
+	
 	@RequestMapping(method = RequestMethod.GET)
 	public Iterable<Customer> getAllCustomers() {
 		return customerRepository.findAll();
@@ -59,4 +61,6 @@ public class CustomerController {
 				.contentType(MediaType.APPLICATION_XML)
 				.body(contracts);
 	}
+	
+	
 }

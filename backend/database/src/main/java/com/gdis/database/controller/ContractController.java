@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.gdis.database.models.Contract;
-import com.gdis.database.services.ContractRepository;
+import com.gdis.database.model.Contract;
+import com.gdis.database.service.ContractRepository;
 
 @RestController
 @RequestMapping("/contracts")
@@ -25,4 +25,8 @@ public class ContractController {
 	public Contract getContract(final long id) {
 		return contractRepository.findById(id);
 	}
+	
+	
 }
+
+

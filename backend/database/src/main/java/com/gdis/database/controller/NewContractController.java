@@ -14,16 +14,18 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import com.gdis.database.models.Contract;
-import com.gdis.database.services.ContractRepository;
-import com.gdis.database.models.NewContract;
-import com.gdis.database.services.NewContractRepository;
-import util.PreCondition;
-import util.CustomErrorType;
+import com.gdis.database.model.NewContract;
+import com.gdis.database.service.NewContractRepository;
+
+import com.gdis.database.util.PreCondition;
+import com.gdis.database.util.CustomErrorType;
 
 @RestController
 @RequestMapping("/apiNewContract")
 public class NewContractController {
+	
+	
+	
 	@Autowired
 	private NewContractRepository newContractRepository;
 	
@@ -34,13 +36,15 @@ public class NewContractController {
 	  PreCondition.notNull(newContract, "id must be greater than 0");
 	  
 	  if(newContractRepository.existsById(newContract.getId())){
-		  return new ResponseEntity(new CustomErrorType("Unable to create a contract with id " + 
-		            newContract.getId() + " already exist."),HttpStatus.CONFLICT);
+		  //return new ResponseEntity<>(new CustomErrorType("Unable to create a contract with id " + 
+		  //     newContract.getId() + " already exist."),HttpStatus.CONFLICT);
+		  return new ResponseEntity<>("Unable to create a contract with ID" + 
+		      newContract.getId() + ". A contract with this ID already exists", HttpStatus.CONFLICT);
 	  } else {
 		  newContractRepository.save(newContract);
 		  HttpHeaders headers = new HttpHeaders();
 	        headers.setLocation(ucBuilder.path("/apiNewContract/newContract/{id}").buildAndExpand(newContract.getId()).toUri());
-	        return new ResponseEntity<String>(headers, HttpStatus.CREATED);
+	        return new ResponseEntity<>(headers, HttpStatus.CREATED);
 	  }
 	}
 	
@@ -53,7 +57,7 @@ public class NewContractController {
 			contracts.add(nc);
 		}
 		if (contracts.isEmpty()) {
-	        return new ResponseEntity(HttpStatus.NO_CONTENT);
+	        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	    }
 	    return new ResponseEntity<List<NewContract>>(contracts, HttpStatus.OK);
 	}
@@ -63,7 +67,7 @@ public class NewContractController {
 	public ResponseEntity<?> getContract(@PathVariable("id") long id) {
 		NewContract newContract = newContractRepository.findById(id);
 	    if (newContract == null) {
-	    	return new ResponseEntity(new CustomErrorType("Contract with id " + id 
+	    	return new ResponseEntity<>(new CustomErrorType("Contract with id " + id 
 	                    + " not found"), HttpStatus.NOT_FOUND);
 	    }
 	    return new ResponseEntity<NewContract>(newContract, HttpStatus.OK);
@@ -74,7 +78,7 @@ public class NewContractController {
 		NewContract currentContract = newContractRepository.findById(id);
 	 
 	    if (currentContract == null) {
-	    	return new ResponseEntity(new CustomErrorType("Unable to update. Contract with id "
+	    	return new ResponseEntity<>(new CustomErrorType("Unable to update. Contract with id "
 	            				+ id + " not found."), HttpStatus.NOT_FOUND);
 	    }
 	 
@@ -91,7 +95,7 @@ public class NewContractController {
 	public ResponseEntity<?> deleteNewContract(@PathVariable("id") long id) {
 		NewContract currentContract = newContractRepository.findById(id);
 	    if (currentContract == null) {
-	       return new ResponseEntity(new CustomErrorType("Unable to delete contract with id " 
+	       return new ResponseEntity<>(new CustomErrorType("Unable to delete contract with id " 
 	    		   + id + " not found."), HttpStatus.NOT_FOUND);
 	    }
 	    newContractRepository.delete(currentContract);

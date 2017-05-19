@@ -1,13 +1,15 @@
-package com.gdis.database.models;
+package com.gdis.database.model;
 
 import java.util.Date;
 
 import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 
 @Entity(name = "ExtendContract")
 public class ExtendContract {
+	
 	
 	@Id
 	private long id;
@@ -16,6 +18,7 @@ public class ExtendContract {
 	private ProductType productType = null;
 	
 	@Basic(optional = false)
+	@OneToOne
 	private Customer customer = null;
 	
 	@Basic(optional = false)

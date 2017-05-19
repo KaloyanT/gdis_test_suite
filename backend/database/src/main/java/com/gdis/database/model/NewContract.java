@@ -1,10 +1,11 @@
-package com.gdis.database.models;
+package com.gdis.database.model;
 
 import java.util.Date;
 
 import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 
 @Entity(name = "NewContract")
 public class NewContract {
@@ -16,6 +17,7 @@ public class NewContract {
 	private ProductType productType;
 	
 	@Basic(optional = false)
+	@OneToOne
 	private Customer customer;
 	
 	@Basic(optional = false)

@@ -1,10 +1,11 @@
-package com.gdis.database.models;
+package com.gdis.database.model;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 public enum ProductType {
+	
 	PROFIT_INSURANCE(0, "PROFIT_INSURANCE", "PROFIT_INSURANCE"){
 		@Override
 		public boolean isPROFIT_INSURANCE() {

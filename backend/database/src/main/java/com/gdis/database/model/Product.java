@@ -1,8 +1,8 @@
-package com.gdis.database.models;
+package com.gdis.database.model;
 
-import java.util.ArrayList;
+//import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+//import java.util.List;
 
 import javax.persistence.Basic;
 import javax.persistence.Entity;
@@ -11,6 +11,7 @@ import javax.persistence.Id;
 @Entity(name = "Product")
 public class Product {
 	
+
 	@Id
 	private long id;
 	
@@ -22,7 +23,7 @@ public class Product {
 	
 	private Date productEnd;
 	
-	private List<Contract> contracts = new ArrayList<Contract>();
+	//private List<Contract> contracts = new ArrayList<Contract>();
 	
 	public long getId() {
 		return id;
@@ -56,6 +57,7 @@ public class Product {
 		this.productEnd = contractEnd;
 	}
 	
+	/*
 	public List<Contract> getContracts() {
 		return contracts;
 	}
@@ -90,8 +92,9 @@ public class Product {
 			addToContracts(value);
 		}
 	}
+	*/
 	
-	//@Override 
+	@Override 
 	public String toString() {
 		return "Product " + " [id: " + getId() + "]" + " [name: " + getName() + "]" +
 	       " [Product Begin: "  + getProductBegin().toString() + "]"

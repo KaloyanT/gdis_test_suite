@@ -1,4 +1,4 @@
-package util;
+package com.gdis.database.util;
 
 public class PreCondition {
 	public static void require(boolean predicate, String reason) {

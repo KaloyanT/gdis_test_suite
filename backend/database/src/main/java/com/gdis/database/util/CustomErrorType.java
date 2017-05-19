@@ -1,4 +1,4 @@
-package util;
+package com.gdis.database.util;
 
 public class CustomErrorType {
 	    private String errorMessage;

@@ -1,4 +1,4 @@
-package com.gdis.database.models;
+package com.gdis.database.model;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -7,8 +7,11 @@ import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 @Entity(name = "Customer")
+@Table(name = "customers")
 public class Customer {
 	
 	@Id
@@ -27,8 +30,11 @@ public class Customer {
 	
 	private String job;
 	
+	//@ElementCollection(targetClass = Contract.class)
+	@OneToMany
 	private List<Contract> insuredBy = new ArrayList<Contract>();
 	
+	@OneToMany
 	private List<Contract> ownedContracts = new ArrayList<Contract>();
 	
 	public long getId() {
@@ -79,6 +85,7 @@ public class Customer {
 		this.job = job;
 	}
 
+	
 	public List<Contract> getInsuredBy() {
 		return insuredBy;
 	}
@@ -148,7 +155,8 @@ public class Customer {
 		}
 	}
 	
-	//@Override
+	
+	@Override
 	public String toString() {
 		return "Customer " + " [id: " + getId() + "]" + " [firstName: " + getFirstName() + "]" + " [lastName: "
 				+ getLastName() + "]" + " [birthday: " + getBirthday() + "]" + " [address: " + getAddress() + "]";

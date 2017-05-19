@@ -1,22 +1,28 @@
-package com.gdis.database.models;
+package com.gdis.database.model;
 
 import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 
 @Entity(name = "Contract")
+@Table(name = "contracts")
 public class Contract {
 	
 	@Id
 	private long id;
 	
 	@Basic(optional = false)
+	@OneToOne
 	private Customer policyOwner;
 	
 	@Basic(optional = false)
+	@OneToOne
 	private Customer insuredPerson;
 	
 	@Basic(optional = false)
+	@OneToOne
 	private Product product;
 
 	
@@ -32,10 +38,10 @@ public class Contract {
 		return policyOwner;
 	}
 	
-	/*
-	 * This method is taken from the Car insurance example. 
-	 * The code makes sense only if a contract can change its owner. 
-	 */
+	
+	// This method is taken from the Car insurance example. 
+	// The code makes sense only if a contract can change its owner. 
+	
 	public void setPolicyOwner(Customer newPolicyOwner) {
 		if (policyOwner != newPolicyOwner) {
 			if (policyOwner != null) {
@@ -63,13 +69,17 @@ public class Contract {
 			}
 		}
 	}
+
 	
 	public Product getProduct() {
 		return product;
 	}
 
-	public void setProduct(Product newProduct) {
-		if (product != newProduct) {
+	public void setProduct(Product product) {
+		
+		this.product = product;
+		
+		/*if (product != newProduct) {
 			if (product != null) {
 				product.removeFromContracts(this);
 			}
@@ -77,11 +87,14 @@ public class Contract {
 			if (product != null) {
 				product.addToContracts(this);
 			}
-		}
+		}*/
+		
 	}	
 
-	//@Override 
+	@Override 
 	public String toString() {
 		return "Contract " + " [id: " + getId() + "]";
 	}
+	
+	
 }

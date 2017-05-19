@@ -1,4 +1,4 @@
-package util;
+package com.gdis.database.util;
 
 public class PreConditionException extends IllegalArgumentException {
 	private static final long serialVersionUID = -5513891348829648436L;

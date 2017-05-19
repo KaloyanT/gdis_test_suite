@@ -1,7 +1,8 @@
-package com.gdis.database.services;
+package com.gdis.database.service;
 	
 import org.springframework.data.repository.CrudRepository;
-import com.gdis.database.models.Contract;
+
+import com.gdis.database.model.Contract;
 
 public interface ContractRepository extends CrudRepository <Contract, Long> {
 	
