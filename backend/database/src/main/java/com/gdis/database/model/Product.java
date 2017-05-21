@@ -6,21 +6,28 @@ import java.util.Date;
 
 import javax.persistence.Basic;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity(name = "Product")
 public class Product {
 	
 
 	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 	
 	@Basic(optional = false)
 	private String name;
 	
 	@Basic(optional = false)
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
 	private Date productBegin;
 	
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
 	private Date productEnd;
 	
 	//private List<Contract> contracts = new ArrayList<Contract>();

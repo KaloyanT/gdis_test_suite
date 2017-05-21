@@ -3,18 +3,25 @@ package com.gdis.database.model;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
 import javax.persistence.Basic;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.GenericGenerator;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 
 @Entity(name = "Customer")
 @Table(name = "customers")
 public class Customer {
 	
 	@Id
+	@GenericGenerator(name = "idGenerator", strategy = "increment")
+	@GeneratedValue(generator = "idGenerator")
 	private long id;
 	
 	@Basic(optional = false)
@@ -24,6 +31,7 @@ public class Customer {
 	private String lastName;
 	
 	@Basic(optional = false)
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
 	private Date birthday;
 	
 	private String address;
@@ -64,7 +72,8 @@ public class Customer {
 	public Date getBirthday() {
 		return birthday;
 	}
-
+	
+	
 	public void setBirthday(Date birthday) {
 		this.birthday = birthday;
 	}

@@ -1,28 +1,35 @@
 package com.gdis.database.model;
 
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.GenericGenerator;
 
 @Entity(name = "Contract")
 @Table(name = "contracts")
 public class Contract {
 	
 	@Id
+	//@GeneratedValue(strategy = GenerationType.SEQUENCE)
+	@GenericGenerator(name = "idGenerator", strategy = "increment")
+	@GeneratedValue(generator = "idGenerator")
 	private long id;
-	
+
 	@Basic(optional = false)
-	@OneToOne
+	@OneToOne(cascade = {CascadeType.ALL})
 	private Customer policyOwner;
 	
 	@Basic(optional = false)
-	@OneToOne
+	@OneToOne(cascade = {CascadeType.ALL})
 	private Customer insuredPerson;
 	
 	@Basic(optional = false)
-	@OneToOne
+	@OneToOne(cascade = {CascadeType.ALL})
 	private Product product;
 
 	
@@ -34,6 +41,7 @@ public class Contract {
 		this.id = id;
 	}
 	
+	
 	public Customer getPolicyOwner() {
 		return policyOwner;
 	}
@@ -43,7 +51,7 @@ public class Contract {
 	// The code makes sense only if a contract can change its owner. 
 	
 	public void setPolicyOwner(Customer newPolicyOwner) {
-		if (policyOwner != newPolicyOwner) {
+		/* if (policyOwner != newPolicyOwner) {
 			if (policyOwner != null) {
 				policyOwner.removeFromOwnedContracts(this);
 			}
@@ -51,7 +59,8 @@ public class Contract {
 			if (policyOwner != null) {
 				policyOwner.addToOwnedContracts(this);
 			}
-		}
+		} */ 
+		this.policyOwner = newPolicyOwner;
 	}
 	
 	public Customer getInsuredPerson() {
@@ -59,7 +68,7 @@ public class Contract {
 	}
 	
 	public void setInsuredPerson(Customer newInsuredPerson) {
-		if (insuredPerson != newInsuredPerson) {
+		/* if (insuredPerson != newInsuredPerson) {
 			if (insuredPerson != null) {
 				insuredPerson.removeFromInsuredBy(this);
 			}
@@ -67,7 +76,8 @@ public class Contract {
 			if (insuredPerson != null) {
 				insuredPerson.addToInsuredBy(this);
 			}
-		}
+		} */ 
+		this.insuredPerson = newInsuredPerson;
 	}
 
 	
@@ -89,7 +99,7 @@ public class Contract {
 			}
 		}*/
 		
-	}	
+	}
 
 	@Override 
 	public String toString() {
