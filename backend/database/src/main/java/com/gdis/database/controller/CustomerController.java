@@ -28,8 +28,13 @@ public class CustomerController {
 	
 	@RequestMapping(method = RequestMethod.GET)
 	public ResponseEntity<?> getAllCustomers() {
+		
 		Iterable<Customer> customerIterable = customerRepository.findAll();
-	
+		
+		if(customerIterable == null) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+		
 		List<Customer> customerList = new ArrayList<Customer>();
 	
 		// Java 8 Method Reference is used here
@@ -38,9 +43,9 @@ public class CustomerController {
 		return new ResponseEntity<>(customerList, HttpStatus.OK);
 	}
 	
-	@RequestMapping(value= "/{id}", method = RequestMethod.GET)
+	@RequestMapping(value= "/get", method = RequestMethod.GET)
 	public ResponseEntity<?> getCustomer(@RequestParam(value = "id") final long id) {
-		
+				
 		Customer response = customerRepository.findById(id);
 		
 		if(response == null) {
@@ -51,13 +56,17 @@ public class CustomerController {
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 	
-	@RequestMapping(value= "/by-last-name/{lastName}", method = RequestMethod.GET)
-	public Iterable<Customer> findCustomerByLastName(String lastName) {
-		return customerRepository.findByLastName(lastName);
+	@RequestMapping(value= "/byLastName/{lastName}", method = RequestMethod.GET)
+	public ResponseEntity<?> findCustomerByLastName(@PathVariable("lastName") String lastName) {
+		
+		List<Customer> response = customerRepository.findByLastName(lastName);
+		
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 	
 	
-	@RequestMapping(value = "/insert", method = RequestMethod.POST)
+	@RequestMapping(value = "/insert", method = RequestMethod.POST, 
+			consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE})
 	public ResponseEntity<?> createCustomer(@RequestBody Customer newCustomer) {
 				
 
@@ -68,8 +77,8 @@ public class CustomerController {
 		
 	
 	
-	@RequestMapping(value = "/{id}/owned-contracts", method = RequestMethod.GET, produces = { MediaType.APPLICATION_XML_VALUE })
-	public ResponseEntity<Iterable<Contract>> getOwnedContractsOfCustomer(@PathVariable long id) {
+	@RequestMapping(value = "/{id}/ownedContracts", method = RequestMethod.GET)
+	public ResponseEntity<?> getOwnedContractsOfCustomer(@PathVariable("id") long id) {
 		//Precondition.require(id > 0, "id must be greater than 0");
 
 		final Customer customer = customerRepository.findById(id);

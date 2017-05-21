@@ -11,6 +11,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -20,9 +21,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 public class Customer {
 	
 	@Id
-	@GenericGenerator(name = "idGenerator", strategy = "increment")
-	@GeneratedValue(generator = "idGenerator")
-	private long id;
+	@GenericGenerator(name = "customerIdGenerator", strategy = "increment")
+	@GeneratedValue(generator = "customerIdGenerator")
+	private long customerID;
 	
 	@Basic(optional = false)
 	private String firstName;
@@ -32,6 +33,7 @@ public class Customer {
 	
 	@Basic(optional = false)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
+	@Type(type = "date") // hibernate annotation
 	private Date birthday;
 	
 	private String address;
@@ -45,12 +47,12 @@ public class Customer {
 	@OneToMany
 	private List<Contract> ownedContracts = new ArrayList<Contract>();
 	
-	public long getId() {
-		return id;
+	public long getCustomerID() {
+		return customerID;
 	}
 
-	public void setId(long id) {
-		this.id = id;
+	public void setCustomerID(long customerID) {
+		this.customerID = customerID;
 	}
 	
 	public String getFirstName() {
@@ -167,7 +169,7 @@ public class Customer {
 	
 	@Override
 	public String toString() {
-		return "Customer " + " [id: " + getId() + "]" + " [firstName: " + getFirstName() + "]" + " [lastName: "
+		return "Customer " + " [id: " + getCustomerID() + "]" + " [firstName: " + getFirstName() + "]" + " [lastName: "
 				+ getLastName() + "]" + " [birthday: " + getBirthday() + "]" + " [address: " + getAddress() + "]";
 	}
 	

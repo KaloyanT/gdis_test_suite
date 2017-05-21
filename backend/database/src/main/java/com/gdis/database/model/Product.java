@@ -1,33 +1,36 @@
 package com.gdis.database.model;
 
-//import java.util.ArrayList;
-import java.util.Date;
-//import java.util.List;
 
+import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
+
+import org.hibernate.annotations.GenericGenerator;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity(name = "Product")
+@Table(name = "products")
 public class Product {
 	
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	//@GeneratedValue(strategy = GenerationType.AUTO)
+	@GenericGenerator(name = "customerIdGenerator", strategy = "increment")
+	@GeneratedValue(generator = "customerIdGenerator")
 	private long id;
 	
 	@Basic(optional = false)
 	private String name;
 	
 	@Basic(optional = false)
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
 	private Date productBegin;
 	
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
 	private Date productEnd;
 	
 	//private List<Contract> contracts = new ArrayList<Contract>();

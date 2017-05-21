@@ -16,9 +16,9 @@ public class Contract {
 	
 	@Id
 	//@GeneratedValue(strategy = GenerationType.SEQUENCE)
-	@GenericGenerator(name = "idGenerator", strategy = "increment")
-	@GeneratedValue(generator = "idGenerator")
-	private long id;
+	@GenericGenerator(name = "contractIdGenerator", strategy = "increment")
+	@GeneratedValue(generator = "contractIdGenerator")
+	private long contractID;
 
 	@Basic(optional = false)
 	@OneToOne(cascade = {CascadeType.ALL})
@@ -33,12 +33,12 @@ public class Contract {
 	private Product product;
 
 	
-	public long getId() {
-		return id;
+	public long getContractID() {
+		return contractID;
 	}
 
-	public void setId(long id) {
-		this.id = id;
+	public void setContractID(long contractID) {
+		this.contractID = contractID;
 	}
 	
 	
@@ -103,7 +103,7 @@ public class Contract {
 
 	@Override 
 	public String toString() {
-		return "Contract " + " [id: " + getId() + "]";
+		return "Contract " + " [id: " + getContractID() + "]";
 	}
 	
 	

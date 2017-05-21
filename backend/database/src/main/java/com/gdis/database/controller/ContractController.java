@@ -27,7 +27,6 @@ public class ContractController {
 	private ContractRepository contractRepository;
 	
 	@RequestMapping(method = RequestMethod.GET)
-	//public Iterable<Contract> getAllContracts() {
 	public ResponseEntity<?> getAllContracts() {
 		
 		Iterable<Contract> contractsIterable = contractRepository.findAll();
@@ -40,8 +39,7 @@ public class ContractController {
 		return new ResponseEntity<>(contractsList, HttpStatus.OK);
 	}
 	
-	@RequestMapping(value="/{id}", method = RequestMethod.GET)
-	//public Contract getContract(final long id) {
+	@RequestMapping(value="/get", method = RequestMethod.GET)
 	public ResponseEntity<?> getContractByID(@RequestParam(value = "id") final long id) {
 		
 		Contract response = contractRepository.findById(id);
@@ -55,7 +53,7 @@ public class ContractController {
 	}
 	
 	@RequestMapping(value="/insert", method = RequestMethod.POST, 
-			consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+			consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE})
 	public ResponseEntity<?> insertContract(@RequestBody Contract newContract) {
 		
 		contractRepository.save(newContract);

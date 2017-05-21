@@ -21,7 +21,7 @@ import com.gdis.database.util.PreCondition;
 import com.gdis.database.util.CustomErrorType;
 
 @RestController
-@RequestMapping("/apiNewContract")
+@RequestMapping("/db/newContract")
 public class NewContractController {
 
 
