@@ -9,6 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -28,12 +29,15 @@ public class Product {
 	
 	@Basic(optional = false)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
+	@Type(type = "date")
 	private Date productBegin;
 	
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
+	@Type(type = "date")
 	private Date productEnd;
-	
-	//private List<Contract> contracts = new ArrayList<Contract>();
+
+	@Basic(optional = false)
+	private ProductType productType;
 	
 	public long getId() {
 		return id;
@@ -67,42 +71,14 @@ public class Product {
 		this.productEnd = contractEnd;
 	}
 	
-	/*
-	public List<Contract> getContracts() {
-		return contracts;
+	
+	public ProductType getProductType() {
+		return productType;
 	}
 
-	public boolean addToContracts(Contract contractsValue) {
-		if (!contracts.contains(contractsValue)) {
-			boolean result = contracts.add(contractsValue);
-			contractsValue.setProduct(this);
-			return result;
-		}
-		return false;
+	public void setProductType(ProductType productType) {
+		this.productType = productType;
 	}
-
-	public boolean removeFromContracts(Contract contractsValue) {
-		if (contracts.contains(contractsValue)) {
-			boolean result = contracts.remove(contractsValue);
-			contractsValue.setProduct(null);
-			return result;
-		}
-		return false;
-	}
-
-	public void clearContracts() {
-		while (!contracts.isEmpty()) {
-			removeFromContracts(contracts.iterator().next());
-		}
-	}
-
-	public void setContracts(List<Contract> newContracts) {
-		clearContracts();
-		for (Contract value : newContracts) {
-			addToContracts(value);
-		}
-	}
-	*/
 	
 	@Override 
 	public String toString() {
@@ -110,4 +86,5 @@ public class Product {
 	       " [Product Begin: "  + getProductBegin().toString() + "]"
 				+ " [Contract End: " + getProductEnd().toString() + "]";
 	}
+
 }

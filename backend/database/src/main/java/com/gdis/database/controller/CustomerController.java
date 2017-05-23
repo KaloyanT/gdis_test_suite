@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.gdis.database.model.Contract;
 import com.gdis.database.model.Customer;
 import com.gdis.database.service.CustomerRepository;
+import com.gdis.database.util.PreCondition;
 
 @RestController
 @RequestMapping("/db/customers")
@@ -45,7 +46,9 @@ public class CustomerController {
 	
 	@RequestMapping(value= "/get", method = RequestMethod.GET)
 	public ResponseEntity<?> getCustomer(@RequestParam(value = "id") final long id) {
-				
+
+		PreCondition.require(id >= 0, "Customer ID can't be negative!");
+		
 		Customer response = customerRepository.findById(id);
 		
 		if(response == null) {
@@ -64,31 +67,59 @@ public class CustomerController {
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 	
+	@RequestMapping(value = "/{id}/ownedContracts", method = RequestMethod.GET)
+	public ResponseEntity<?> getOwnedContractsOfCustomer(@PathVariable("id") long id) {
+		
+		PreCondition.require(id >= 0, "Customer ID can't be negative!");
+
+		final Customer customer = customerRepository.findById(id);
+		
+		if(customer == null) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+		
+		final List<Contract> contracts = customer.getOwnedContracts();
+		
+		return new ResponseEntity<>(contracts, HttpStatus.OK);
+	}
 	
 	@RequestMapping(value = "/insert", method = RequestMethod.POST, 
 			consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE})
 	public ResponseEntity<?> createCustomer(@RequestBody Customer newCustomer) {
 				
-
+		if(newCustomer == null) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+		
 		customerRepository.save(newCustomer);
 		
-		return new ResponseEntity<>(newCustomer, HttpStatus.ACCEPTED);
-	}
-		
-	
-	
-	@RequestMapping(value = "/{id}/ownedContracts", method = RequestMethod.GET)
-	public ResponseEntity<?> getOwnedContractsOfCustomer(@PathVariable("id") long id) {
-		//Precondition.require(id > 0, "id must be greater than 0");
-
-		final Customer customer = customerRepository.findById(id);
-		final List<Contract> contracts = customer.getOwnedContracts();
-		
-		return ResponseEntity
-				.status(HttpStatus.OK)
-				.contentType(MediaType.APPLICATION_XML)
-				.body(contracts);
+		return new ResponseEntity<>(newCustomer, HttpStatus.CREATED);
 	}
 	
+	
+	@RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
+	public ResponseEntity<?> deleteCustomer(@PathVariable("id") final long id) {
+		
+		PreCondition.require(id >= 0, "Contract ID can't be negative!");
+		
+		Customer toBeDeleted = customerRepository.findById(id);
+		
+		if(toBeDeleted == null) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+		
+		customerRepository.deleteById(id);
+		
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/update/{id}", method = RequestMethod.PUT, 
+			consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE}) 
+	public ResponseEntity<?> updateCustomer(@PathVariable("id") final long id, @RequestBody Customer updatedContract) {
+		
+		Customer currentCustomer = customerRepository.findById(id);
+		
+		return new ResponseEntity<>(currentCustomer, HttpStatus.ACCEPTED);
+	}
 	
 }

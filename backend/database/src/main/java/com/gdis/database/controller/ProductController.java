@@ -8,8 +8,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.gdis.database.model.Product;
 import com.gdis.database.service.ProductRepository;
@@ -42,42 +44,39 @@ public class ProductController {
         }
 
         
-        @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-        public ResponseEntity<Product> getProduct(@PathVariable long id) {
-                PreCondition.require(id > 0, "id must be greater than 0 ");
+        @RequestMapping(value = "/get", method = RequestMethod.GET)
+        public ResponseEntity<Product> getProduct(@RequestParam(value = "id") final long id) {
+                
+        		PreCondition.require(id >= 0, "Product ID can't be negative!");
 
-                final Product product = productRepository.findById(id);
-
-                return ResponseEntity
-                                .status(HttpStatus.OK)
-                                .contentType(MediaType.APPLICATION_XML)
-                                .body(product);
+                Product response = productRepository.findById(id);
+                
+                if(response == null) {
+                	return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+                }
+                
+                return new ResponseEntity<>(response, HttpStatus.OK);
         }
-
-        /*
-        @RequestMapping(value = "/{id}/contracts", method = RequestMethod.GET, produces = { MediaType.APPLICATION_XML_VALUE })
-        public ResponseEntity<Iterable<Contract>> getContractsForProduct(@PathVariable long id) {
-        PreCondition.require(id > 0, "id must be greater than 0");
-
-                final Product product = repository.findById(id);
-                final List<Contract> contracts = product.getContracts();
-
-                return ResponseEntity
-                                .status(HttpStatus.OK)
-                                .contentType(MediaType.APPLICATION_XML)
-                                .body(contracts);
-        }
-        */
 
         @RequestMapping(value = "/insert", method = RequestMethod.POST, 
         		consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE})
-        public ResponseEntity<?> createProduct(final Product product) {
-                PreCondition.notNull(product, Product.class.getSimpleName());
+        public ResponseEntity<?> createProduct(@RequestBody final Product product) {
+                
+        		if(product == null) {
+        			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        		}
 
-                //final Product createdProduct = productRepository.save(product);
+                productRepository.save(product);
 
-                return new ResponseEntity<>(HttpStatus.OK);
+                return new ResponseEntity<>(HttpStatus.CREATED);
         }
 
-
+        @RequestMapping(value = "/update/{id}", method = RequestMethod.PUT, 
+    			consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE}) 
+    	public ResponseEntity<?> updateContract(@PathVariable("id") final long id, @RequestBody Product updatedProduct) {
+    		
+    		Product currentProduct = productRepository.findById(id);
+    		
+    		return new ResponseEntity<>(currentProduct, HttpStatus.ACCEPTED);
+    	}
 }

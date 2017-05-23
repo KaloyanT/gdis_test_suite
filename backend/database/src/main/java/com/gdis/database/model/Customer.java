@@ -42,9 +42,6 @@ public class Customer {
 	
 	//@ElementCollection(targetClass = Contract.class)
 	@OneToMany
-	private List<Contract> insuredBy = new ArrayList<Contract>();
-	
-	@OneToMany
 	private List<Contract> ownedContracts = new ArrayList<Contract>();
 	
 	public long getCustomerID() {
@@ -97,40 +94,6 @@ public class Customer {
 	}
 
 	
-	public List<Contract> getInsuredBy() {
-		return insuredBy;
-	}
-
-	public boolean addToInsuredBy(Contract insuredByValue) {
-		if (!insuredBy.contains(insuredByValue)) {
-			boolean result = insuredBy.add(insuredByValue);
-			insuredByValue.setInsuredPerson(this);
-			return result;
-		}
-		return false;
-	}
-
-	public boolean removeFromInsuredBy(Contract insuredByValue) {
-		if (insuredBy.contains(insuredByValue)) {
-			boolean result = insuredBy.remove(insuredByValue);
-			insuredByValue.setInsuredPerson(null);
-			return result;
-		}
-		return false;
-	}
-
-	public void clearInsuredBy() {
-		while (!insuredBy.isEmpty()) {
-			removeFromInsuredBy(insuredBy.iterator().next());
-		}
-	}
-
-	public void setInsuredBy(List<Contract> newInsuredBy) {
-		clearInsuredBy();
-		for (Contract value : newInsuredBy) {
-			addToInsuredBy(value);
-		}
-	}
 	public List<Contract> getOwnedContracts() {
 		return ownedContracts;
 	}
