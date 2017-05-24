@@ -1,5 +1,6 @@
 package com.gdis.database.model;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 import javax.persistence.Basic;
@@ -22,6 +23,14 @@ public class NewContract {
 	
 	@Basic(optional = false)
 	private Date contractBegin;
+	
+	@Basic(optional = false)
+	private Date contractEnd;
+	
+	@Basic(optional = false)
+	private BigDecimal payment;
+	
+	private String partnerName;
 
 	public long getId() {
 		return id;
@@ -53,6 +62,30 @@ public class NewContract {
 
 	public void setContractBegin(Date newContractBegin) {
 		contractBegin = newContractBegin;
+	}
+	
+	public Date getContractEnd() {
+		return contractEnd;
+	}
+
+	public void setContractEnd(Date newContractEnd) {
+		contractBegin = newContractEnd;
+	}
+	
+	public BigDecimal getPayment(){
+		return payment;
+	}
+	
+	public void setPayment(BigDecimal newPayment){
+		payment = newPayment;
+	}
+	
+	public String getPartnerName(){
+		return partnerName;
+	}
+	
+	public void setPartnerName(String newPartnerName){
+		partnerName = newPartnerName;
 	}
 	
 	@Override
