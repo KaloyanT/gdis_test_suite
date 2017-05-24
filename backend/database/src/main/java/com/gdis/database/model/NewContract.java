@@ -1,8 +1,6 @@
 package com.gdis.database.model;
 
-import java.math.BigDecimal;
 import java.util.Date;
-
 import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -28,7 +26,7 @@ public class NewContract {
 	private Date contractEnd;
 	
 	@Basic(optional = false)
-	private BigDecimal payment;
+	private double payment;
 	
 	private String partnerName;
 
@@ -72,11 +70,11 @@ public class NewContract {
 		contractBegin = newContractEnd;
 	}
 	
-	public BigDecimal getPayment(){
+	public double getPayment(){
 		return payment;
 	}
 	
-	public void setPayment(BigDecimal newPayment){
+	public void setPayment(double newPayment){
 		payment = newPayment;
 	}
 	
