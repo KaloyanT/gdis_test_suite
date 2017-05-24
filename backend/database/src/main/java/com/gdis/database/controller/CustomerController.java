@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.gdis.database.model.Contract;
 import com.gdis.database.model.Customer;
@@ -42,8 +41,8 @@ public class CustomerController {
 		return new ResponseEntity<>(customerList, HttpStatus.OK);
 	}
 	
-	@RequestMapping(value= "/get", method = RequestMethod.GET)
-	public ResponseEntity<?> getCustomer(@RequestParam(value = "id") final long id) {
+	@RequestMapping(value= "/get/{id}", method = RequestMethod.GET)
+	public ResponseEntity<?> getCustomer(@PathVariable("id") final long id) {
 
 		PreCondition.require(id >= 0, "Customer ID can't be negative!");
 		
@@ -57,6 +56,7 @@ public class CustomerController {
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 	
+	
 	@RequestMapping(value= "/byLastName/{lastName}", method = RequestMethod.GET)
 	public ResponseEntity<?> findCustomerByLastName(@PathVariable("lastName") String lastName) {
 		
@@ -64,6 +64,7 @@ public class CustomerController {
 		
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
+	
 	
 	@RequestMapping(value = "/{id}/ownedContracts", method = RequestMethod.GET)
 	public ResponseEntity<?> getOwnedContractsOfCustomer(@PathVariable("id") long id) {
@@ -81,6 +82,7 @@ public class CustomerController {
 		return new ResponseEntity<>(contracts, HttpStatus.OK);
 	}
 	
+	
 	@RequestMapping(value = "/insert", method = RequestMethod.POST, 
 			consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE})
 	public ResponseEntity<?> createCustomer(@RequestBody Customer newCustomer) {
@@ -94,22 +96,6 @@ public class CustomerController {
 		return new ResponseEntity<>(newCustomer, HttpStatus.CREATED);
 	}
 	
-	
-	@RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
-	public ResponseEntity<?> deleteCustomer(@PathVariable("id") final long id) {
-		
-		PreCondition.require(id >= 0, "Customer ID can't be negative!");
-		
-		Customer toBeDeleted = customerRepository.findByCustomerID(id);
-		
-		if(toBeDeleted == null) {
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-		}
-		
-		customerRepository.deleteById(id);
-		
-		return new ResponseEntity<>(HttpStatus.OK);
-	}
 	
 	@RequestMapping(value = "/update/{id}", method = RequestMethod.PUT, 
 			consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE}) 
@@ -134,4 +120,20 @@ public class CustomerController {
 		return new ResponseEntity<>(currentCustomer, HttpStatus.ACCEPTED);
 	}
 	
+	
+	@RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
+	public ResponseEntity<?> deleteCustomer(@PathVariable("id") final long id) {
+		
+		PreCondition.require(id >= 0, "Customer ID can't be negative!");
+		
+		Customer toBeDeleted = customerRepository.findByCustomerID(id);
+		
+		if(toBeDeleted == null) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+		
+		customerRepository.deleteById(id);
+		
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
 }

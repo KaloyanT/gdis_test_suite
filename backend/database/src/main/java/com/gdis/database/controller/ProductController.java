@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.gdis.database.model.Product;
 import com.gdis.database.service.ProductRepository;
@@ -43,8 +42,8 @@ public class ProductController {
 	}
 
         
-     @RequestMapping(value = "/get", method = RequestMethod.GET)
-     public ResponseEntity<Product> getProduct(@RequestParam(value = "id") final long id) {
+	@RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
+	public ResponseEntity<Product> getProduct(@PathVariable(value = "id") final long id) {
                 
     	 PreCondition.require(id >= 0, "Product ID can't be negative!");
 
@@ -57,39 +56,56 @@ public class ProductController {
     	 return new ResponseEntity<>(response, HttpStatus.OK);
      }
 
-     @RequestMapping(value = "/insert", method = RequestMethod.POST, 
+     
+	@RequestMapping(value = "/insert", method = RequestMethod.POST, 
     		 consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE})
-     public ResponseEntity<?> createProduct(@RequestBody final Product product) {
+	public ResponseEntity<?> createProduct(@RequestBody final Product product) {
                 
-    	 if(product == null) {
-    		 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-    	 }
+		if(product == null) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
 
-    	 productRepository.save(product);
+		productRepository.save(product);
 
-    	 return new ResponseEntity<>(HttpStatus.CREATED);
-     }
+		return new ResponseEntity<>(HttpStatus.CREATED);
+	}
 
-     @RequestMapping(value = "/update/{id}", method = RequestMethod.PUT, 
+	@RequestMapping(value = "/update/{id}", method = RequestMethod.PUT, 
     		 consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE}) 
-     public ResponseEntity<?> updateContract(@PathVariable("id") final long id, @RequestBody Product updatedProduct) {
+	public ResponseEntity<?> updateContract(@PathVariable("id") final long id, @RequestBody Product updatedProduct) {
     		
-    	 PreCondition.require(id >= 0, "Product ID can't be negative!");
+		PreCondition.require(id >= 0, "Product ID can't be negative!");
     		
-    	 if(updatedProduct == null) {
-    		 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-    	 }
+		if(updatedProduct == null) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
     		
-    	 Product currentProduct = productRepository.findByProductID(id);
+		Product currentProduct = productRepository.findByProductID(id);
     		
-    	 if(currentProduct == null) {
-    		 return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
-    	}
+		if(currentProduct == null) {
+			return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+		}
         	
-    	 updatedProduct.setProductID(id);
+		updatedProduct.setProductID(id);
     		
-    	 productRepository.save(updatedProduct);
+		productRepository.save(updatedProduct);
         	
-    	 return new ResponseEntity<>(currentProduct, HttpStatus.ACCEPTED);
-     }
+		return new ResponseEntity<>(currentProduct, HttpStatus.ACCEPTED);
+	}
+     
+	@RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
+	public ResponseEntity<?> deleteProduct(@PathVariable("id") final long id) {
+ 		
+		PreCondition.require(id >= 0, "Product ID can't be negative!");
+ 		
+		Product toBeDeleted = productRepository.findByProductID(id);
+ 		
+		if(toBeDeleted == null) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+ 		
+		productRepository.deleteById(id);
+ 		
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
 }

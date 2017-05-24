@@ -2,7 +2,6 @@ package com.gdis.database.controller;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -11,7 +10,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.gdis.database.model.Insurer;
 import com.gdis.database.service.InsurerRepository;
@@ -43,8 +41,8 @@ public class InsurerController {
 	}
 	
 	
-	@RequestMapping(value= "/get", method = RequestMethod.GET)
-	public ResponseEntity<?> getInsurer(@RequestParam(value = "id") final long id) {
+	@RequestMapping(value= "/get/{id}", method = RequestMethod.GET)
+	public ResponseEntity<?> getInsurer(@PathVariable("id") final long id) {
 
 		PreCondition.require(id >= 0, "Insurer ID can't be negative!");
 		
@@ -83,23 +81,6 @@ public class InsurerController {
 	}
 	
 	
-	@RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
-	public ResponseEntity<?> deleteInsurer(@PathVariable("id") final long id) {
-		
-		PreCondition.require(id >= 0, "Insurer ID can't be negative!");
-		
-		Insurer toBeDeleted = insurerRepository.findByInsurerID(id);
-		
-		if(toBeDeleted == null) {
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-		}
-		
-		insurerRepository.deleteById(id);
-		
-		return new ResponseEntity<>(HttpStatus.OK);
-	}
-	
-	
 	@RequestMapping(value = "/update/{id}", method = RequestMethod.PUT, 
 			consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE}) 
 	public ResponseEntity<?> updateInsurer(@PathVariable("id") final long id, @RequestBody Insurer updatedInsurer) {
@@ -123,6 +104,22 @@ public class InsurerController {
 		return new ResponseEntity<>(currentInsurer, HttpStatus.ACCEPTED);
 	}
 	
+
+	@RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
+	public ResponseEntity<?> deleteInsurer(@PathVariable("id") final long id) {
+		
+		PreCondition.require(id >= 0, "Insurer ID can't be negative!");
+		
+		Insurer toBeDeleted = insurerRepository.findByInsurerID(id);
+		
+		if(toBeDeleted == null) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+		
+		insurerRepository.deleteById(id);
+		
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
 	
 	
 }

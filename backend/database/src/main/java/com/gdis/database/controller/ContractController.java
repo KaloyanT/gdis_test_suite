@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.gdis.database.model.Contract;
 import com.gdis.database.service.ContractRepository;
@@ -40,8 +39,9 @@ public class ContractController {
 		return new ResponseEntity<>(contractsList, HttpStatus.OK);
 	}
 	
-	@RequestMapping(value="/get", method = RequestMethod.GET)
-	public ResponseEntity<?> getContractByID(@RequestParam(value = "id") final long id) {
+	
+	@RequestMapping(value="/get/{id}", method = RequestMethod.GET)
+	public ResponseEntity<?> getContractByID(@PathVariable("id") final long id) {
 		
 		PreCondition.require(id >= 0, "Contract ID can't be negative!");
 		
@@ -55,9 +55,10 @@ public class ContractController {
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 	
+	
 	@RequestMapping(value = "/insert", method = RequestMethod.POST, 
 			consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE})
-	public ResponseEntity<?> insertContract(@RequestBody Contract newContract) {
+	public ResponseEntity<?> createContract(@RequestBody Contract newContract) {
 		
 		if(newContract == null) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -68,21 +69,6 @@ public class ContractController {
 		return new ResponseEntity<>(newContract, HttpStatus.CREATED);
 	}
 	
-	@RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
-	public ResponseEntity<?> deleteContract(@PathVariable("id") final long id) {
-		
-		PreCondition.require(id >= 0, "Contract ID can't be negative!");
-		
-		Contract toBeDeleted = contractRepository.findByContractID(id);
-		
-		if(toBeDeleted == null) {
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-		}
-		
-		contractRepository.deleteById(id);
-		
-		return new ResponseEntity<>(HttpStatus.OK);
-	}
 	
 	@RequestMapping(value = "/update/{id}", method = RequestMethod.PUT, 
 			consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE}) 
@@ -107,6 +93,22 @@ public class ContractController {
 		return new ResponseEntity<>(currentContract, HttpStatus.ACCEPTED);
 	}
 	
+	
+	@RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
+	public ResponseEntity<?> deleteContract(@PathVariable("id") final long id) {
+		
+		PreCondition.require(id >= 0, "Contract ID can't be negative!");
+		
+		Contract toBeDeleted = contractRepository.findByContractID(id);
+		
+		if(toBeDeleted == null) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+		
+		contractRepository.deleteById(id);
+		
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
 }
 
 
