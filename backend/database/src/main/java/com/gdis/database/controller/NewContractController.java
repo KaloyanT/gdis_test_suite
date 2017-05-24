@@ -1,8 +1,7 @@
 package com.gdis.database.controller;
 
 import java.util.List;
-import java.util.LinkedList;
-
+import java.util.ArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -28,7 +27,7 @@ public class NewContractController {
 	private NewContractRepository newContractRepository;
 
 	//create new contract in the database
-	@RequestMapping(value = "/newContract/",method = RequestMethod.POST)
+	@RequestMapping(value = "/newContract", method = RequestMethod.POST)
 	public ResponseEntity<?> createNewContract (@RequestBody NewContract newContract,
                                                                                                         UriComponentsBuilder ucBuilder) {
 		PreCondition.notNull(newContract, "id must be greater than 0");
@@ -46,23 +45,25 @@ public class NewContractController {
 		}
 	}
 
-	//retrieve all contacts
-	@RequestMapping(value = "/newContract/", method = RequestMethod.GET)
-	public ResponseEntity<List<NewContract>> listAllContracts() {
-		Iterable<NewContract> i = newContractRepository.findAll();
-		List<NewContract> contracts = new LinkedList<NewContract>();
-		for (NewContract nc:i) {
+	// retrieve all contacts
+	@RequestMapping(value = "/newContract", method = RequestMethod.GET)
+	public ResponseEntity<?> listAllContracts() {
+		
+		Iterable<NewContract> newContractsIterable = newContractRepository.findAll();
+		
+		List<NewContract> contracts = new ArrayList<NewContract>();
+		
+		for (NewContract nc : newContractsIterable) {
 			contracts.add(nc);
 		}
-		if (contracts.isEmpty()) {
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-		}
+		
 		return new ResponseEntity<List<NewContract>>(contracts, HttpStatus.OK);
 	}
 
-	//retrieve single new contract
+	// retrieve single new contract
 	@RequestMapping(value = "/newContract/{id}", method = RequestMethod.GET)
 	public ResponseEntity<?> getContract(@PathVariable("id") long id) {
+		
 		NewContract newContract = newContractRepository.findById(id);
 		
 		if (newContract == null) {
@@ -74,6 +75,7 @@ public class NewContractController {
 
 	@RequestMapping(value = "/newContract/{id}", method = RequestMethod.PUT)
 	public ResponseEntity<?> updateNewContract(@PathVariable("id") long id, @RequestBody NewContract newContract) {
+		
 		NewContract currentContract = newContractRepository.findById(id);
 
 		if (currentContract == null) {
@@ -86,25 +88,32 @@ public class NewContractController {
 		currentContract.setContractBegin(newContract.getContractBegin());
 
 		newContractRepository.save(currentContract);
+		
 		return new ResponseEntity<NewContract>(currentContract, HttpStatus.OK);
 	}
 
-	//delete a new contract
+	// delete a new contract
 	@RequestMapping(value = "/newContract/{id}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> deleteNewContract(@PathVariable("id") long id) {
+		
 		NewContract currentContract = newContractRepository.findById(id);
+		
 		if (currentContract == null) {
 			return new ResponseEntity<>(new CustomErrorType("Unable to delete contract with id "
 					+ id + " not found."), HttpStatus.NOT_FOUND);
 		}
+		
 		newContractRepository.delete(currentContract);
+		
 		return new ResponseEntity<NewContract>(HttpStatus.NO_CONTENT);
 	}
 
-	//delete all new contracts
-	@RequestMapping(value = "/newContract/", method = RequestMethod.DELETE)
-	public ResponseEntity<NewContract> deleteAllNewContracts() {
+	// delete all new contracts
+	@RequestMapping(value = "/newContract", method = RequestMethod.DELETE)
+	public ResponseEntity<?> deleteAllNewContracts() {
+		
 		newContractRepository.deleteAll();
+		
 		return new ResponseEntity<NewContract>(HttpStatus.NO_CONTENT);
 	}
 

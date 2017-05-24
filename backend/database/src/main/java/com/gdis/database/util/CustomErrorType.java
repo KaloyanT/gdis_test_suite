@@ -1,6 +1,7 @@
 package com.gdis.database.util;
 
 public class CustomErrorType {
+	
 	    private String errorMessage;
 
 	    public CustomErrorType(String errorMessage){
