@@ -1,10 +1,7 @@
 package com.gdis.database.controller;
 
-
-
 import java.util.ArrayList;
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -15,8 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-
 import com.gdis.database.model.Contract;
 import com.gdis.database.service.ContractRepository;
 import com.gdis.database.util.PreCondition;
@@ -33,6 +28,10 @@ public class ContractController {
 		
 		Iterable<Contract> contractsIterable = contractRepository.findAll();
 		
+		if(contractsIterable == null) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+		
 		List<Contract> contractsList = new ArrayList<Contract>();
 		
 		// Java 8 Method Reference is used here
@@ -46,10 +45,10 @@ public class ContractController {
 		
 		PreCondition.require(id >= 0, "Contract ID can't be negative!");
 		
-		Contract response = contractRepository.findById(id);
+		Contract response = contractRepository.findByContractID(id);
 		
 		if(response == null) {
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		
 		
@@ -74,7 +73,7 @@ public class ContractController {
 		
 		PreCondition.require(id >= 0, "Contract ID can't be negative!");
 		
-		Contract toBeDeleted = contractRepository.findById(id);
+		Contract toBeDeleted = contractRepository.findByContractID(id);
 		
 		if(toBeDeleted == null) {
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -89,8 +88,22 @@ public class ContractController {
 			consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE}) 
 	public ResponseEntity<?> updateContract(@PathVariable("id") final long id, @RequestBody Contract updatedContract) {
 		
-		Contract currentContract = contractRepository.findById(id);
+		PreCondition.require(id >= 0, "Contract ID can't be negative!");
 		
+		if(updatedContract == null) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+		
+		Contract currentContract = contractRepository.findByContractID(id);
+		
+		if(currentContract == null) {
+			return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+		}
+		
+		updatedContract.setContractID(id);
+		
+		contractRepository.save(updatedContract);
+			
 		return new ResponseEntity<>(currentContract, HttpStatus.ACCEPTED);
 	}
 	

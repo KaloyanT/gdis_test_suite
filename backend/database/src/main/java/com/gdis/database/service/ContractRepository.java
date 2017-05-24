@@ -6,6 +6,6 @@ import com.gdis.database.model.Contract;
 
 public interface ContractRepository extends CrudRepository <Contract, Long> {
 	
-	public Contract findById(long id);
+	public Contract findByContractID(long contractID);
 	
 }

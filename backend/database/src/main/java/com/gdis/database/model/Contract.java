@@ -32,6 +32,8 @@ public class Contract {
 	@OneToOne(cascade = {CascadeType.ALL})
 	private Product product;
 
+	@Basic(optional = false)
+	private double monthlyPremium;
 	
 	public long getContractID() {
 		return contractID;
@@ -47,19 +49,7 @@ public class Contract {
 	}
 	
 	
-	// This method is taken from the Car insurance example. 
-	// The code makes sense only if a contract can change its owner. 
-	
 	public void setPolicyOwner(Customer newPolicyOwner) {
-		/* if (policyOwner != newPolicyOwner) {
-			if (policyOwner != null) {
-				policyOwner.removeFromOwnedContracts(this);
-			}
-			policyOwner = newPolicyOwner;
-			if (policyOwner != null) {
-				policyOwner.addToOwnedContracts(this);
-			}
-		} */ 
 		this.policyOwner = newPolicyOwner;
 	}
 	
@@ -68,15 +58,6 @@ public class Contract {
 	}
 	
 	public void setInsuredPerson(Customer newInsuredPerson) {
-		/* if (insuredPerson != newInsuredPerson) {
-			if (insuredPerson != null) {
-				insuredPerson.removeFromInsuredBy(this);
-			}
-			insuredPerson = newInsuredPerson;
-			if (insuredPerson != null) {
-				insuredPerson.addToInsuredBy(this);
-			}
-		} */ 
 		this.insuredPerson = newInsuredPerson;
 	}
 
@@ -86,25 +67,21 @@ public class Contract {
 	}
 
 	public void setProduct(Product product) {
-		
 		this.product = product;
-		
-		/*if (product != newProduct) {
-			if (product != null) {
-				product.removeFromContracts(this);
-			}
-			product = newProduct;
-			if (product != null) {
-				product.addToContracts(this);
-			}
-		}*/
-		
 	}
 
+	public double getMonthlyPremium() {
+		return monthlyPremium;
+	}
+
+	public void setMonthlyPremium(double monthlyPremium) {
+		this.monthlyPremium = monthlyPremium;
+	}
+	
+	
 	@Override 
 	public String toString() {
 		return "Contract " + " [id: " + getContractID() + "]";
 	}
-	
 	
 }

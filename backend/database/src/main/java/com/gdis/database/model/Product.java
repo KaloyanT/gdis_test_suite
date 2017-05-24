@@ -22,7 +22,7 @@ public class Product {
 	//@GeneratedValue(strategy = GenerationType.AUTO)
 	@GenericGenerator(name = "customerIdGenerator", strategy = "increment")
 	@GeneratedValue(generator = "customerIdGenerator")
-	private long id;
+	private long productID;
 	
 	@Basic(optional = false)
 	private String name;
@@ -39,12 +39,12 @@ public class Product {
 	@Basic(optional = false)
 	private ProductType productType;
 	
-	public long getId() {
-		return id;
+	public long getProductID() {
+		return productID;
 	}
 
-	public void setId(long id) {
-		this.id = id;
+	public void setProductID(long productID) {
+		this.productID = productID;
 	}
 
 	public String getName() {
@@ -82,7 +82,7 @@ public class Product {
 	
 	@Override 
 	public String toString() {
-		return "Product " + " [id: " + getId() + "]" + " [name: " + getName() + "]" +
+		return "Product " + " [id: " + getProductID() + "]" + " [name: " + getName() + "]" +
 	       " [Product Begin: "  + getProductBegin().toString() + "]"
 				+ " [Contract End: " + getProductEnd().toString() + "]";
 	}

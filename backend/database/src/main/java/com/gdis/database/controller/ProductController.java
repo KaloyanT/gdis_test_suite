@@ -21,62 +21,75 @@ import com.gdis.database.util.PreCondition;
 @RequestMapping("/db/products")
 public class ProductController {
 
+	@Autowired
+	private ProductRepository productRepository;
 
-        @Autowired
-        private ProductRepository productRepository;
 
-
-        @RequestMapping(method = RequestMethod.GET)
-        public ResponseEntity<?> getAllProducts() {
+	@RequestMapping(method = RequestMethod.GET)
+	public ResponseEntity<?> getAllProducts() {
         	
-        	Iterable<Product> productIterable = productRepository.findAll();
+		Iterable<Product> productIterable = productRepository.findAll();
     		
-    		if(productIterable == null) {
-    			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    		}
+		if(productIterable == null) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
     		
-    		List<Product> productList = new ArrayList<Product>();
+		List<Product> productList = new ArrayList<Product>();
     	
-    		// Java 8 Method Reference is used here
-    		productIterable.forEach(productList::add);
+		// Java 8 Method Reference is used here
+		productIterable.forEach(productList::add);
     	
-    		return new ResponseEntity<>(productList, HttpStatus.OK);
-        }
+		return new ResponseEntity<>(productList, HttpStatus.OK);
+	}
 
         
-        @RequestMapping(value = "/get", method = RequestMethod.GET)
-        public ResponseEntity<Product> getProduct(@RequestParam(value = "id") final long id) {
+     @RequestMapping(value = "/get", method = RequestMethod.GET)
+     public ResponseEntity<Product> getProduct(@RequestParam(value = "id") final long id) {
                 
-        		PreCondition.require(id >= 0, "Product ID can't be negative!");
+    	 PreCondition.require(id >= 0, "Product ID can't be negative!");
 
-                Product response = productRepository.findById(id);
+    	 Product response = productRepository.findByProductID(id);
                 
-                if(response == null) {
-                	return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-                }
+    	 if(response == null) {
+    		 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    	 }
                 
-                return new ResponseEntity<>(response, HttpStatus.OK);
-        }
+    	 return new ResponseEntity<>(response, HttpStatus.OK);
+     }
 
-        @RequestMapping(value = "/insert", method = RequestMethod.POST, 
-        		consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE})
-        public ResponseEntity<?> createProduct(@RequestBody final Product product) {
+     @RequestMapping(value = "/insert", method = RequestMethod.POST, 
+    		 consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE})
+     public ResponseEntity<?> createProduct(@RequestBody final Product product) {
                 
-        		if(product == null) {
-        			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        		}
+    	 if(product == null) {
+    		 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    	 }
 
-                productRepository.save(product);
+    	 productRepository.save(product);
 
-                return new ResponseEntity<>(HttpStatus.CREATED);
-        }
+    	 return new ResponseEntity<>(HttpStatus.CREATED);
+     }
 
-        @RequestMapping(value = "/update/{id}", method = RequestMethod.PUT, 
-    			consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE}) 
-    	public ResponseEntity<?> updateContract(@PathVariable("id") final long id, @RequestBody Product updatedProduct) {
+     @RequestMapping(value = "/update/{id}", method = RequestMethod.PUT, 
+    		 consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE}) 
+     public ResponseEntity<?> updateContract(@PathVariable("id") final long id, @RequestBody Product updatedProduct) {
     		
-    		Product currentProduct = productRepository.findById(id);
+    	 PreCondition.require(id >= 0, "Product ID can't be negative!");
     		
-    		return new ResponseEntity<>(currentProduct, HttpStatus.ACCEPTED);
+    	 if(updatedProduct == null) {
+    		 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    	 }
+    		
+    	 Product currentProduct = productRepository.findByProductID(id);
+    		
+    	 if(currentProduct == null) {
+    		 return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
     	}
+        	
+    	 updatedProduct.setProductID(id);
+    		
+    	 productRepository.save(updatedProduct);
+        	
+    	 return new ResponseEntity<>(currentProduct, HttpStatus.ACCEPTED);
+     }
 }

@@ -9,5 +9,5 @@ public interface ProductRepository extends CrudRepository <Product, Long> {
 	
 	List<Product> findByName(String name);
 	
-	public Product findById(long id);
+	public Product findByProductID(long productID);
 }

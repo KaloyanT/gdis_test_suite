@@ -1,6 +1,5 @@
 package com.gdis.database.controller;
 
-
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +19,6 @@ import com.gdis.database.util.PreCondition;
 
 @RestController
 @RequestMapping("/db/customers")
-
 public class CustomerController {
 	
 	@Autowired
@@ -49,10 +47,10 @@ public class CustomerController {
 
 		PreCondition.require(id >= 0, "Customer ID can't be negative!");
 		
-		Customer response = customerRepository.findById(id);
+		Customer response = customerRepository.findByCustomerID(id);
 		
 		if(response == null) {
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		
 		
@@ -72,7 +70,7 @@ public class CustomerController {
 		
 		PreCondition.require(id >= 0, "Customer ID can't be negative!");
 
-		final Customer customer = customerRepository.findById(id);
+		final Customer customer = customerRepository.findByCustomerID(id);
 		
 		if(customer == null) {
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -100,9 +98,9 @@ public class CustomerController {
 	@RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> deleteCustomer(@PathVariable("id") final long id) {
 		
-		PreCondition.require(id >= 0, "Contract ID can't be negative!");
+		PreCondition.require(id >= 0, "Customer ID can't be negative!");
 		
-		Customer toBeDeleted = customerRepository.findById(id);
+		Customer toBeDeleted = customerRepository.findByCustomerID(id);
 		
 		if(toBeDeleted == null) {
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -115,9 +113,23 @@ public class CustomerController {
 	
 	@RequestMapping(value = "/update/{id}", method = RequestMethod.PUT, 
 			consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE}) 
-	public ResponseEntity<?> updateCustomer(@PathVariable("id") final long id, @RequestBody Customer updatedContract) {
+	public ResponseEntity<?> updateCustomer(@PathVariable("id") final long id, @RequestBody Customer updatedCustomer) {
 		
-		Customer currentCustomer = customerRepository.findById(id);
+		PreCondition.require(id >= 0, "Customer ID can't be negative!");
+		
+		if(updatedCustomer == null) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+		
+		Customer currentCustomer = customerRepository.findByCustomerID(id);
+		
+		if(currentCustomer == null) {
+			return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+		}
+	
+		updatedCustomer.setCustomerID(id);
+		
+		customerRepository.save(updatedCustomer);
 		
 		return new ResponseEntity<>(currentCustomer, HttpStatus.ACCEPTED);
 	}

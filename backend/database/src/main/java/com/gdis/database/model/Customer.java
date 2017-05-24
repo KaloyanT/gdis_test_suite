@@ -15,7 +15,6 @@ import org.hibernate.annotations.Type;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-
 @Entity(name = "Customer")
 @Table(name = "customers")
 public class Customer {
