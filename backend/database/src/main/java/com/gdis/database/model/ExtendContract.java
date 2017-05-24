@@ -23,6 +23,10 @@ public class ExtendContract {
 	
 	@Basic(optional = false)
 	private Date contractBegin = null;
+	
+	private double payment;
+	
+	private double changedPayment;
 
 	public long getId() {
 		return id;
@@ -54,6 +58,22 @@ public class ExtendContract {
 
 	public void setContractBegin(Date newContractBegin) {
 		contractBegin = newContractBegin;
+	}
+	
+	public double getPayment(){
+		return payment;
+	}
+	
+	public void setPayment(double newPayment){
+		payment = newPayment;
+	} 
+	
+	public double getChangedPayment(){
+		return changedPayment;
+	}
+	
+	public void setChangedPayment(double newChangedPayment){
+		changedPayment = newChangedPayment;
 	}
 	
 	@Override
