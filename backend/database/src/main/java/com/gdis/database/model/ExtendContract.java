@@ -6,10 +6,15 @@ import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
+
+import org.hibernate.annotations.Type;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity(name = "ExtendContract")
+@Table(name = "extend_contract")
 public class ExtendContract {
-	
 	
 	@Id
 	private long id;
@@ -22,8 +27,11 @@ public class ExtendContract {
 	private Customer customer = null;
 	
 	@Basic(optional = false)
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
+	@Type(type = "date")
 	private Date contractBegin = null;
 	
+	@Basic(optional = false)
 	private double payment;
 	
 	private double changedPayment;
