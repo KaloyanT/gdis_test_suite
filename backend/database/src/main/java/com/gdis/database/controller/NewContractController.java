@@ -50,7 +50,7 @@ public class NewContractController {
 		
 		PreCondition.require(id >= 0, "New Contract ID can't be negative!");
 		
-		NewContract newContract = newContractRepository.findById(id);
+		NewContract newContract = newContractRepository.findByNewContractID(id);
 		
 		if (newContract == null) {
 			return new ResponseEntity<>(new CustomErrorType("Contract with id " + id
@@ -103,7 +103,7 @@ public class NewContractController {
 		
 		PreCondition.require(id >= 0, "New Contract ID can't be negative!");
 		
-		NewContract currentContract = newContractRepository.findById(id);
+		NewContract currentContract = newContractRepository.findByNewContractID(id);
 
 		if (currentContract == null) {
 			return new ResponseEntity<>(new CustomErrorType("Unable to update. Contract with id "
@@ -126,7 +126,7 @@ public class NewContractController {
 		
 		PreCondition.require(id >= 0, "New Contract ID can't be negative!");
 		
-		NewContract currentContract = newContractRepository.findById(id);
+		NewContract currentContract = newContractRepository.findByNewContractID(id);
 		
 		if (currentContract == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
