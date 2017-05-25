@@ -1,5 +1,5 @@
 package com.gdis.database.controller;
 
-public class ExtendContractController {
+public class ModifyContractController {
 
 }

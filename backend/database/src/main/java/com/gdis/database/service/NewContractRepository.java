@@ -5,7 +5,7 @@ import com.gdis.database.model.NewContract;
 
 public interface NewContractRepository extends CrudRepository<NewContract, Long> {
 	
-	public NewContract findById(long id);
+	public NewContract findByNewContractID(long id);
 	
 	public NewContract findByTestName(String testName);
 }

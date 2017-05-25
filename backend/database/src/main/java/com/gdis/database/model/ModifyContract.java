@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity(name = "ExtendContract")
 @Table(name = "extend_contract")
-public class ExtendContract {
+public class ModifyContract {
 	
 	@Id
 	private long id;
