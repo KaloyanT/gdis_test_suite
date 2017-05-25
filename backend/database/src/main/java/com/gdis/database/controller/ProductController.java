@@ -59,15 +59,25 @@ public class ProductController {
      
 	@RequestMapping(value = "/insert", method = RequestMethod.POST, 
     		 consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE})
-	public ResponseEntity<?> createProduct(@RequestBody final Product product) {
+	public ResponseEntity<?> createProduct(@RequestBody Product newProduct) {
                 
-		if(product == null) {
+		if(newProduct == null) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
+		
+		// Check if the given customer already exists in the customers table of the DB
+		// If so, don't insert the customer again in the customers table
+		List<Product> productsWithTheSameNameAndType = 
+			productRepository.findByNameAndProductBeginAndProductEndAndProductType(newProduct.getName(), 
+			newProduct.getProductBegin(), newProduct.getProductEnd(), newProduct.getProductType());
+				
+		if(newProduct.productExistsInDB(productsWithTheSameNameAndType) > 0) {
+			return new ResponseEntity<>(HttpStatus.CONFLICT);
+		}
 
-		productRepository.save(product);
+		productRepository.save(newProduct);
 
-		return new ResponseEntity<>(HttpStatus.CREATED);
+		return new ResponseEntity<>(newProduct, HttpStatus.CREATED);
 	}
 
 	@RequestMapping(value = "/update/{id}", method = RequestMethod.PUT, 

@@ -30,9 +30,9 @@ public class ExtendContract {
 	private Date contractBegin = null;
 	
 	@Basic(optional = false)
-	private double payment;
+	private double monthlyPremium;
 	
-	private double changedPayment;
+	private double changedMonthlyPremium;
 
 	@Basic(optional = false)
 	private String testName;
@@ -69,20 +69,20 @@ public class ExtendContract {
 		this.contractBegin = newContractBegin;
 	}
 	
-	public double getPayment(){
-		return payment;
+	public double getMonthlyPremium(){
+		return monthlyPremium;
 	}
 	
-	public void setPayment(double newPayment){
-		this.payment = newPayment;
-	} 
-	
-	public double getChangedPayment(){
-		return changedPayment;
+	public void setMonthlyPremium(double monthlyPremium){
+		this.monthlyPremium = monthlyPremium;
 	}
 	
-	public void setChangedPayment(double newChangedPayment){
-		this.changedPayment = newChangedPayment;
+	public double getChangedMonthlyPremium(){
+		return changedMonthlyPremium;
+	}
+	
+	public void setChangedMonthlyPremium(double changedMonthlyPremium){
+		this.changedMonthlyPremium = changedMonthlyPremium;
 	}
 	
 	public String getTestName(){

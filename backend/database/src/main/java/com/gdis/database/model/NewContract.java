@@ -39,7 +39,7 @@ public class NewContract {
 	private Date contractEnd;
 	
 	@Basic(optional = false)
-	private double payment;
+	private double monthlyPremium;
 	
 	@Basic(optional = false)
 	private String partnerName;
@@ -87,12 +87,12 @@ public class NewContract {
 		this.contractEnd = newContractEnd;
 	}
 	
-	public double getPayment(){
-		return payment;
+	public double getMonthlyPremium(){
+		return monthlyPremium;
 	}
 	
-	public void setPayment(double newPayment){
-		this.payment = newPayment;
+	public void setMonthlyPremium(double monthlyPremium){
+		this.monthlyPremium = monthlyPremium;
 	}
 	
 	public String getPartnerName(){
