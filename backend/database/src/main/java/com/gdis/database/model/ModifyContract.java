@@ -8,8 +8,8 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-@Entity(name = "ExtendContract")
-@Table(name = "extend_contract")
+@Entity(name = "ModifyContract")
+@Table(name = "modify_contract")
 public class ModifyContract {
 	
 	@Id
