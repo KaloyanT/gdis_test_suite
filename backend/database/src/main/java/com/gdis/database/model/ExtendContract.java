@@ -1,15 +1,11 @@
 package com.gdis.database.model;
 
 import java.util.Date;
-
 import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-
-import org.hibernate.annotations.Type;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity(name = "ExtendContract")
@@ -28,7 +24,9 @@ public class ExtendContract {
 	
 	@Basic(optional = false)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
-	@Type(type = "date")
+	// Saves the Date as dd/MM/yyyy in the DB instead of dd/MM/yyyy 01:00:00, but
+	// sets the Date one day behind the actual one, because it cuts the time
+	// @Type(type = "date") // hibernate annotation
 	private Date contractBegin = null;
 	
 	@Basic(optional = false)
@@ -36,12 +34,15 @@ public class ExtendContract {
 	
 	private double changedPayment;
 
+	@Basic(optional = false)
+	private String testName;
+	
 	public long getId() {
 		return id;
 	}
 
 	public void setId(long newId) {
-		id = newId;
+		this.id = newId;
 	}
 
 	public ProductType getProductType() {
@@ -49,7 +50,7 @@ public class ExtendContract {
 	}
 
 	public void setProductType(ProductType newProductType) {
-		productType = newProductType;
+		this.productType = newProductType;
 	}
 
 	public Customer getCustomer() {
@@ -57,7 +58,7 @@ public class ExtendContract {
 	}
 
 	public void setCustomer(Customer newCustomer) {
-		customer = newCustomer;
+		this.customer = newCustomer;
 	}
 
 	public Date getContractBegin() {
@@ -65,7 +66,7 @@ public class ExtendContract {
 	}
 
 	public void setContractBegin(Date newContractBegin) {
-		contractBegin = newContractBegin;
+		this.contractBegin = newContractBegin;
 	}
 	
 	public double getPayment(){
@@ -73,7 +74,7 @@ public class ExtendContract {
 	}
 	
 	public void setPayment(double newPayment){
-		payment = newPayment;
+		this.payment = newPayment;
 	} 
 	
 	public double getChangedPayment(){
@@ -81,7 +82,15 @@ public class ExtendContract {
 	}
 	
 	public void setChangedPayment(double newChangedPayment){
-		changedPayment = newChangedPayment;
+		this.changedPayment = newChangedPayment;
+	}
+	
+	public String getTestName(){
+		return testName;
+	}
+	
+	public void setTestNameName(String newTestName){
+		this.testName = newTestName;
 	}
 	
 	@Override

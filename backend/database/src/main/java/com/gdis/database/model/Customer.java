@@ -1,5 +1,6 @@
 package com.gdis.database.model;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -9,10 +10,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-
 import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Type;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity(name = "Customer")
@@ -30,9 +28,11 @@ public class Customer {
 	@Basic(optional = false)
 	private String lastName;
 	
+	// Saves the Date as dd/MM/yyyy in the DB instead of dd/MM/yyyy 01:00:00, but
+	// sets the Date one day behind the actual one, because it cuts the time
+	// @Type(type = "date") // hibernate annotation
 	@Basic(optional = false)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
-	@Type(type = "date") // hibernate annotation
 	private Date birthday;
 	
 	private String address;
@@ -70,7 +70,6 @@ public class Customer {
 	public Date getBirthday() {
 		return birthday;
 	}
-	
 	
 	public void setBirthday(Date birthday) {
 		this.birthday = birthday;
@@ -131,8 +130,64 @@ public class Customer {
 	
 	@Override
 	public String toString() {
+		
+		SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy");
+		String birthday = dateFormatter.format(getBirthday());
+		
 		return "Customer " + " [id: " + getCustomerID() + "]" + " [firstName: " + getFirstName() + "]" + " [lastName: "
-				+ getLastName() + "]" + " [birthday: " + getBirthday() + "]" + " [address: " + getAddress() + "]";
+		+ getLastName() + "]" + " [birthday: " + birthday + "]" + " [address: " + getAddress() + "]" + 
+		" [job: " + getJob() + "]" + " [ownedContracts: " + getOwnedContracts().toString() + "]";
+	}
+	
+	public String toStringWithoutID() {
+		
+		SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy");
+		String birthday = dateFormatter.format(getBirthday());
+		
+		return "Customer " + " [firstName: " + getFirstName() + "]" + " [lastName: "
+				+ getLastName() + "]" + " [birthday: " + birthday + "]" + " [address: " + getAddress() + "]" + 
+				" [job: " + getJob() + "]" + " [ownedContracts: " + getOwnedContracts().toString() + "]";
+	}
+	
+	public long customerHashCodeNoID() {
+		
+		long res = 0L;
+		
+		SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy");
+		String birthday = dateFormatter.format(getBirthday());
+		
+		res += getFirstName().toString().hashCode();
+		res += getLastName().toString().hashCode();
+		res += birthday.hashCode();
+		res += getAddress().toString().hashCode();
+		res += getJob().toString().hashCode();
+		res += getOwnedContracts().toString().hashCode();
+		
+		return res;
+	}
+	
+	
+	/**
+	 * Checks if the THIS Customer exists in the Database by searching in a Customers 
+	 * List with the same lastName and birthday
+	 * @param existingCustomers List with customers who have the same lastName and were born
+	 * on the same date (same birthday)
+	 * @return The customerID if the Customer is contained in the existingCustomers List, -1L else
+	 */
+	public long customerExistsInDB(List<Customer> existingCustomers) {
+		
+		String newCustomerString = this.toStringWithoutID();
+				
+		for(Customer c : existingCustomers) {
+						
+			String temp = c.toStringWithoutID();
+			
+			if(newCustomerString.equals(temp)) {
+				return c.getCustomerID();
+			}
+		}
+		
+		return -1L;
 	}
 	
 }

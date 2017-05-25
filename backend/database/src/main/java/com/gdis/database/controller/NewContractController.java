@@ -10,7 +10,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.gdis.database.model.Customer;
 import com.gdis.database.model.NewContract;
+import com.gdis.database.service.CustomerRepository;
 import com.gdis.database.service.NewContractRepository;
 import com.gdis.database.util.PreCondition;
 import com.gdis.database.util.CustomErrorType;
@@ -21,9 +24,12 @@ public class NewContractController {
 
 	@Autowired
 	private NewContractRepository newContractRepository;
+	
+	@Autowired
+	private CustomerRepository customerRepository;
 
 	// retrieve all contacts
-	@RequestMapping(value = "/newContract", method = RequestMethod.GET)
+	@RequestMapping(method = RequestMethod.GET)
 	public ResponseEntity<?> listAllContracts() {
 		
 		Iterable<NewContract> newContractsIterable = newContractRepository.findAll();
@@ -61,18 +67,34 @@ public class NewContractController {
 		if(newContract == null) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
+		
+		// Check if the given customer already exists in the customers table of the DB
+		// If so, don't insert the customer again in the customers table
+		Customer customerForNewContract = newContract.getCustomer();
+		
+		List<Customer> customersWithSameLastNameAndBirthday = customerRepository.findByLastNameAndBirthday(
+				customerForNewContract.getLastName(), customerForNewContract.getBirthday());
+		
+		long existingCustomerID = customerForNewContract.customerExistsInDB(customersWithSameLastNameAndBirthday);
+		
+		if(existingCustomerID > 0) {
 			
-		if(newContractRepository.existsById(newContract.getId())) {
+			customerForNewContract = customerRepository.findByCustomerID(existingCustomerID);
+			newContract.setCustomer(customerForNewContract);
+		}
+		
+		/*
+		if(newContractRepository.existsById(newContract.getNewContractID())) {
 			//return new ResponseEntity<>(new CustomErrorType("Unable to create a contract with id " +
 			//     newContract.getId() + " already exist."),HttpStatus.CONFLICT);
-			return new ResponseEntity<>("Unable to create a contract with ID" +
-						newContract.getId() + ". A contract with this ID already exists", HttpStatus.CONFLICT);
-		} else {
+			return new ResponseEntity<>(HttpStatus.CONFLICT);
+		
+		} */
 			
-			newContractRepository.save(newContract);
+		newContractRepository.save(newContract);
 			
-			return new ResponseEntity<>(HttpStatus.CREATED);
-		}
+		return new ResponseEntity<>(newContract, HttpStatus.CREATED);
+		
 	}
 
 	

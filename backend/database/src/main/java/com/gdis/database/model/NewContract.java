@@ -2,37 +2,40 @@ package com.gdis.database.model;
 
 import java.util.Date;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-
-import org.hibernate.annotations.Type;
-
+import org.hibernate.annotations.GenericGenerator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity(name = "NewContract")
 @Table(name = "new_contract")
 public class NewContract {
 	
+	
 	@Id
-	private long id;
+	@GenericGenerator(name = "newContractIdGenerator", strategy = "increment")
+	@GeneratedValue(generator = "newContractIdGenerator")
+	private long newContractID;
+	
+	@Basic(optional = false)
+	@OneToOne(cascade = {CascadeType.ALL})
+	private Customer customer;
 	
 	@Basic(optional = false)
 	private ProductType productType;
 	
 	@Basic(optional = false)
-	@OneToOne
-	private Customer customer;
-	
-	@Basic(optional = false)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
-	@Type(type = "date")
+	//@Type(type = "date")
 	private Date contractBegin;
 	
 	@Basic(optional = false)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
-	@Type(type = "date")
+	//@Type(type = "date")
 	private Date contractEnd;
 	
 	@Basic(optional = false)
@@ -40,13 +43,16 @@ public class NewContract {
 	
 	@Basic(optional = false)
 	private String partnerName;
+	
+	@Basic(optional = false)
+	private String testName;
 
-	public long getId() {
-		return id;
+	public long getNewContractID() {
+		return newContractID;
 	}
 
-	public void setId(long newId) {
-		id = newId;
+	public void setNewContractID(long newContractID) {
+		this.newContractID = newContractID;
 	}
 
 	public ProductType getProductType() {
@@ -54,7 +60,7 @@ public class NewContract {
 	}
 
 	public void setProductType(ProductType newProductType) {
-		productType = newProductType;
+		this.productType = newProductType;
 	}
 
 	public Customer getCustomer() {
@@ -62,7 +68,7 @@ public class NewContract {
 	}
 
 	public void setCustomer(Customer newCustomer) {
-		customer = newCustomer;
+		this.customer = newCustomer;
 	}
 
 	public Date getContractBegin() {
@@ -70,7 +76,7 @@ public class NewContract {
 	}
 
 	public void setContractBegin(Date newContractBegin) {
-		contractBegin = newContractBegin;
+		this.contractBegin = newContractBegin;
 	}
 	
 	public Date getContractEnd() {
@@ -78,7 +84,7 @@ public class NewContract {
 	}
 
 	public void setContractEnd(Date newContractEnd) {
-		contractBegin = newContractEnd;
+		this.contractEnd = newContractEnd;
 	}
 	
 	public double getPayment(){
@@ -86,7 +92,7 @@ public class NewContract {
 	}
 	
 	public void setPayment(double newPayment){
-		payment = newPayment;
+		this.payment = newPayment;
 	}
 	
 	public String getPartnerName(){
@@ -94,12 +100,20 @@ public class NewContract {
 	}
 	
 	public void setPartnerName(String newPartnerName){
-		partnerName = newPartnerName;
+		this.partnerName = newPartnerName;
+	}
+	
+	public String getTestName(){
+		return testName;
+	}
+	
+	public void setTestNameName(String newTestName){
+		this.testName = newTestName;
 	}
 	
 	@Override
 	public String toString() {
-		return "ContractRequest " + " [id: " + getId() + "]" + " [productType: " + getProductType() + "]"
+		return "ContractRequest " + " [id: " + getNewContractID() + "]" + " [productType: " + getProductType() + "]"
 				+ " [contractBegin: " + getContractBegin() + "]";
 	}
 }

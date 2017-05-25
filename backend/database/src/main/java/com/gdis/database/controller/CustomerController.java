@@ -91,6 +91,16 @@ public class CustomerController {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 		
+		// Check if the given customer already exists in the customers table of the DB
+		// If so, don't insert the customer again in the customers table
+		List<Customer> customersWithSameLastNameAndBirthday = 
+				customerRepository.findByLastNameAndBirthday(newCustomer.getLastName(), 
+						newCustomer.getBirthday());
+		
+		if(newCustomer.customerExistsInDB(customersWithSameLastNameAndBirthday) > 0) {
+			return new ResponseEntity<>(HttpStatus.CONFLICT);
+		}
+		
 		customerRepository.save(newCustomer);
 		
 		return new ResponseEntity<>(newCustomer, HttpStatus.CREATED);
@@ -136,4 +146,10 @@ public class CustomerController {
 		
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
+	
+
+	
+
+	
+	
 }

@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import com.gdis.database.model.Contract;
+import com.gdis.database.model.Customer;
 import com.gdis.database.service.ContractRepository;
+import com.gdis.database.service.CustomerRepository;
 import com.gdis.database.util.PreCondition;
 
 @RestController
@@ -21,6 +23,9 @@ public class ContractController {
 	
 	@Autowired
 	private ContractRepository contractRepository;
+	
+	@Autowired
+	private CustomerRepository customerRepository;
 	
 	@RequestMapping(method = RequestMethod.GET)
 	public ResponseEntity<?> getAllContracts() {
@@ -63,6 +68,49 @@ public class ContractController {
 		if(newContract == null) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
+		
+		
+		// Check if the given policyOwner already exists in the customers table of the DB
+		// If so, don't insert it as a new customer in the customers table
+		Customer policyOwnerForNewContract = newContract.getPolicyOwner();
+		
+		List<Customer> customersWithSameLastNameAndBirthday = customerRepository.findByLastNameAndBirthday(
+				policyOwnerForNewContract.getLastName(), policyOwnerForNewContract.getBirthday());
+				
+		long existingCustomerID = policyOwnerForNewContract.customerExistsInDB(customersWithSameLastNameAndBirthday);
+				
+		if(existingCustomerID > 0) {
+			
+			policyOwnerForNewContract = customerRepository.findByCustomerID(existingCustomerID);
+					
+			newContract.setPolicyOwner(policyOwnerForNewContract);;
+		}
+		
+		
+		customersWithSameLastNameAndBirthday.clear();
+		
+		if(!newContract.getPolicyOwner().toStringWithoutID().equals(newContract.getInsuredPerson().toStringWithoutID())) {
+			// Check if the given customer already exists in the customers table of the DB
+			// If so, don't insert the customer again in the customers table
+			Customer insuredPersonForNewContract = newContract.getInsuredPerson();
+							
+			customersWithSameLastNameAndBirthday = customerRepository.findByLastNameAndBirthday(
+					insuredPersonForNewContract.getLastName(), insuredPersonForNewContract.getBirthday());
+							
+			existingCustomerID = insuredPersonForNewContract.customerExistsInDB(customersWithSameLastNameAndBirthday);
+							
+			if(existingCustomerID > 0) {
+						
+				insuredPersonForNewContract = customerRepository.findByCustomerID(existingCustomerID);
+								
+				newContract.setInsuredPerson(insuredPersonForNewContract);;
+			}
+		} else {
+			
+			newContract.setInsuredPerson(newContract.getPolicyOwner());
+		}
+		
+		
 		
 		contractRepository.save(newContract);
 		

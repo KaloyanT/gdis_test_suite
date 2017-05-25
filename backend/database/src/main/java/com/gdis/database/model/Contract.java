@@ -1,5 +1,7 @@
 package com.gdis.database.model;
 
+import java.util.List;
+
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -81,7 +83,39 @@ public class Contract {
 	
 	@Override 
 	public String toString() {
-		return "Contract " + " [id: " + getContractID() + "]";
+		return "Contract " + " [id: " + getContractID() + "]" + " [insuredPerson: "
+				+ getInsuredPerson().toString() + "]" + " [product: " + getProduct().toString() + "]" 
+				+ " [monthlyPremium: " + getMonthlyPremium() + "]";
+	}
+	
+	public String toStringWithoutID() {
+				
+		return "Contract " + " [policyOwner: " + getPolicyOwner().toString() + "]" + " [insuredPerson: "
+				+ getInsuredPerson().toString() + "]" + " [product: " + getProduct().toString() + "]"
+				+ " [monthlyPremium: " + getMonthlyPremium() + "]";
+	}
+	
+	/**
+	 * Checks if the THIS Contract exists in the Database by searching in a Contracts 
+	 * List with the same policyOwner, insuredPerson and Product
+	 * @param existingContracts List with contracts which have the same policyOwner, 
+	 * insuredPerson and Product
+	 * @return The contractID if the Contract is contained in the existingContracts List, -1L else
+	 */
+	public long contractExistsInDB(List<Contract> existingContracts) {
+		
+		String newContractString = this.toStringWithoutID();
+				
+		for(Contract c : existingContracts) {
+						
+			String temp = c.toStringWithoutID();
+			
+			if(newContractString.equals(temp)) {
+				return c.getContractID();
+			}
+		}
+		
+		return -1L;
 	}
 	
 }
