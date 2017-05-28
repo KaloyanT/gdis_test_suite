@@ -1,5 +1,6 @@
 package com.gdis.database.model;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -33,6 +34,14 @@ public class NewContract {
 	private Date contractBegin;
 	
 	@Basic(optional = false)
+<<<<<<< HEAD
+	private Date contractEnd;
+	
+	@Basic(optional = false)
+	private BigDecimal payment;
+	
+	private String partnerName;
+=======
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
 	//@Type(type = "date")
 	private Date contractEnd;
@@ -45,6 +54,7 @@ public class NewContract {
 	
 	@Basic(optional = false)
 	private String testName;
+>>>>>>> 19354eb9832bb99ef006d42e6a5aba469daf35cb
 
 	public long getNewContractID() {
 		return newContractID;
@@ -108,6 +118,30 @@ public class NewContract {
 	
 	public void setTestNameName(String newTestName){
 		this.testName = newTestName;
+	}
+	
+	public Date getContractEnd() {
+		return contractEnd;
+	}
+
+	public void setContractEnd(Date newContractEnd) {
+		contractBegin = newContractEnd;
+	}
+	
+	public BigDecimal getPayment(){
+		return payment;
+	}
+	
+	public void setPayment(BigDecimal newPayment){
+		payment = newPayment;
+	}
+	
+	public String getPartnerName(){
+		return partnerName;
+	}
+	
+	public void setPartnerName(String newPartnerName){
+		partnerName = newPartnerName;
 	}
 	
 	@Override
