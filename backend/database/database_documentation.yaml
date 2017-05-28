@@ -1,0 +1,795 @@
+swagger: '2.0'
+info:
+  description: This APIs are used to store data in a database.
+  version: 1.0.0
+  title: Insurence Database
+  contact:
+    email: placeholder@rwth-aachen.de
+  license:
+    name: GNU GPL v3
+    url: 'https://www.gnu.org/licenses/gpl.txt'
+host: localhost
+basePath: /v2
+tags:
+  - name: contract
+    description: Operations about contacts
+  - name: customer
+    description: Operations about customers
+  - name: insurer
+    description: Operations about insurers
+  - name: product
+    description: Operations about products
+  - name: newContract
+    description: Operations when there is a new contact
+  - name: modifyContract
+    description: Operations when there is a modification in a contract
+schemes:
+  - http
+paths:
+  /contracts/insert:
+    post:
+      tags:
+        - contract
+      summary: Create a contact
+      description: >-
+        Check in the database if there is a customer who is a policy owner. If
+        so don't insert the customer again in the customers table. Save a
+        contract in the database.
+      operationId: addContract
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Contracts that needs to be added to the database
+          required: true
+          schema:
+            $ref: '#/definitions/Contract'
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Invalid contract supplied
+  '/contracts/update/{id}':
+    put:
+      tags:
+        - contract
+      summary: Update an existing contract
+      description: Check if the contract already exists and update it.
+      operationId: updateContract
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of contract to update
+          required: true
+          type: integer
+          format: int64
+        - in: body
+          name: body
+          description: Contract that needs to be added to the database
+          required: true
+          schema:
+            $ref: '#/definitions/Contract'
+      responses:
+        '202':
+          description: Contract change accepted
+        '304':
+          description: Contract not modified
+        '400':
+          description: Invalid contract supplied
+  /contracts:
+    get:
+      tags:
+        - contract
+      summary: Find all contracts
+      description: Find all existing contracts in the database.
+      operationId: findAllContracts
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Contract'
+        '204':
+          description: no contend
+  '/contracts/get/{id}':
+    get:
+      tags:
+        - contract
+      summary: Find a contract
+      description: Check if there is a contact with this id in the database and return it.
+      operationId: findContract
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of contract to return
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/Contract'
+        '404':
+          description: contract not found
+  '/contracts/delete/{id}':
+    delete:
+      tags:
+        - contract
+      summary: Delete a contract
+      description: Find a contract in the database and delete it.
+      operationId: deleteContract
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: Contract's id to delete
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: successful operation
+        '204':
+          description: no contend found
+  /customers/insert:
+    post:
+      tags:
+        - customer
+      summary: Create a customer
+      description: >-
+        Check if the given customer already exists in the customers table of the
+        DB. If so, don't insert the customer again in the customers table. Save
+        a customer in the database.
+      operationId: addCustomer
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Customers that needs to be added to the database
+          required: true
+          schema:
+            $ref: '#/definitions/Customer'
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Invalid customer supplied
+        '409':
+          description: conflict - the customer already exists
+  '/customers/update/{id}':
+    put:
+      tags:
+        - customer
+      summary: Update an existing customer
+      description: Check if the customer already exists and update it.
+      operationId: updateCustomer
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of contract to update
+          required: true
+          type: integer
+          format: int64
+        - in: body
+          name: body
+          description: Customer that needs to be added to the database
+          required: true
+          schema:
+            $ref: '#/definitions/Customer'
+      responses:
+        '202':
+          description: Customer change accepted
+        '304':
+          description: Customer not modified
+        '400':
+          description: Invalid customer supplied
+  /customers:
+    get:
+      tags:
+        - customer
+      summary: Find all customers
+      description: Find all existing customers in the database.
+      operationId: findAllCustomers
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Customer'
+        '204':
+          description: no content
+  '/customers/get/{id}':
+    get:
+      tags:
+        - customer
+      summary: Find a customer
+      description: >-
+        Check if there is a customer with this id in the database and return
+        them.
+      operationId: findCustomer
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of customer to return
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/Customer'
+        '404':
+          description: customer not found
+  '/customers/byLastName/{lastName}':
+    get:
+      tags:
+        - customer
+      summary: Find a customer by last name
+      description: >-
+        Check if there is a customer with this last name in the database and
+        return them.
+      operationId: findCustomerByLastName
+      produces:
+        - application/json
+      parameters:
+        - name: lastName
+          in: path
+          description: Last name of customer to return
+          required: true
+          type: string
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/Customer'
+  '/customers/{id}/ownedContracts':
+    get:
+      tags:
+        - customer
+      summary: Find the contracts owned by a customer
+      description: >-
+        Check if there is a customer with this id in the database and return the
+        contracts they own.
+      operationId: findOwnedContracts
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: customer's id
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Contract'
+        '204':
+          description: no content
+  '/customers/delete/{id}':
+    delete:
+      tags:
+        - customer
+      summary: Delete a customer
+      description: Find a customer in the database and delete them.
+      operationId: deleteCustomer
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: Customer's id to delete
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: successful operation
+        '204':
+          description: no content found
+  /insurers/insert:
+    post:
+      tags:
+        - insurer
+      summary: Create an insurer
+      description: Save an insurer in the database.
+      operationId: addInsurer
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Insurers that needs to be added to the database
+          required: true
+          schema:
+            $ref: '#/definitions/Insurer'
+      responses:
+        '201':
+          description: Insurer created
+        '400':
+          description: Invalid insurer supplied
+  '/insurers/update/{id}':
+    put:
+      tags:
+        - insurer
+      summary: Update an existing insurer
+      description: Check if the insurer already exists and update them.
+      operationId: updateInsurer
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of insurer to update
+          required: true
+          type: integer
+          format: int64
+        - in: body
+          name: body
+          description: Insurer that needs to be added to the database
+          required: true
+          schema:
+            $ref: '#/definitions/Insurer'
+      responses:
+        '202':
+          description: Insurer's change accepted
+        '304':
+          description: Insurer not modified
+        '400':
+          description: Invalid product supplied
+  /insurers:
+    get:
+      tags:
+        - insurer
+      summary: Find all insurers
+      description: Find all existing insurers in the database.
+      operationId: findAllInsurers
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Insurer'
+        '204':
+          description: no content
+  '/insurers/get/{id}':
+    get:
+      tags:
+        - insurer
+      summary: Find a customer
+      description: Check if there is a product with this id in the database and return it.
+      operationId: findInsurer
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of insurer to return
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/Insurer'
+        '404':
+          description: insurer not found
+  '/insurers/delete/{id}':
+    delete:
+      tags:
+        - insurer
+      summary: Delete a product
+      description: Find a product in the database and delete it.
+      operationId: deleteInsurer
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: Insurer's id to delete
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: successful operation
+        '204':
+          description: no content found
+  /products/insert:
+    post:
+      tags:
+        - product
+      summary: Create a product
+      description: >-
+        Check if the product already exists in the database. If so don't insert
+        it again. Save a product in the database.
+      operationId: addProduct
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Products that needs to be added to the database
+          required: true
+          schema:
+            $ref: '#/definitions/Product'
+      responses:
+        '201':
+          description: Product created
+        '400':
+          description: Invalid product supplied
+        '409':
+          description: conflict - the product already exists
+  '/products/update/{id}':
+    put:
+      tags:
+        - product
+      summary: Update an existing product
+      description: Check if the product already exists and update it.
+      operationId: updateProduct
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of product to update
+          required: true
+          type: integer
+          format: int64
+        - in: body
+          name: body
+          description: Product that needs to be added to the database
+          required: true
+          schema:
+            $ref: '#/definitions/Product'
+      responses:
+        '202':
+          description: Product's change accepted
+        '304':
+          description: Product not modified
+        '400':
+          description: Invalid product supplied
+  /products:
+    get:
+      tags:
+        - product
+      summary: Find all products
+      description: Find all existing products in the database.
+      operationId: findAllProducts
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Product'
+        '204':
+          description: no contend
+  '/products/get/{id}':
+    get:
+      tags:
+        - product
+      summary: Find a product
+      description: Check if there is a product with this id in the database and return it.
+      operationId: findProduct
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of product to return
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/Product'
+        '404':
+          description: product not found
+  '/products/delete/{id}':
+    delete:
+      tags:
+        - product
+      summary: Delete a product
+      description: Find a product in the database and delete it.
+      operationId: deleteProduct
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: Product's id to delete
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: successful operation
+        '204':
+          description: no content found
+  /newContract/insert:
+    post:
+      tags:
+        - newContract
+      summary: Create a new contract
+      description: >-
+        Check if the given customer already exists in the customers table of the
+        database. If so, don't insert the customer again in the customers table.
+        Save the new contract in the database.
+      operationId: addNewContract
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: New contracts that needs to be added to the database
+          required: true
+          schema:
+            $ref: '#/definitions/NewContract'
+      responses:
+        '201':
+          description: New contract created
+        '400':
+          description: Invalid product supplied
+  '/newContract/update/{id}':
+    put:
+      tags:
+        - newContract
+      summary: Update an existing new contract
+      description: Check if the new contract already exists in the databese and update it.
+      operationId: updateNewContract
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of the new contract to update
+          required: true
+          type: integer
+          format: int64
+        - in: body
+          name: body
+          description: New contract that needs to be added to the database
+          required: true
+          schema:
+            $ref: '#/definitions/NewContract'
+      responses:
+        '202':
+          description: New contract's change accepted
+        '400':
+          description: Invalid new contract supplied
+  /newContract:
+    get:
+      tags:
+        - newContract
+      summary: Find all new contracts
+      description: Find all existing new contracts in the database.
+      operationId: findAllNewContracts
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/NewContract'
+  '/newContract/get/{id}':
+    get:
+      tags:
+        - newContract
+      summary: Find a mew contract
+      description: >-
+        Check if there is a new contract with this id in the database and return
+        it.
+      operationId: findNewContract
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of new contract to return
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/NewContract'
+        '404':
+          description: new contract not found
+  '/newContract/delete/{id}':
+    delete:
+      tags:
+        - newContract
+      summary: Delete a new contract
+      description: Find a new contract in the database and delete it.
+      operationId: deleteNewContract
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: New contract's id to delete
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '204':
+          description: no content
+        '404':
+          description: no new cotract found
+  /newContract/delete:
+    delete:
+      tags:
+        - newContract
+      summary: Delete all new contract
+      description: ''
+      operationId: deleteAllNewContract
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '204':
+          description: no content
+definitions:
+  Contract:
+    type: object
+    properties:
+      contractID:
+        type: integer
+        format: int64
+      policyOwner:
+        $ref: '#/definitions/Customer'
+      insuredPerson:
+        $ref: '#/definitions/Customer'
+      product:
+        $ref: '#/definitions/Product'
+      monthlyPremium:
+        type: number
+        example: '200.30'
+  Customer:
+    type: object
+    properties:
+      customerID:
+        type: integer
+        format: int64
+      firstName:
+        type: string
+      lastName:
+        type: string
+      birthday:
+        type: string
+        example: 11/02/1981
+      address:
+        type: string
+      job:
+        type: string
+      ownedContracts:
+        type: array
+        items:
+          $ref: '#/definitions/Contract'
+  Insurer:
+    type: object
+    properties:
+      insurerID:
+        type: integer
+        format: int64
+      name:
+        type: string
+      offeredProducts:
+        type: array
+        items:
+          $ref: '#/definitions/Product'
+  Product:
+    type: object
+    properties:
+      productID:
+        type: integer
+        format: int64
+      name:
+        type: string
+      productBegin:
+        type: string
+        example: 15/06/2017
+      productEnd:
+        type: string
+        example: 15/06/2027
+      productType:
+        $ref: '#/definitions/ProductType'
+  ProductType:
+    type: object
+    properties:
+      productType:
+        type: string
+        description: types of products
+        enum:
+          - PROFIT_INSURANCE
+          - CONTROL_INSURANCE
+          - CAPITAL_INSURANCE
+      value:
+        type: integer
+        format: int64
+      name:
+        type: string
+      literal:
+        type: string
+  NewContract:
+    type: object
+    properties:
+      newContractID:
+        type: integer
+        format: int64
+      customer:
+        $ref: '#/definitions/Customer'
+      productType:
+        $ref: '#/definitions/ProductType'
+      contractBegin:
+        type: string
+        example: 15/06/2017
+      contractEnd:
+        type: string
+        example: 15/06/2027
+      monthlyPremium:
+        type: number
+        example: '200.30'
+      partnerName:
+        type: string
+      testName:
+        type: string

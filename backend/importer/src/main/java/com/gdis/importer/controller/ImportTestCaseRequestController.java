@@ -30,7 +30,7 @@ import com.gdis.importer.model.JSONWrapper;
 import com.gdis.importer.util.Precondition;
 
 @RestController
-@RequestMapping("/importer/import/testcase")
+@RequestMapping("/importer/i/testcase")
 public class ImportTestCaseRequestController {
 	
 	private JSONWrapper testCaseToImport;

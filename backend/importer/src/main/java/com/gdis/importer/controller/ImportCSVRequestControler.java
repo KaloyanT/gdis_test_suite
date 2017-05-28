@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.gdis.importer.model.CSVAsJSON;
 
 @RestController
-@RequestMapping("/importer/import/csvasjson")
+@RequestMapping("/importer/i/csvasjson")
 public class ImportCSVRequestControler {
 
 	private CSVAsJSON csvToImport;
