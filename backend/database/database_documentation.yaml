@@ -1,6 +1,6 @@
 swagger: '2.0'
 info:
-  description: This APIs are used to store data in a database.
+  description: These APIs are used to store data in a database.
   version: 1.0.0
   title: Insurence Database
   contact:
