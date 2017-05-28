@@ -1,7 +1,10 @@
 package com.gdis.importer.util;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
-
+import java.util.Properties;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -16,12 +19,33 @@ public class DBClient {
 	
 	public DBClient() {
 		
-		readAndSetDBUrl();
+		try {
+			readAndSetDBUrl();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
-	private void readAndSetDBUrl() {
+	private void readAndSetDBUrl() throws IOException, FileNotFoundException {
 		
 		// Read customProperties file
+		Properties properties = new Properties();
+		InputStream inputStream = null;
+		
+		inputStream = getClass().getClassLoader().getResourceAsStream("customProperties.properties");
+		
+		if(inputStream != null) {
+			properties.load(inputStream);
+		} else {
+			throw new FileNotFoundException("Custom Properties File not found!");
+		}
+		
+		DB_URL = properties.getProperty("databaseAPI_URL");
+		
+		inputStream.close();
+		
 	}
 	
 	public void importChunksInDB(List<ObjectNode> chunks, String storyType) {

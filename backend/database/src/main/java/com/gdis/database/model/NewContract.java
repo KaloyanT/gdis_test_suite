@@ -34,27 +34,21 @@ public class NewContract {
 	private Date contractBegin;
 	
 	@Basic(optional = false)
-<<<<<<< HEAD
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
 	private Date contractEnd;
 	
 	@Basic(optional = false)
 	private BigDecimal payment;
 	
 	private String partnerName;
-=======
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
-	//@Type(type = "date")
-	private Date contractEnd;
+
 	
 	@Basic(optional = false)
 	private double monthlyPremium;
 	
-	@Basic(optional = false)
-	private String partnerName;
 	
 	@Basic(optional = false)
 	private String testName;
->>>>>>> 19354eb9832bb99ef006d42e6a5aba469daf35cb
 
 	public long getNewContractID() {
 		return newContractID;
@@ -104,14 +98,6 @@ public class NewContract {
 		this.monthlyPremium = monthlyPremium;
 	}
 	
-	public String getPartnerName(){
-		return partnerName;
-	}
-	
-	public void setPartnerName(String newPartnerName){
-		this.partnerName = newPartnerName;
-	}
-	
 	public String getTestName(){
 		return testName;
 	}
@@ -120,13 +106,7 @@ public class NewContract {
 		this.testName = newTestName;
 	}
 	
-	public Date getContractEnd() {
-		return contractEnd;
-	}
-
-	public void setContractEnd(Date newContractEnd) {
-		contractBegin = newContractEnd;
-	}
+	
 	
 	public BigDecimal getPayment(){
 		return payment;
