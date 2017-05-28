@@ -93,11 +93,11 @@ public class CustomerController {
 		
 		// Check if the given customer already exists in the customers table of the DB
 		// If so, don't insert the customer again in the customers table
-		List<Customer> customersWithSameLastNameAndBirthday = 
-				customerRepository.findByLastNameAndBirthday(newCustomer.getLastName(), 
-						newCustomer.getBirthday());
+		List<Customer> similarCustomers = 
+			customerRepository.findByFirstNameAndLastNameAndBirthdayAndAddress(newCustomer.getFirstName(), 
+			newCustomer.getLastName(), newCustomer.getBirthday(), newCustomer.getAddress());
 		
-		if(newCustomer.customerExistsInDB(customersWithSameLastNameAndBirthday) > 0) {
+		if(newCustomer.customerExistsInDB(similarCustomers) > 0) {
 			return new ResponseEntity<>(HttpStatus.CONFLICT);
 		}
 		

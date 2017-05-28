@@ -1,10 +1,10 @@
 package com.gdis.importer.util;
 
-public class Precondition {
+public class PreCondition {
 
 	public static void require(boolean predicate, String reason) {
 		if (!predicate) {
-			throw new PreconditionException(reason);
+			throw new PreConditionException(reason);
 		}
 	}
 

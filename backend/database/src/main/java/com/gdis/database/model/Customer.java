@@ -21,7 +21,7 @@ public class Customer {
 	@GenericGenerator(name = "customerIdGenerator", strategy = "increment")
 	@GeneratedValue(generator = "customerIdGenerator")
 	private long customerID;
-	
+		
 	@Basic(optional = false)
 	private String firstName;
 	
@@ -126,7 +126,7 @@ public class Customer {
 			addToOwnedContracts(value);
 		}
 	}
-	
+		
 	
 	@Override
 	public String toString() {
@@ -134,9 +134,10 @@ public class Customer {
 		SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy");
 		String birthday = dateFormatter.format(getBirthday());
 		
-		return "Customer " + " [id: " + getCustomerID() + "]" + " [firstName: " + getFirstName() + "]" + " [lastName: "
-		+ getLastName() + "]" + " [birthday: " + birthday + "]" + " [address: " + getAddress() + "]" + 
-		" [job: " + getJob() + "]" + " [ownedContracts: " + getOwnedContracts().toString() + "]";
+		return "Customer " + " [id: " + getCustomerID() + "]" + " [firstName: " 
+		+ getFirstName() + "]" + " [lastName: " + getLastName() + "]"  
+		+ " [birthday: " + birthday + "]" + " [address: " + getAddress() + "]"  
+		+ " [job: " + getJob() + "]" + " [ownedContracts: " + getOwnedContracts().toString() + "]";
 	}
 	
 	public String toStringWithoutID() {
@@ -189,5 +190,4 @@ public class Customer {
 		
 		return -1L;
 	}
-	
 }

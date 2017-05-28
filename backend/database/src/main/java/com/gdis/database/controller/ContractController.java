@@ -72,38 +72,40 @@ public class ContractController {
 		
 		// Check if the given policyOwner already exists in the customers table of the DB
 		// If so, don't insert it as a new customer in the customers table
-		Customer policyOwnerForNewContract = newContract.getPolicyOwner();
+		Customer policyOwnerNC = newContract.getPolicyOwner();
 		
-		List<Customer> customersWithSameLastNameAndBirthday = customerRepository.findByLastNameAndBirthday(
-				policyOwnerForNewContract.getLastName(), policyOwnerForNewContract.getBirthday());
+		List<Customer> similarCustomers = customerRepository.findByFirstNameAndLastNameAndBirthdayAndAddress(
+				policyOwnerNC.getFirstName(), policyOwnerNC.getLastName(), policyOwnerNC.getBirthday(), 
+				policyOwnerNC.getAddress());
 				
-		long existingCustomerID = policyOwnerForNewContract.customerExistsInDB(customersWithSameLastNameAndBirthday);
+		long existingCustomerID = policyOwnerNC.customerExistsInDB(similarCustomers);
 				
 		if(existingCustomerID > 0) {
 			
-			policyOwnerForNewContract = customerRepository.findByCustomerID(existingCustomerID);
+			policyOwnerNC = customerRepository.findByCustomerID(existingCustomerID);
 					
-			newContract.setPolicyOwner(policyOwnerForNewContract);;
+			newContract.setPolicyOwner(policyOwnerNC);;
 		}
 		
 		
-		customersWithSameLastNameAndBirthday.clear();
+		similarCustomers.clear();
 		
 		if(!newContract.getPolicyOwner().toStringWithoutID().equals(newContract.getInsuredPerson().toStringWithoutID())) {
 			// Check if the given customer already exists in the customers table of the DB
 			// If so, don't insert the customer again in the customers table
-			Customer insuredPersonForNewContract = newContract.getInsuredPerson();
+			Customer insuredPersonNC = newContract.getInsuredPerson();
 							
-			customersWithSameLastNameAndBirthday = customerRepository.findByLastNameAndBirthday(
-					insuredPersonForNewContract.getLastName(), insuredPersonForNewContract.getBirthday());
+			similarCustomers = customerRepository.findByFirstNameAndLastNameAndBirthdayAndAddress(
+					insuredPersonNC.getFirstName(),	insuredPersonNC.getLastName(), insuredPersonNC.getBirthday(), 
+					insuredPersonNC.getAddress());
 							
-			existingCustomerID = insuredPersonForNewContract.customerExistsInDB(customersWithSameLastNameAndBirthday);
+			existingCustomerID = insuredPersonNC.customerExistsInDB(similarCustomers);
 							
 			if(existingCustomerID > 0) {
 						
-				insuredPersonForNewContract = customerRepository.findByCustomerID(existingCustomerID);
+				insuredPersonNC = customerRepository.findByCustomerID(existingCustomerID);
 								
-				newContract.setInsuredPerson(insuredPersonForNewContract);;
+				newContract.setInsuredPerson(insuredPersonNC);;
 			}
 		} else {
 			

@@ -64,23 +64,24 @@ public class NewContractController {
 	@RequestMapping(value = "/insert", method = RequestMethod.POST)
 	public ResponseEntity<?> createNewContract(@RequestBody NewContract newContract) {
 	    
+		
 		if(newContract == null) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 		
 		// Check if the given customer already exists in the customers table of the DB
 		// If so, don't insert the customer again in the customers table
-		Customer customerForNewContract = newContract.getCustomer();
+		Customer customerNC = newContract.getCustomer();
 		
-		List<Customer> customersWithSameLastNameAndBirthday = customerRepository.findByLastNameAndBirthday(
-				customerForNewContract.getLastName(), customerForNewContract.getBirthday());
+		List<Customer> similarCustomers = customerRepository.findByFirstNameAndLastNameAndBirthdayAndAddress(
+			customerNC.getFirstName(), customerNC.getLastName(), customerNC.getBirthday(), customerNC.getAddress());
 		
-		long existingCustomerID = customerForNewContract.customerExistsInDB(customersWithSameLastNameAndBirthday);
+		long existingCustomerID = customerNC.customerExistsInDB(similarCustomers);
 		
 		if(existingCustomerID > 0) {
 			
-			customerForNewContract = customerRepository.findByCustomerID(existingCustomerID);
-			newContract.setCustomer(customerForNewContract);
+			customerNC = customerRepository.findByCustomerID(existingCustomerID);
+			newContract.setCustomer(customerNC);
 		}
 		
 		/*
@@ -93,7 +94,7 @@ public class NewContractController {
 			
 		newContractRepository.save(newContract);
 			
-		return new ResponseEntity<>(newContract, HttpStatus.CREATED);
+		return new ResponseEntity<>(HttpStatus.CREATED);
 		
 	}
 

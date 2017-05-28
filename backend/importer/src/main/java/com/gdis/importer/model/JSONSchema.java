@@ -5,25 +5,24 @@ import java.util.Map;
 
 public class JSONSchema {
 	
+	private long testCaseCustomerID;
 	
-	private long exampleCustomerID;
-	
-	private Map<String, String> customerData = new HashMap<String, String>();
+	private Map<String, Object> customerData = new HashMap<String, Object>();
 	
 	
-	public long getExampleCustomerID() {
-		return exampleCustomerID;
+	public long getTestCaseCustomerID() {
+		return testCaseCustomerID;
 	}
 
-	public void setExampleCustomerID(long exampleCustomerID) {
-		this.exampleCustomerID = exampleCustomerID;
+	public void setTestCaseCustomerID(long testCaseCustomerID) {
+		this.testCaseCustomerID = testCaseCustomerID;
 	}
 	
-	public Map<String, String> getCustomerData() {
+	public Map<String, Object> getCustomerData() {
 		return customerData;
 	}
 
-	public void setCustomerData(Map<String, String> customerData) {
+	public void setCustomerData(Map<String, Object> customerData) {
 		this.customerData = customerData;
 	}
 	

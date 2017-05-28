@@ -1,15 +1,9 @@
 package com.gdis.importer.controller;
 
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -21,50 +15,56 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.gdis.importer.model.JSONSchema;
 import com.gdis.importer.model.JSONWrapper;
-import com.gdis.importer.util.Precondition;
+import com.gdis.importer.util.PreCondition;
+import com.gdis.importer.util.DBClient;
 
 @RestController
-@RequestMapping("/importer/i/testcase")
+@RequestMapping("/importer/i/testCase")
 public class ImportTestCaseRequestController {
 	
 	private JSONWrapper testCaseToImport;
-	
+
 	private List<ObjectNode> chunksToImport;
 
+	private String storyTypeImport;
+	
 	@RequestMapping(method = RequestMethod.POST, consumes = 
 	{ MediaType.APPLICATION_JSON_UTF8_VALUE}, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE})		
 	public ResponseEntity<?> handleImportRequest(@RequestBody JSONWrapper jsonWrapper) {	
+
 		//Precondition.require(!json.equals("{}"), "JSON length == 0!");
-		Precondition.notNull(jsonWrapper, "JSON is empty!");
+		PreCondition.notNull(jsonWrapper, "JSON is empty!");
+		
 		
 		setTestCaseToImport(jsonWrapper);
 		
 		// Return HTTP 400 if the JSON is missing the Story Type or The test data
 		if(missingStory(testCaseToImport) == true) {
 			testCaseToImport = null;
-			return new ResponseEntity<JSONWrapper>(HttpStatus.NO_CONTENT);
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		} else {
+			setStoryTypeImport(testCaseToImport.getStoryType());
 		}
 		
 		if(missingTestData(testCaseToImport) == true) {
 			testCaseToImport = null;
-			return new ResponseEntity<JSONWrapper>(HttpStatus.NO_CONTENT);
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}
 		
-		checkTestNameImport(testCaseToImport);
+		checkTestName(testCaseToImport);
 		
 		chunksToImport = new ArrayList<ObjectNode>();
 		chunkJSON(testCaseToImport);
 		
-		//printChunks(chunksToExport);
-		importChunksInDB(chunksToImport);
+		DBClient dbClient = new DBClient();
 		
-		return new ResponseEntity<JSONWrapper>(jsonWrapper, HttpStatus.OK);
+		dbClient.importChunksInDB(chunksToImport, getStoryTypeImport());
+		
+		
+		return new ResponseEntity<>(HttpStatus.OK);
 		//return new ResponseEntity<JSONWrapper>(HttpStatus.OK);
 	}
 	
@@ -84,8 +84,9 @@ public class ImportTestCaseRequestController {
 	
 	
 	private boolean missingStory(JSONWrapper jsonWrapper) {
-		// No Story Type. Can't export
-		if(jsonWrapper.getStoryType() == null) {
+		
+		// No Story Type. Can't import
+		if( (jsonWrapper.getStoryType() == null) || (jsonWrapper.getStoryType().trim().length() == 0)) {
 			return true;
 		}
 		return false;
@@ -94,26 +95,27 @@ public class ImportTestCaseRequestController {
 	private boolean missingTestData(JSONWrapper jsonWrapper) {
 		
 		// No Test Data. Nothing to export
-		if(jsonWrapper.getTestData() == null) {
+		 if(jsonWrapper.getTestData() == null) {
 			return true;
 		} else if(jsonWrapper.getTestData().isEmpty()) {
 			return true;
 		}	
 		
+		
 		return false;
 	}
 	
-	private void checkTestNameImport(JSONWrapper jsonWrapper) {
+	 private void checkTestName(JSONWrapper jsonWrapper) {
 		
 		// If there was no name specified for the exported test, just
 		// generate one
-		if(jsonWrapper.getTestNameImport() == null) {
-			jsonWrapper.setTestNameImport(new String());
+		if(jsonWrapper.getTestName() == null) {
+			jsonWrapper.setTestName(new String());
 		}
 				
 				
-		boolean testNameExportEmpty = (jsonWrapper.getTestNameImport().trim().length() == 0) 
-			|| (jsonWrapper.getTestNameImport().isEmpty());
+		boolean testNameExportEmpty = (jsonWrapper.getTestName().trim().length() == 0) 
+			|| (jsonWrapper.getTestName().isEmpty());
 				
 		if(testNameExportEmpty == true)  {
 			DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyy-HH:mm:ss");
@@ -121,9 +123,11 @@ public class ImportTestCaseRequestController {
 					
 			String generatedTestName = jsonWrapper.getStoryType().toString()
 					+ "-TEST-" + date;
-			jsonWrapper.setTestNameImport(generatedTestName);
+			jsonWrapper.setTestName(generatedTestName);
 		}
 	}
+	
+	
 
 	
 	/**
@@ -131,60 +135,34 @@ public class ImportTestCaseRequestController {
 	 * Global Variable for all the chunks
 	 * JSON Format: 
 	 * "storyType": "new contract",
-	 * "testNameExport": "name",
+	 * "testName": "name",
 	 * "exampleCustomerID": "1",
 	 * "customerData": {"name": "jack", "age": "20"}
 	 */
-	private void chunkJSON(JSONWrapper jsonWrapper) {
+	 private void chunkJSON(JSONWrapper jsonWrapper) {
 		
 		ObjectMapper objectMapper = new ObjectMapper();
 		
 		ObjectNode chunk;
 		
-		for(JSONSchema j : jsonWrapper.getTestData()) {
+		for(ObjectNode j : jsonWrapper.getTestData()) {
 			
 			chunk = objectMapper.createObjectNode();
 			
-			chunk.put("storyType", jsonWrapper.getStoryType());
-			chunk.put("testNameImport", jsonWrapper.getTestNameImport());
-			chunk.put("exampleCustomerID", j.getExampleCustomerID());
+			//chunk.put("storyType", jsonWrapper.getStoryType());
+			chunk.put("testName", jsonWrapper.getTestName());
+			chunk.setAll(j);
+			//chunk.put("exampleCustomerID", j.getTestCaseCustomerID());
 			
 			/**
 			 *  Get Every Key Value Pair so at the end the JSON looks like this: 
-			 *  "storyType": "new contract",
-			 *  "testNameExport": "name",
-			 *  "exampleCustomerID": "1",
+			 *  "testName": "name",
 			 *  "name": "jack",
 			 *  "age": "20"
 			 */
-			for(Map.Entry<String, String> entry : j.getCustomerData().entrySet()) {
-				
-				String key = entry.getKey();
-				String value = entry.getValue();
-				chunk.put(key, value);		
-			}
 			chunksToImport.add(chunk);
 		}	
 	}	
-	
-	private void importChunksInDB(List<ObjectNode> chunks) {
-		
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-
-		RestTemplate restTemplate = new RestTemplate();
-		
-		// Debug DB POST Request Simulator
-		final String url = "http://localhost:8083/importer/database/" + getTestCaseToImport().getStoryType();
-		
-		for(ObjectNode i : chunks) {
-			
-			HttpEntity<String> entity = new HttpEntity<String>(i.toString(), headers);
-			//ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
-			ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
-			System.out.println(response.getBody());
-		}
-	}
 	
 	
 	
@@ -194,6 +172,16 @@ public class ImportTestCaseRequestController {
 
 	public void setTestCaseToImport(JSONWrapper objectToExport) {
 		this.testCaseToImport = objectToExport;
+	}
+
+
+	public String getStoryTypeImport() {
+		return storyTypeImport;
+	}
+
+
+	public void setStoryTypeImport(String storyTypeImport) {
+		this.storyTypeImport = storyTypeImport;
 	}
 	
 }

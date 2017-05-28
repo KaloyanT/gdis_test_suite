@@ -2,20 +2,23 @@ package com.gdis.importer.model;
 
 import java.util.List;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 public class JSONWrapper {
 	
-	private String testNameImport;
+	private String testName;
 	
 	private String storyType;
 	
-	private List<JSONSchema> testData;
+	//private List<JSONSchema> testData;
+	private List<ObjectNode> testData;
 	
-	public String getTestNameImport() {
-		return testNameImport;
+	public String getTestName() {
+		return testName;
 	}
 
-	public void setTestNameImport(String testNameImport) {
-		this.testNameImport = testNameImport;
+	public void setTestName(String testName) {
+		this.testName = testName;
 	}
 	
 
@@ -27,11 +30,11 @@ public class JSONWrapper {
 		this.storyType = storyType;
 	}
 	
-	public List<JSONSchema> getTestData() {
+	public List<ObjectNode> getTestData() {
 		return testData;
 	}
 
-	public void setTestData(List<JSONSchema> testData) {
+	public void setTestData(List<ObjectNode> testData) {
 		this.testData = testData;
 	}
 

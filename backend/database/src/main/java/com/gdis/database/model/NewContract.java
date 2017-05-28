@@ -15,7 +15,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 @Table(name = "new_contract")
 public class NewContract {
 	
-	
 	@Id
 	@GenericGenerator(name = "newContractIdGenerator", strategy = "increment")
 	@GeneratedValue(generator = "newContractIdGenerator")
