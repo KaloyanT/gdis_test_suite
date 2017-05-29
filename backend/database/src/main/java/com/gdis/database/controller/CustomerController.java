@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.gdis.database.model.Contract;
 import com.gdis.database.model.Customer;
 import com.gdis.database.service.CustomerRepository;
+import com.gdis.database.util.CustomErrorType;
 import com.gdis.database.util.PreCondition;
 
 @RestController
@@ -49,7 +50,8 @@ public class CustomerController {
 		Customer response = customerRepository.findByCustomerID(id);
 		
 		if(response == null) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(new CustomErrorType("Customer with id " + id
+					+ " not found"), HttpStatus.NOT_FOUND);
 		}
 		
 		
@@ -74,7 +76,8 @@ public class CustomerController {
 		final Customer customer = customerRepository.findByCustomerID(id);
 		
 		if(customer == null) {
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			return new ResponseEntity<>(new CustomErrorType("Customer with id " + id
+					+ " not found"), HttpStatus.NOT_FOUND);
 		}
 		
 		final List<Contract> contracts = customer.getOwnedContracts();
@@ -120,7 +123,8 @@ public class CustomerController {
 		Customer currentCustomer = customerRepository.findByCustomerID(id);
 		
 		if(currentCustomer == null) {
-			return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+			return new ResponseEntity<>(new CustomErrorType("Customer with id " + id
+					+ " not found"), HttpStatus.NOT_FOUND);
 		}
 	
 		updatedCustomer.setCustomerID(id);
@@ -139,7 +143,8 @@ public class CustomerController {
 		Customer toBeDeleted = customerRepository.findByCustomerID(id);
 		
 		if(toBeDeleted == null) {
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			return new ResponseEntity<>(new CustomErrorType("Customer with id " + id
+					+ " not found"), HttpStatus.NOT_FOUND);
 		}
 		
 		customerRepository.deleteById(id);

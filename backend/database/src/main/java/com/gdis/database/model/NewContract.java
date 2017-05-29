@@ -1,7 +1,10 @@
 package com.gdis.database.model;
 
-import java.math.BigDecimal;
+
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -36,16 +39,12 @@ public class NewContract {
 	@Basic(optional = false)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
 	private Date contractEnd;
-	
+
 	@Basic(optional = false)
-	private BigDecimal payment;
-	
 	private String partnerName;
 
-	
 	@Basic(optional = false)
 	private double monthlyPremium;
-	
 	
 	@Basic(optional = false)
 	private String testName;
@@ -107,14 +106,6 @@ public class NewContract {
 	}
 	
 	
-	public BigDecimal getPayment(){
-		return payment;
-	}
-	
-	public void setPayment(BigDecimal newPayment){
-		payment = newPayment;
-	}
-	
 	public String getPartnerName(){
 		return partnerName;
 	}
@@ -125,7 +116,41 @@ public class NewContract {
 	
 	@Override
 	public String toString() {
-		return "ContractRequest " + " [id: " + getNewContractID() + "]" + " [productType: " + getProductType() + "]"
-				+ " [contractBegin: " + getContractBegin() + "]";
+		return "ContractRequest " + " [id: " + getNewContractID() + "]" + " [Customer: " + getCustomer().toString() + "]"
+				+ " [productType: " + getProductType() + "]"+ " [contractBegin: " + getContractBegin() + "]" 
+				+ " [contractEnd: " + getContractEnd() + "]" + "[testName: " + getTestName() + "]" + 
+				" [monthlyPremium: " + getMonthlyPremium() + "]";
+	}
+	
+	public String toStringWithoutID() {
+		
+		SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy");
+		String begin = dateFormatter.format(getContractBegin());
+		String end = dateFormatter.format(getContractEnd());
+		
+		return "ContractRequest " + " [Customer: " + getCustomer().toString() + "]"
+				+ " [productType: " + getProductType() + "]"+ " [contractBegin: " + begin + "]" 
+				+ " [contractEnd: " + end + "]" + "[testName: " + getTestName() + "]" 
+				+ " [monthlyPremium: " + getMonthlyPremium() + "]";
+	}
+	
+	public long newContractExistsInDB(List<NewContract> existingNewContracts) {
+		
+		if( (existingNewContracts == null) || (existingNewContracts.isEmpty()) ) {
+			return -1L;
+		}
+		
+		String newContractString = this.toStringWithoutID();
+		
+		for(NewContract nc : existingNewContracts) {
+						
+			String temp = nc.toStringWithoutID();
+			
+			if(newContractString.equals(temp)) {
+				return nc.getNewContractID();
+			}
+		}
+		
+		return -1L;
 	}
 }

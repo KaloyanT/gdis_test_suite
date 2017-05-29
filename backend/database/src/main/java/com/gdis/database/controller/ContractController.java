@@ -17,6 +17,7 @@ import com.gdis.database.model.Product;
 import com.gdis.database.service.ContractRepository;
 import com.gdis.database.service.CustomerRepository;
 import com.gdis.database.service.ProductRepository;
+import com.gdis.database.util.CustomErrorType;
 import com.gdis.database.util.PreCondition;
 
 @RestController
@@ -60,7 +61,8 @@ public class ContractController {
 		Contract response = contractRepository.findByContractID(id);
 		
 		if(response == null) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(new CustomErrorType("Contract with id " + id
+					+ " not found"), HttpStatus.NOT_FOUND);
 		}
 		
 		
@@ -105,7 +107,8 @@ public class ContractController {
 		Contract currentContract = contractRepository.findByContractID(id);
 		
 		if(currentContract == null) {
-			return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+			return new ResponseEntity<>(new CustomErrorType("Contract with id " + id
+					+ " not found"), HttpStatus.NOT_FOUND);
 		}
 		
 		updatedContract.setContractID(id);
@@ -124,7 +127,8 @@ public class ContractController {
 		Contract toBeDeleted = contractRepository.findByContractID(id);
 		
 		if(toBeDeleted == null) {
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			return new ResponseEntity<>(new CustomErrorType("Contract with id " + id
+					+ " not found"), HttpStatus.NOT_FOUND);
 		}
 		
 		contractRepository.deleteById(id);

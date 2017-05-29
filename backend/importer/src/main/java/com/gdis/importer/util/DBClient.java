@@ -9,7 +9,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -64,8 +64,15 @@ public class DBClient {
 			
 			HttpEntity<String> entity = new HttpEntity<String>(i.toString(), headers);
 			//ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
-			ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
-			System.out.println(response.getStatusCodeValue());
+			//ResponseEntity<String> response = null;
+			
+			try {
+				restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+			} catch(HttpClientErrorException e) {
+				//System.out.println(e.getStatusCode());
+			}
+			
+			
 		}
 	}
 }

@@ -34,6 +34,7 @@ public class Product {
 	// @Type(type = "date") // hibernate annotation
 	private Date productBegin;
 	
+	@Basic(optional = false)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
 	// Saves the Date as dd/MM/yyyy in the DB instead of dd/MM/yyyy 01:00:00, but
 	// sets the Date one day behind the actual one, because it cuts the time
@@ -86,9 +87,14 @@ public class Product {
 	
 	@Override 
 	public String toString() {
+		
+		SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy");
+		String begin = dateFormatter.format(getProductBegin());
+		String end = dateFormatter.format(getProductEnd());
+		
 		return "Product " + " [id: " + getProductID() + "]" + " [name: " + getName() + "]" +
-	       " [Product Begin: "  + getProductBegin().toString() + "]"
-				+ " [Contract End: " + getProductEnd().toString() + "]" 
+	       " [Product Begin: "  + begin + "]"
+				+ " [Contract End: " + end + "]" 
 	       + " [Product Type: " + getProductType() + "]";
 	}
 	 

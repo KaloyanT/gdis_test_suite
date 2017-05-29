@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.gdis.database.model.Customer;
 import com.gdis.database.model.NewContract;
 import com.gdis.database.service.CustomerRepository;
@@ -27,6 +26,8 @@ public class NewContractController {
 	
 	@Autowired
 	private CustomerRepository customerRepository;
+	
+	private NewContract contractToSave;
 
 	// retrieve all contacts
 	@RequestMapping(method = RequestMethod.GET)
@@ -53,10 +54,10 @@ public class NewContractController {
 		NewContract newContract = newContractRepository.findByNewContractID(id);
 		
 		if (newContract == null) {
-			return new ResponseEntity<>(new CustomErrorType("Contract with id " + id
+			return new ResponseEntity<>(new CustomErrorType("New Contract with id " + id
 					+ " not found"), HttpStatus.NOT_FOUND);
 		}
-		return new ResponseEntity<NewContract>(newContract, HttpStatus.OK);
+		return new ResponseEntity<>(newContract, HttpStatus.OK);
 	}
 	
 	
@@ -69,8 +70,10 @@ public class NewContractController {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 		
-		// Check if the given customer already exists in the customers table of the DB
-		// If so, don't insert the customer again in the customers table
+		setContractToSave(newContract);
+		
+		boolean customerExists = false;
+		
 		Customer customerNC = newContract.getCustomer();
 		
 		List<Customer> similarCustomers = customerRepository.findByFirstNameAndLastNameAndBirthdayAndAddress(
@@ -78,10 +81,24 @@ public class NewContractController {
 		
 		long existingCustomerID = customerNC.customerExistsInDB(similarCustomers);
 		
-		if(existingCustomerID > 0) {
-			
+		if(existingCustomerID > 0) {	
+			customerExists = true;
 			customerNC = customerRepository.findByCustomerID(existingCustomerID);
 			newContract.setCustomer(customerNC);
+			setContractToSave(newContract);
+		}
+				
+		// Check if the given customer already exists in the customers table of the DB
+		// If so, don't insert the customer again in the customers table
+		
+		boolean duplicateContract = false;
+		
+		if(customerExists == true) {
+			duplicateContract = duplicateContractFound(getContractToSave());
+		}
+				
+		if(duplicateContract == true) {
+			return new ResponseEntity<>(HttpStatus.CONFLICT);
 		}
 		
 		/*
@@ -92,7 +109,7 @@ public class NewContractController {
 		
 		} */
 			
-		newContractRepository.save(newContract);
+		newContractRepository.save(getContractToSave());
 			
 		return new ResponseEntity<>(HttpStatus.CREATED);
 		
@@ -148,4 +165,28 @@ public class NewContractController {
 		return new ResponseEntity<NewContract>(HttpStatus.NO_CONTENT);
 	}
 
+
+	public NewContract getContractToSave() {
+		return contractToSave;
+	}
+
+
+	public void setContractToSave(NewContract contractToSave) {
+		this.contractToSave = contractToSave;
+	}
+
+	
+	private boolean duplicateContractFound(NewContract newContract) {
+		
+		
+		List<NewContract> newContractsFromSameTest = newContractRepository.findByTestName(newContract.getTestName());
+		
+		if(newContract.newContractExistsInDB(newContractsFromSameTest) > 0) {
+			return true;
+		}
+		
+		//setContractToSave(newContract);
+		
+		return false;
+	}
 }
