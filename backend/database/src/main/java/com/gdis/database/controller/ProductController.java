@@ -93,7 +93,7 @@ public class ProductController {
 		Product currentProduct = productRepository.findByProductID(id);
     		
 		if(currentProduct == null) {
-			return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
         	
 		updatedProduct.setProductID(id);
@@ -111,7 +111,7 @@ public class ProductController {
 		Product toBeDeleted = productRepository.findByProductID(id);
  		
 		if(toBeDeleted == null) {
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
  		
 		productRepository.deleteById(id);

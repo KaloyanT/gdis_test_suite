@@ -52,6 +52,8 @@ paths:
           description: Created
         '400':
           description: Invalid contract supplied
+        '409':
+          description: Contract already exists
   '/contracts/update/{id}':
     put:
       tags:
@@ -79,8 +81,8 @@ paths:
       responses:
         '202':
           description: Contract change accepted
-        '304':
-          description: Contract not modified
+        '404':
+          description: Contract not found
         '400':
           description: Invalid contract supplied
   /contracts:
@@ -143,9 +145,9 @@ paths:
           format: int64
       responses:
         '200':
-          description: successful operation
-        '204':
-          description: no contend found
+          description: Contract succesfully deleted
+        '404':
+          description: Contract not found
   /customers/insert:
     post:
       tags:
@@ -173,7 +175,7 @@ paths:
         '400':
           description: Invalid customer supplied
         '409':
-          description: conflict - the customer already exists
+          description: Conflict - the customer already exists
   '/customers/update/{id}':
     put:
       tags:
@@ -201,8 +203,8 @@ paths:
       responses:
         '202':
           description: Customer change accepted
-        '304':
-          description: Customer not modified
+        '404':
+          description: Customer not found
         '400':
           description: Invalid customer supplied
   /customers:
@@ -296,8 +298,8 @@ paths:
             type: array
             items:
               $ref: '#/definitions/Contract'
-        '204':
-          description: no content
+        '404':
+          description: Customer Not Found
   '/customers/delete/{id}':
     delete:
       tags:
@@ -317,8 +319,8 @@ paths:
       responses:
         '200':
           description: successful operation
-        '204':
-          description: no content found
+        '404':
+          description: Customer Not Found
   /insurers/insert:
     post:
       tags:
@@ -490,8 +492,8 @@ paths:
       responses:
         '202':
           description: Product's change accepted
-        '304':
-          description: Product not modified
+        '404':
+          description: Product not found
         '400':
           description: Invalid product supplied
   /products:
@@ -555,8 +557,8 @@ paths:
       responses:
         '200':
           description: successful operation
-        '204':
-          description: no content found
+        '404':
+          description: Product Not Found
   /newContract/insert:
     post:
       tags:
@@ -583,6 +585,8 @@ paths:
           description: New contract created
         '400':
           description: Invalid product supplied
+        '409':
+          description: Contract already exists
   '/newContract/update/{id}':
     put:
       tags:

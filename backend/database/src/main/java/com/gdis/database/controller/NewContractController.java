@@ -35,6 +35,10 @@ public class NewContractController {
 		
 		Iterable<NewContract> newContractsIterable = newContractRepository.findAll();
 		
+		if(newContractsIterable == null) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+		
 		List<NewContract> contracts = new ArrayList<NewContract>();
 		
 		for (NewContract nc : newContractsIterable) {
