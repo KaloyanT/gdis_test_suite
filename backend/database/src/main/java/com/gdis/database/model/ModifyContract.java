@@ -50,6 +50,7 @@ public class ModifyContract {
 		this.modifiedContractID = modifiedContractID;
 	}
 
+	
 	public Contract getContract() {
 		return contract;
 	}
@@ -57,6 +58,7 @@ public class ModifyContract {
 	public void setContract(Contract contract) {
 		this.contract = contract;
 	}
+	
 	
 	public double getChangedMonthlyPremium(){
 		return changedMonthlyPremium;
@@ -81,6 +83,7 @@ public class ModifyContract {
 	public void setNewEndDate(Date newEndDate) {
 		this.newEndDate = newEndDate;
 	}
+	
 	
 	@Override
 	public String toString() {

@@ -69,11 +69,11 @@ public class ModifyContractController {
 		
 		setModifiedContractToSave(newModifiedContract);
 
-		boolean duplicateExists = duplicateModifiedContractFound(getModifiedContractToSave());
-		
-		if(duplicateExists == true) {
-			return new ResponseEntity<>(HttpStatus.CONFLICT);
-		}
+		//boolean duplicateExists = duplicateModifiedContractFound(getModifiedContractToSave());
+	
+		//if(duplicateExists == true) {
+		//	return new ResponseEntity<>(HttpStatus.CONFLICT);
+		//}
 		
 		modifyContractRepository.save(newModifiedContract);
 			
@@ -81,7 +81,7 @@ public class ModifyContractController {
 		
 	}
 	
-	
+	/*
 	private boolean duplicateModifiedContractFound(ModifyContract newModifiedContract) {
 		
 		
@@ -121,10 +121,10 @@ public class ModifyContractController {
 			return true;
 		}
 		
-		*/
+		
 		return false;
-	}
-
+	} */
+		 
 
 	public ModifyContract getModifiedContractToSave() {
 		return modifiedContractToSave;
