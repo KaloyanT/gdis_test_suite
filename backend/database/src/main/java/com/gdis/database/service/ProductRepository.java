@@ -13,6 +13,6 @@ public interface ProductRepository extends CrudRepository <Product, Long> {
 	
 	public Product findByProductID(long productID);
 	
-	List<Product> findByNameAndProductBeginAndProductEndAndProductType(String name,  Date productBegin,
+	List<Product> findByNameAndProductBeginAndProductEndAndProductType(String name, Date productBegin,
 			Date productEnd, ProductType type);
 }

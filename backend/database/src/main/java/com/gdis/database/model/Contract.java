@@ -104,6 +104,10 @@ public class Contract {
 	 */
 	public long contractExistsInDB(List<Contract> existingContracts) {
 		
+		if( (existingContracts == null) || (existingContracts.isEmpty()) ) {
+			return -1L;
+		}
+		
 		String newContractString = this.toStringWithoutID();
 				
 		for(Contract c : existingContracts) {

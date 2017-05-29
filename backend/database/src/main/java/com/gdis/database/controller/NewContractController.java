@@ -30,7 +30,7 @@ public class NewContractController {
 
 	// retrieve all contacts
 	@RequestMapping(method = RequestMethod.GET)
-	public ResponseEntity<?> listAllContracts() {
+	public ResponseEntity<?> getAllNeContracts() {
 		
 		Iterable<NewContract> newContractsIterable = newContractRepository.findAll();
 		
@@ -46,7 +46,7 @@ public class NewContractController {
 	
 	// retrieve single new contract
 	@RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
-	public ResponseEntity<?> getContract(@PathVariable("id") long id) {
+	public ResponseEntity<?> getNewContract(@PathVariable("id") long id) {
 		
 		PreCondition.require(id >= 0, "New Contract ID can't be negative!");
 		

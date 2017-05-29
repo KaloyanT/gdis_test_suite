@@ -98,10 +98,8 @@ public class Product {
 		String begin = dateFormatter.format(getProductBegin());
 		String end = dateFormatter.format(getProductEnd());
 		
-		return "Product " + " [name: " + getName() + "]" +
-	       " [Begin: "  + begin + "]"
-				+ " [End: " + end + "]" 
-	       + " [Product Type: " + getProductType() + "]";
+		return "Product " + " [name: " + getName() + "]" + " [Begin: "  + begin + "]"
+			+ " [End: " + end + "]" + " [Product Type: " + getProductType() + "]";
 	}
 	
 	/**
@@ -111,6 +109,10 @@ public class Product {
 	 * @return The productID if the Product is contained in the existingProducts List, -1L else
 	 */
 	public long productExistsInDB(List<Product> existingProducts) {
+		
+		if( (existingProducts == null) || (existingProducts.isEmpty()) ) {
+			return -1L;
+		}
 		
 		String newCustomerString = this.toStringWithoutID();
 				

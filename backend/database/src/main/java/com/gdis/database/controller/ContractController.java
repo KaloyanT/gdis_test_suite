@@ -13,8 +13,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import com.gdis.database.model.Contract;
 import com.gdis.database.model.Customer;
+import com.gdis.database.model.Product;
 import com.gdis.database.service.ContractRepository;
 import com.gdis.database.service.CustomerRepository;
+import com.gdis.database.service.ProductRepository;
 import com.gdis.database.util.PreCondition;
 
 @RestController
@@ -26,6 +28,11 @@ public class ContractController {
 	
 	@Autowired
 	private CustomerRepository customerRepository;
+	
+	@Autowired
+	private ProductRepository productRepository;
+	
+	private Contract contractToSave;
 	
 	@RequestMapping(method = RequestMethod.GET)
 	public ResponseEntity<?> getAllContracts() {
@@ -69,51 +76,16 @@ public class ContractController {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 		
+		setContractToSave(newContract);
 		
-		// Check if the given policyOwner already exists in the customers table of the DB
-		// If so, don't insert it as a new customer in the customers table
-		Customer policyOwnerNC = newContract.getPolicyOwner();
+		boolean contractExists = duplicateContractFound(getContractToSave());
 		
-		List<Customer> similarCustomers = customerRepository.findByFirstNameAndLastNameAndBirthdayAndAddress(
-				policyOwnerNC.getFirstName(), policyOwnerNC.getLastName(), policyOwnerNC.getBirthday(), 
-				policyOwnerNC.getAddress());
-				
-		long existingCustomerID = policyOwnerNC.customerExistsInDB(similarCustomers);
-				
-		if(existingCustomerID > 0) {
-			
-			policyOwnerNC = customerRepository.findByCustomerID(existingCustomerID);
-					
-			newContract.setPolicyOwner(policyOwnerNC);;
+		if(contractExists == true) {
+			return new ResponseEntity<>(HttpStatus.CONFLICT);
 		}
 		
-		
-		similarCustomers.clear();
-		
-		if(!newContract.getPolicyOwner().toStringWithoutID().equals(newContract.getInsuredPerson().toStringWithoutID())) {
-			// Check if the given customer already exists in the customers table of the DB
-			// If so, don't insert the customer again in the customers table
-			Customer insuredPersonNC = newContract.getInsuredPerson();
-							
-			similarCustomers = customerRepository.findByFirstNameAndLastNameAndBirthdayAndAddress(
-					insuredPersonNC.getFirstName(),	insuredPersonNC.getLastName(), insuredPersonNC.getBirthday(), 
-					insuredPersonNC.getAddress());
-							
-			existingCustomerID = insuredPersonNC.customerExistsInDB(similarCustomers);
-							
-			if(existingCustomerID > 0) {
-						
-				insuredPersonNC = customerRepository.findByCustomerID(existingCustomerID);
-								
-				newContract.setInsuredPerson(insuredPersonNC);;
-			}
-		} else {
-			
-			newContract.setInsuredPerson(newContract.getPolicyOwner());
-		}
-		
-		
-		
+		// Make sure that the correct value is saved
+		// Check if the global variable is changed in the duplicateContractFound method
 		contractRepository.save(newContract);
 		
 		return new ResponseEntity<>(newContract, HttpStatus.CREATED);
@@ -158,6 +130,109 @@ public class ContractController {
 		contractRepository.deleteById(id);
 		
 		return new ResponseEntity<>(HttpStatus.OK);
+	}
+	
+	/**
+	 * This method performs a step-by-step or an element-by-element check to see if 
+	 * the contract already exists
+	 * @param newContract The new contract received from the POST Request
+	 * @return True if the contract already exists
+	 */
+	private boolean duplicateContractFound(Contract newContract) {
+		
+		boolean policyOwnerExists = false;
+		boolean insuredPersonExists = false;
+		boolean productExists = false;
+		
+		// Check if the given policyOwner already exists in the customers table of the DB
+		// If so, don't insert it as a new customer in the customers table
+		Customer policyOwnerNC = newContract.getPolicyOwner();
+		
+		List<Customer> similarCustomers = customerRepository.findByFirstNameAndLastNameAndBirthdayAndAddress(
+				policyOwnerNC.getFirstName(), policyOwnerNC.getLastName(), policyOwnerNC.getBirthday(), 
+				policyOwnerNC.getAddress());
+				
+		long existingCustomerID = policyOwnerNC.customerExistsInDB(similarCustomers);
+				
+		if(existingCustomerID > 0) {
+			
+			policyOwnerExists = true;
+			
+			policyOwnerNC = customerRepository.findByCustomerID(existingCustomerID);
+					
+			newContract.setPolicyOwner(policyOwnerNC);
+		}
+		
+		
+		similarCustomers.clear();
+		
+		if(!newContract.getPolicyOwner().toStringWithoutID().equals(newContract.getInsuredPerson().toStringWithoutID())) {
+			// Check if the given customer already exists in the customers table of the DB
+			// If so, don't insert the customer again in the customers table
+			Customer insuredPersonNC = newContract.getInsuredPerson();
+							
+			similarCustomers = customerRepository.findByFirstNameAndLastNameAndBirthdayAndAddress(
+					insuredPersonNC.getFirstName(),	insuredPersonNC.getLastName(), insuredPersonNC.getBirthday(), 
+					insuredPersonNC.getAddress());
+							
+			existingCustomerID = insuredPersonNC.customerExistsInDB(similarCustomers);
+							
+			if(existingCustomerID > 0) {
+				
+				insuredPersonExists = true;
+				
+				insuredPersonNC = customerRepository.findByCustomerID(existingCustomerID);
+								
+				newContract.setInsuredPerson(insuredPersonNC);;
+			}
+		} else {
+			
+			insuredPersonExists = true;
+			
+			newContract.setInsuredPerson(newContract.getPolicyOwner());
+		}
+		
+		Product productNC = newContract.getProduct();
+		
+		List<Product> similarProducts = productRepository.findByNameAndProductBeginAndProductEndAndProductType(
+				productNC.getName(), productNC.getProductBegin(), productNC.getProductEnd(), productNC.getProductType());
+		
+		long existingProductID = productNC.productExistsInDB(similarProducts);
+		
+		if(existingProductID > 0) {
+			
+			productExists = true;
+			
+			productNC = productRepository.findByProductID(existingProductID);
+					
+			newContract.setProduct(productNC);
+		}
+				
+		// Save the Contract only if it is a new unique contract
+		if( (policyOwnerExists && insuredPersonExists && productExists) == true) {
+			
+			List<Contract> similarContracts = contractRepository.findByPolicyOwnerAndInsuredPersonAndProduct(
+					newContract.getPolicyOwner(), newContract.getInsuredPerson(), newContract.getProduct());
+			
+			if(newContract.contractExistsInDB(similarContracts) > 0) {
+				return true;
+			}
+			
+		}
+		
+		setContractToSave(newContract);
+		
+		return false;
+	}
+
+
+	public Contract getContractToSave() {
+		return contractToSave;
+	}
+
+
+	public void setContractToSave(Contract contractToSave) {
+		this.contractToSave = contractToSave;
 	}
 }
 

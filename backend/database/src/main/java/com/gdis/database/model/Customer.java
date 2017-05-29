@@ -35,8 +35,10 @@ public class Customer {
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
 	private Date birthday;
 	
+	@Basic(optional = false)
 	private String address;
 	
+	@Basic(optional = false)
 	private String job;
 	
 	//@ElementCollection(targetClass = Contract.class)
@@ -176,6 +178,10 @@ public class Customer {
 	 * @return The customerID if the Customer is contained in the existingCustomers List, -1L else
 	 */
 	public long customerExistsInDB(List<Customer> existingCustomers) {
+		
+		if( (existingCustomers == null) || (existingCustomers.isEmpty()) ) {
+			return -1L;
+		}
 		
 		String newCustomerString = this.toStringWithoutID();
 				

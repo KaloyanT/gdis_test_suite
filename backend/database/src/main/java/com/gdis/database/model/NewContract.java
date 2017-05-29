@@ -102,10 +102,9 @@ public class NewContract {
 		return testName;
 	}
 	
-	public void setTestNameName(String newTestName){
+	public void setTestName(String newTestName){
 		this.testName = newTestName;
 	}
-	
 	
 	
 	public BigDecimal getPayment(){
