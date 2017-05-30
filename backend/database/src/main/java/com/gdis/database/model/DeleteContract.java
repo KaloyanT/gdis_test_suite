@@ -5,11 +5,13 @@ import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 
 @Entity(name = "DeleteContract")
 
 public class DeleteContract{
-    	@Id
+    
+	@Id
 	private long id;
 	
 	@Basic(optional = false)

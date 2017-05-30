@@ -12,10 +12,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.gdis.database.model.Contract;
+import com.gdis.database.model.Customer;
 import com.gdis.database.model.ModifyContract;
 import com.gdis.database.model.NewContract;
+import com.gdis.database.model.Product;
 import com.gdis.database.service.ContractRepository;
+import com.gdis.database.service.CustomerRepository;
 import com.gdis.database.service.ModifyContractRepository;
+import com.gdis.database.service.ProductRepository;
 import com.gdis.database.util.CustomErrorType;
 import com.gdis.database.util.PreCondition;
 
@@ -28,6 +32,12 @@ public class ModifyContractController {
 	
 	@Autowired
 	private ContractRepository contractRepository;
+	
+	@Autowired
+	private ProductRepository productRepository;
+	
+	@Autowired
+	private CustomerRepository customerRepository;
 	
 	private ModifyContract modifiedContractToSave;
 	
@@ -129,39 +139,96 @@ public class ModifyContractController {
 	
 	private boolean duplicateModifiedContractFound(ModifyContract newModifiedContract) {
 		
+		Contract contract = newModifiedContract.getContract();
+		Product product = contract.getProduct();
+		Customer policyOwner = contract.getPolicyOwner();
+		Customer insuredPerson = contract.getInsuredPerson();
 		
 		boolean contractExists = false;
+		boolean productExists = false;
+		boolean policyOwnerExists = false;
+		boolean insuredPersonExists = false;
 		
-		Contract contract = newModifiedContract.getContract();
 		
-		List<Contract> similarContracts = contractRepository.findByPolicyOwnerAndInsuredPersonAndProduct(
-				contract.getPolicyOwner(), contract.getInsuredPerson(), contract.getProduct());
+		List<Product> similarProducts = productRepository.findByNameAndProductBeginAndProductEndAndProductType(
+				product.getName(), product.getProductBegin(), product.getProductEnd(), product.getProductType());
 		
-		if(contract.contractExistsInDB(similarContracts) > 0) {
-			contractExists = true;
-			contract = contractRepository.findByContractID(contract.getContractID());
-			newModifiedContract.setContract(contract);
+		long productID = product.productExistsInDB(similarProducts);
+		
+		
+		if(productID > 0) {
+			productExists = true;
+			product = productRepository.findByProductID(productID);
+			contract.setProduct(product);
 		}
 		
-		//contractRepository.save(contract);
 		
-		if(contractExists == false) {
-			return false;
+		List<Customer> similarCustomers = customerRepository.findByFirstNameAndLastNameAndBirthdayAndAddress(
+				policyOwner.getFirstName(), policyOwner.getLastName(), policyOwner.getBirthday(), policyOwner.getAddress());
+			
+		long existingCustomerID = policyOwner.customerExistsInDB(similarCustomers);
+			
+		if(existingCustomerID > 0) {	
+			policyOwnerExists = true;
+			policyOwner = customerRepository.findByCustomerID(existingCustomerID);
+			contract.setPolicyOwner(policyOwner);;
+		}
+			
+			
+		similarCustomers.clear();
+			
+		if(!contract.getPolicyOwner().toStringWithoutID().equals(contract.getInsuredPerson().toStringWithoutID())) {
+				// Check if the given customer already exists in the customers table of the DB
+				// If so, don't insert the customer again in the customers table
+			
+								
+			similarCustomers = customerRepository.findByFirstNameAndLastNameAndBirthdayAndAddress(
+					insuredPerson.getFirstName(), insuredPerson.getLastName(), insuredPerson.getBirthday(), 
+					insuredPerson.getAddress());
+								
+			existingCustomerID = insuredPerson.customerExistsInDB(similarCustomers);
+								
+			if(existingCustomerID > 0) {
+					
+				insuredPersonExists = true;	
+				insuredPerson = customerRepository.findByCustomerID(existingCustomerID);				
+				contract.setInsuredPerson(insuredPerson);;
+			}
+			
+		} else {
+			insuredPersonExists = true;
+			contract.setInsuredPerson(contract.getPolicyOwner());
+		}	
+		
+		
+		if( (productExists && policyOwnerExists && insuredPersonExists) == true) {
+			
+			List<Contract> similarContracts = contractRepository.findByPolicyOwnerAndInsuredPersonAndProduct(
+					contract.getPolicyOwner(), contract.getInsuredPerson(), contract.getProduct());
+			
+			long contractID = contract.contractExistsInDB(similarContracts);
+			
+			if(contractID > 0) {
+				contractExists = true;
+				contract = contractRepository.findByContractID(contractID);
+				newModifiedContract.setContract(contract);
+			}
 		}
 		
-		
-		//contractRepository.save(newModifiedContract.getContract());
-		
-		List<ModifyContract> similarModifiedContracts = 
+		if(contractExists == true ) {
+			
+			List<ModifyContract> similarModifiedContracts = 
 				modifyContractRepository.findByContractAndTestNameAndNewEndDateAndChangedMonthlyPremium(
-						newModifiedContract.getContract(), newModifiedContract.getTestName(), newModifiedContract.getNewEndDate(), 
-						newModifiedContract.getChangedMonthlyPremium());
+				newModifiedContract.getContract(), newModifiedContract.getTestName(), newModifiedContract.getNewEndDate(), 
+				newModifiedContract.getChangedMonthlyPremium());
 		
 		
-		if(newModifiedContract.modifiedContractExistsInDB(similarModifiedContracts) > 0) {
-			return true;
+			if(newModifiedContract.modifiedContractExistsInDB(similarModifiedContracts) > 0) {
+				return true;
+			}
 		}
 		
+		setModifiedContractToSave(newModifiedContract);
 		
 		return false;
 	} 

@@ -161,12 +161,9 @@ public class ContractController {
 		if(existingCustomerID > 0) {
 			
 			policyOwnerExists = true;
-			
 			policyOwnerNC = customerRepository.findByCustomerID(existingCustomerID);
-					
 			newContract.setPolicyOwner(policyOwnerNC);
 		}
-		
 		
 		similarCustomers.clear();
 		
@@ -184,15 +181,13 @@ public class ContractController {
 			if(existingCustomerID > 0) {
 				
 				insuredPersonExists = true;
-				
-				insuredPersonNC = customerRepository.findByCustomerID(existingCustomerID);
-								
+				insuredPersonNC = customerRepository.findByCustomerID(existingCustomerID);				
 				newContract.setInsuredPerson(insuredPersonNC);;
 			}
+			
 		} else {
 			
 			insuredPersonExists = true;
-			
 			newContract.setInsuredPerson(newContract.getPolicyOwner());
 		}
 		

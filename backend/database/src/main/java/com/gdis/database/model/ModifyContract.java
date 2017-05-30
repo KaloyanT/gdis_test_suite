@@ -1,5 +1,6 @@
 package com.gdis.database.model;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -87,13 +88,22 @@ public class ModifyContract {
 	
 	@Override
 	public String toString() {
+		
+		SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy");
+		String newEndDate = dateFormatter.format(getNewEndDate());
+		
 		return "ContractRequest " + " [ID: " + getModifiedContractID() + "]" + " [ Contract: " + getContract() + "]"
+				+ " [testName: ]" + getTestName() + "]" + " [newEndDate: " + newEndDate + "]" 
 				+ " [ChangedMonthlyPremium: " + getChangedMonthlyPremium() + "]";
 	}
 	
 	public String toStringWithoutID() {
-		return "ContractRequest " + " [ID: " + getModifiedContractID() + "]" + " [ Contract: " + getContract() + "]"
-				+ " [ ChangedMonthlyPremium: " + getChangedMonthlyPremium() + "]" + "[ TestName: " + getTestName() + "]";
+	
+		SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy");
+		String newEndDate = dateFormatter.format(getNewEndDate());
+		
+		return "ContractRequest " + " [ Contract: " + getContract() + "]" + " [testName: ]" + getTestName() + "]" 
+				+ " [newEndDate: " + newEndDate + "]" + " [ChangedMonthlyPremium: " + getChangedMonthlyPremium() + "]";
 	}
 	
 	public long modifiedContractExistsInDB(List<ModifyContract> existingContracts) {
@@ -103,7 +113,7 @@ public class ModifyContract {
 		}
 		
 		String newModifiedContractString = this.toStringWithoutID();
-				
+		
 		for(ModifyContract c : existingContracts) {
 						
 			String temp = c.toStringWithoutID();
