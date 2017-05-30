@@ -10,7 +10,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.gdis.database.model.Contract;
 import com.gdis.database.model.ModifyContract;
+import com.gdis.database.model.NewContract;
+import com.gdis.database.service.ContractRepository;
 import com.gdis.database.service.ModifyContractRepository;
 import com.gdis.database.util.CustomErrorType;
 import com.gdis.database.util.PreCondition;
@@ -22,8 +26,8 @@ public class ModifyContractController {
 	@Autowired
 	private ModifyContractRepository modifyContractRepository;
 	
-	//@Autowired
-	//private ContractRepository contractRepository;
+	@Autowired
+	private ContractRepository contractRepository;
 	
 	private ModifyContract modifiedContractToSave;
 	
@@ -69,11 +73,11 @@ public class ModifyContractController {
 		
 		setModifiedContractToSave(newModifiedContract);
 
-		//boolean duplicateExists = duplicateModifiedContractFound(getModifiedContractToSave());
+		boolean duplicateExists = duplicateModifiedContractFound(getModifiedContractToSave());
 	
-		//if(duplicateExists == true) {
-		//	return new ResponseEntity<>(HttpStatus.CONFLICT);
-		//}
+		if(duplicateExists == true) {
+			return new ResponseEntity<>(HttpStatus.CONFLICT);
+		}
 		
 		modifyContractRepository.save(newModifiedContract);
 			
@@ -81,13 +85,52 @@ public class ModifyContractController {
 		
 	}
 	
-	/*
+	@RequestMapping(value = "/update/{id}", method = RequestMethod.PUT)
+	public ResponseEntity<?> updateModifyContract(@PathVariable("id") long id, 
+			@RequestBody ModifyContract modifiedContract) {
+		
+		PreCondition.require(id >= 0, "New Contract ID can't be negative!");
+		
+		ModifyContract currentContract = modifyContractRepository.findByModifiedContractID(id);
+
+		if (currentContract == null) {
+			return new ResponseEntity<>(new CustomErrorType("Unable to update. ModifyContract with id "
+					+ id + " not found."), HttpStatus.NOT_FOUND);
+		}
+
+		currentContract.setContract(modifiedContract.getContract());
+		currentContract.setTestName(modifiedContract.getTestName());
+		currentContract.setNewEndDate(modifiedContract.getNewEndDate());
+		currentContract.setChangedMonthlyPremium(modifiedContract.getChangedMonthlyPremium());
+		
+		modifyContractRepository.save(currentContract);
+		
+		return new ResponseEntity<>(currentContract, HttpStatus.OK);
+	}
+
+	
+	// delete a new contract
+	@RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
+	public ResponseEntity<?> deleteModifyContract(@PathVariable("id") long id) {
+		
+		PreCondition.require(id >= 0, "Modify Contract ID can't be negative!");
+		
+		ModifyContract currentContract = modifyContractRepository.findByModifiedContractID(id);
+		
+		if (currentContract == null) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		
+		modifyContractRepository.delete(currentContract);
+		
+		return new ResponseEntity<NewContract>(HttpStatus.NO_CONTENT);
+	}
+	
+	
 	private boolean duplicateModifiedContractFound(ModifyContract newModifiedContract) {
 		
 		
-		/*
 		boolean contractExists = false;
-		
 		
 		Contract contract = newModifiedContract.getContract();
 		
@@ -105,16 +148,14 @@ public class ModifyContractController {
 		if(contractExists == false) {
 			return false;
 		}
-		*/
 		
-		/*
-		contractRepository.save(newModifiedContract.getContract());
+		
+		//contractRepository.save(newModifiedContract.getContract());
 		
 		List<ModifyContract> similarModifiedContracts = 
-				modifyContractRepository.findByContractAndTestNameAndChangedMonthlyPremiumAndNewEndDate(
-						newModifiedContract.getContract(), newModifiedContract.getTestName(), newModifiedContract.getChangedMonthlyPremium(), 
-						newModifiedContract.getNewEndDate());
-		
+				modifyContractRepository.findByContractAndTestNameAndNewEndDateAndChangedMonthlyPremium(
+						newModifiedContract.getContract(), newModifiedContract.getTestName(), newModifiedContract.getNewEndDate(), 
+						newModifiedContract.getChangedMonthlyPremium());
 		
 		
 		if(newModifiedContract.modifiedContractExistsInDB(similarModifiedContracts) > 0) {
@@ -123,7 +164,7 @@ public class ModifyContractController {
 		
 		
 		return false;
-	} */
+	} 
 		 
 
 	public ModifyContract getModifiedContractToSave() {
