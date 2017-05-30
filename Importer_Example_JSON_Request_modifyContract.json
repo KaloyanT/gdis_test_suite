@@ -1,0 +1,42 @@
+{
+	"storyType": "modifyContract",
+	"testName": "newContractTest",
+	"testData": [
+		{
+			"changedMonthlyPremium": "200",
+			"newEndDate": "01/02/2017",
+			"contract": {
+				"policyOwner": {
+					"firstName": "Jack",
+					"lastName": "Mustermann",
+					"birthday": "01/01/1991",
+					"address": "Somewhere",
+					"job": "IT", 
+					"insuredBy": [],
+					"ownedContracts": []
+				}, 
+
+				"insuredPerson": {
+					"firstName": "Max",
+					"lastName": "Mustermann",
+					"birthday": "01/01/1991",
+					"address": "Somewhere",
+					"job": "IT", 
+					"insuredBy": [],
+					"ownedContracts": []
+				}, 
+
+				"product": {
+					"name": "Full Insurance",
+					"productBegin": "01/01/2017",
+					"productEnd": "01/02/2017", 
+					"productType": "CAPITAL_INSURANCE"
+				}, 
+			"monthlyPremium": "100"
+			}
+		}
+	]
+}
+
+
+

@@ -10,8 +10,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.gdis.database.model.Contract;
+import com.gdis.database.model.Customer;
 import com.gdis.database.model.ModifyContract;
+import com.gdis.database.model.NewContract;
+import com.gdis.database.model.Product;
+import com.gdis.database.service.ContractRepository;
+import com.gdis.database.service.CustomerRepository;
 import com.gdis.database.service.ModifyContractRepository;
+import com.gdis.database.service.ProductRepository;
 import com.gdis.database.util.CustomErrorType;
 import com.gdis.database.util.PreCondition;
 
@@ -22,8 +30,14 @@ public class ModifyContractController {
 	@Autowired
 	private ModifyContractRepository modifyContractRepository;
 	
-	//@Autowired
-	//private ContractRepository contractRepository;
+	@Autowired
+	private ContractRepository contractRepository;
+	
+	@Autowired
+	private ProductRepository productRepository;
+	
+	@Autowired
+	private CustomerRepository customerRepository;
 	
 	private ModifyContract modifiedContractToSave;
 	
@@ -69,11 +83,11 @@ public class ModifyContractController {
 		
 		setModifiedContractToSave(newModifiedContract);
 
-		//boolean duplicateExists = duplicateModifiedContractFound(getModifiedContractToSave());
+		boolean duplicateExists = duplicateModifiedContractFound(getModifiedContractToSave());
 	
-		//if(duplicateExists == true) {
-		//	return new ResponseEntity<>(HttpStatus.CONFLICT);
-		//}
+		if(duplicateExists == true) {
+			return new ResponseEntity<>(HttpStatus.CONFLICT);
+		}
 		
 		modifyContractRepository.save(newModifiedContract);
 			
@@ -81,49 +95,143 @@ public class ModifyContractController {
 		
 	}
 	
-	/*
+	@RequestMapping(value = "/update/{id}", method = RequestMethod.PUT)
+	public ResponseEntity<?> updateModifyContract(@PathVariable("id") long id, 
+			@RequestBody ModifyContract modifiedContract) {
+		
+		PreCondition.require(id >= 0, "New Contract ID can't be negative!");
+		
+		ModifyContract currentContract = modifyContractRepository.findByModifiedContractID(id);
+
+		if (currentContract == null) {
+			return new ResponseEntity<>(new CustomErrorType("Unable to update. ModifyContract with id "
+					+ id + " not found."), HttpStatus.NOT_FOUND);
+		}
+
+		currentContract.setContract(modifiedContract.getContract());
+		currentContract.setTestName(modifiedContract.getTestName());
+		currentContract.setNewEndDate(modifiedContract.getNewEndDate());
+		currentContract.setChangedMonthlyPremium(modifiedContract.getChangedMonthlyPremium());
+		
+		modifyContractRepository.save(currentContract);
+		
+		return new ResponseEntity<>(currentContract, HttpStatus.OK);
+	}
+
+	
+	// delete a new contract
+	@RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
+	public ResponseEntity<?> deleteModifyContract(@PathVariable("id") long id) {
+		
+		PreCondition.require(id >= 0, "Modify Contract ID can't be negative!");
+		
+		ModifyContract currentContract = modifyContractRepository.findByModifiedContractID(id);
+		
+		if (currentContract == null) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		
+		modifyContractRepository.delete(currentContract);
+		
+		return new ResponseEntity<NewContract>(HttpStatus.NO_CONTENT);
+	}
+	
+	
 	private boolean duplicateModifiedContractFound(ModifyContract newModifiedContract) {
 		
-		
-		/*
-		boolean contractExists = false;
-		
-		
 		Contract contract = newModifiedContract.getContract();
+		Product product = contract.getProduct();
+		Customer policyOwner = contract.getPolicyOwner();
+		Customer insuredPerson = contract.getInsuredPerson();
 		
-		List<Contract> similarContracts = contractRepository.findByPolicyOwnerAndInsuredPersonAndProduct(
-				contract.getPolicyOwner(), contract.getInsuredPerson(), contract.getProduct());
+		boolean contractExists = false;
+		boolean productExists = false;
+		boolean policyOwnerExists = false;
+		boolean insuredPersonExists = false;
 		
-		if(contract.contractExistsInDB(similarContracts) > 0) {
-			contractExists = true;
-			contract = contractRepository.findByContractID(contract.getContractID());
-			newModifiedContract.setContract(contract);
+		
+		List<Product> similarProducts = productRepository.findByNameAndProductBeginAndProductEndAndProductType(
+				product.getName(), product.getProductBegin(), product.getProductEnd(), product.getProductType());
+		
+		long productID = product.productExistsInDB(similarProducts);
+		
+		
+		if(productID > 0) {
+			productExists = true;
+			product = productRepository.findByProductID(productID);
+			contract.setProduct(product);
 		}
 		
-		//contractRepository.save(contract);
 		
-		if(contractExists == false) {
-			return false;
+		List<Customer> similarCustomers = customerRepository.findByFirstNameAndLastNameAndBirthdayAndAddress(
+				policyOwner.getFirstName(), policyOwner.getLastName(), policyOwner.getBirthday(), policyOwner.getAddress());
+			
+		long existingCustomerID = policyOwner.customerExistsInDB(similarCustomers);
+			
+		if(existingCustomerID > 0) {	
+			policyOwnerExists = true;
+			policyOwner = customerRepository.findByCustomerID(existingCustomerID);
+			contract.setPolicyOwner(policyOwner);;
 		}
-		*/
+			
+			
+		similarCustomers.clear();
+			
+		if(!contract.getPolicyOwner().toStringWithoutID().equals(contract.getInsuredPerson().toStringWithoutID())) {
+				// Check if the given customer already exists in the customers table of the DB
+				// If so, don't insert the customer again in the customers table
+			
+								
+			similarCustomers = customerRepository.findByFirstNameAndLastNameAndBirthdayAndAddress(
+					insuredPerson.getFirstName(), insuredPerson.getLastName(), insuredPerson.getBirthday(), 
+					insuredPerson.getAddress());
+								
+			existingCustomerID = insuredPerson.customerExistsInDB(similarCustomers);
+								
+			if(existingCustomerID > 0) {
+					
+				insuredPersonExists = true;	
+				insuredPerson = customerRepository.findByCustomerID(existingCustomerID);				
+				contract.setInsuredPerson(insuredPerson);;
+			}
+			
+		} else {
+			insuredPersonExists = true;
+			contract.setInsuredPerson(contract.getPolicyOwner());
+		}	
 		
-		/*
-		contractRepository.save(newModifiedContract.getContract());
 		
-		List<ModifyContract> similarModifiedContracts = 
-				modifyContractRepository.findByContractAndTestNameAndChangedMonthlyPremiumAndNewEndDate(
-						newModifiedContract.getContract(), newModifiedContract.getTestName(), newModifiedContract.getChangedMonthlyPremium(), 
-						newModifiedContract.getNewEndDate());
-		
-		
-		
-		if(newModifiedContract.modifiedContractExistsInDB(similarModifiedContracts) > 0) {
-			return true;
+		if( (productExists && policyOwnerExists && insuredPersonExists) == true) {
+			
+			List<Contract> similarContracts = contractRepository.findByPolicyOwnerAndInsuredPersonAndProduct(
+					contract.getPolicyOwner(), contract.getInsuredPerson(), contract.getProduct());
+			
+			long contractID = contract.contractExistsInDB(similarContracts);
+			
+			if(contractID > 0) {
+				contractExists = true;
+				contract = contractRepository.findByContractID(contractID);
+				newModifiedContract.setContract(contract);
+			}
 		}
 		
+		if(contractExists == true ) {
+			
+			List<ModifyContract> similarModifiedContracts = 
+				modifyContractRepository.findByContractAndTestNameAndNewEndDateAndChangedMonthlyPremium(
+				newModifiedContract.getContract(), newModifiedContract.getTestName(), newModifiedContract.getNewEndDate(), 
+				newModifiedContract.getChangedMonthlyPremium());
+		
+		
+			if(newModifiedContract.modifiedContractExistsInDB(similarModifiedContracts) > 0) {
+				return true;
+			}
+		}
+		
+		setModifiedContractToSave(newModifiedContract);
 		
 		return false;
-	} */
+	} 
 		 
 
 	public ModifyContract getModifiedContractToSave() {

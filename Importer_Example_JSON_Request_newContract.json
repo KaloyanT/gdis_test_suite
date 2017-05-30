@@ -1,0 +1,25 @@
+{
+	"storyType": "newContract",
+	"testName": "newContractTest",
+	"testData": [
+		{
+			"customer": {
+				"firstName": "Sam",
+				"lastName": "Bauer",
+				"birthday": "01/01/1991",
+				"address": "Somewhere",
+				"job": "IT", 
+				"insuredBy": [],
+				"ownedContracts": []
+			},
+			"productType": "CAPITAL_INSURANCE",
+			"contractBegin": "01/01/2017",
+			"contractEnd": "01/02/2017",
+			"monthlyPremium": "100",
+			"partnerName": "Generali"
+		}
+	]
+}
+
+
+
