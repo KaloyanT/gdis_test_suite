@@ -17,6 +17,10 @@ Back  end:
 Front end: 
 1. Node.js + NPM 
 
+API:
+1. To start the API and example page, navigate to the TLDirectory gdist_test_suite, then use `docker-compose up --build --force-recreate` to start the service. 
+You can then access the API itself via localhost:40042/ (index page), all other Endpoint via /records [POST], /... (see Swagger)
+
 
 Since only the API micro service should be linked to the frond end, Angular is Routing request to the API micro service only (Port 8080)
 
