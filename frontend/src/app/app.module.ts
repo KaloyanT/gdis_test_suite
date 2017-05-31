@@ -4,27 +4,27 @@ import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 
 import { AppComponent } from './app.component';
-import { NavbarComponent } from './dashboard/navbar/navbar.component';
-import {PasswordComponent } from './password/password.component';
+import { NavbarComponent } from './navbar/navbar.component';
 import { FooterComponent } from './footer/footer.component';
 import {GreetingsComponent } from './dashboard/greetings/greetings.component';
 import { WarningAlertComponent } from './warning-alert/warning-alert.component';
-import {UsernameComponent} from "./username/username.component";
 import { SuccessAlertComponent } from './success-alert/succes-alert.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { StoryComponent } from './dashboard/story/story.component';
 import { NewStoryComponent } from './dashboard/new-story/new-story.component';
 import { StoryListComponent } from './dashboard/story/story-list/story-list.component';
+import {Routes, RouterModule} from "@angular/router";
 
+const appRoutes: Routes = [
+  {path: 'dashboard', component: DashboardComponent},
+]
 @NgModule({
   declarations: [
     AppComponent,
     NavbarComponent,
     FooterComponent,
-    PasswordComponent,
     GreetingsComponent,
     WarningAlertComponent,
-    UsernameComponent,
     SuccessAlertComponent,
     DashboardComponent,
     StoryComponent,
@@ -35,7 +35,8 @@ import { StoryListComponent } from './dashboard/story/story-list/story-list.comp
   imports: [
     BrowserModule,
     FormsModule,
-    HttpModule
+    HttpModule,
+    RouterModule.forRoot(appRoutes)
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -1,6 +1,4 @@
-import { Component } from '@angular/core';
-import {PasswordComponent} from "./password/password.component";
-import {UsernameComponent} from "./username/username.component";
+import { Component, Input } from '@angular/core';
 import {$$} from "@angular/compiler/src/chars";
 
 @Component({
@@ -11,7 +9,7 @@ import {$$} from "@angular/compiler/src/chars";
 export class AppComponent {
   title = 'Log In';
   password = '';
-  username='';
+  @Input() username='';
   buttonClicked = false;
   switchToDashboard=false;
 

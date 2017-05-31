@@ -1,3 +1,42 @@
-<p>
-  The list of stories should be displayed here!
-</p>
+<html>
+<body>
+<div class="row">
+  <div class="col-md-12">
+    <div  *ngFor="let story of stories">
+      <div class="row">
+        <div class="col-md-2">
+          <ul class="list-group">
+            <li class="list-group-item" (click)="displayIndex(story.ID)"><b><a href="#" >{{story.name}}</a></b></li>
+
+            <!--<li><b><a href="https://www.w3schools.com/html/default.asp">Story 1</a></b></li>-->
+            <!--<li><b><a href="https://www.w3schools.com/html/default.asp">Story 2</a></b></li>-->
+            <!--<li><a href="https://www.w3schools.com/html/default.asp">Story 3</a></li>-->
+          </ul>
+        </div >
+        <div class="col-md-8" *ngIf="storyStatus[story.ID]">
+          <b>{{story.name}}</b>
+          <table style="width:100%">
+            <tr>
+              <th>Firstname</th>
+              <th>Lastname</th>
+              <th>Age</th>
+            </tr>
+            <tr>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+</body>
+</html>
+
