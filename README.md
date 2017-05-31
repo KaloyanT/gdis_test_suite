@@ -21,6 +21,11 @@ API:
 1. To start the API and example page, navigate to the TLDirectory gdist_test_suite, then use `docker-compose up --build --force-recreate` to start the service. 
 You can then access the API itself via localhost:40042/ (index page), all other Endpoint via /records [POST], /... (see Swagger)
 
+Once the API is started, you can use the dummy page at localhost:40042/ to post record files to the API. Right now passtrough to Kaloyans API is disabled, since I couldn't quite get the maven to build and start his project. However, you'll still get dummy replies from all Endpoints specified in the Swagger Documentation.
+
+Swagger Documentation can be found here (or in the api subfolder):
+https://app.swaggerhub.com/apis/BracketJohn/smart_insurance_api/1.0.0
+
 
 Since only the API micro service should be linked to the frond end, Angular is Routing request to the API micro service only (Port 8080)
 
