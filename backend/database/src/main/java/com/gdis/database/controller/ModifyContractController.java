@@ -133,7 +133,7 @@ public class ModifyContractController {
 		
 		modifyContractRepository.delete(currentContract);
 		
-		return new ResponseEntity<NewContract>(HttpStatus.NO_CONTENT);
+		return new ResponseEntity<NewContract>(HttpStatus.OK);
 	}
 	
 	

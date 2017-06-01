@@ -146,7 +146,7 @@ public class CustomerController {
 			return new ResponseEntity<>(new CustomErrorType("Customer with id " + id
 					+ " not found"), HttpStatus.NOT_FOUND);
 		}
-		
+				
 		customerRepository.deleteById(id);
 		
 		return new ResponseEntity<>(HttpStatus.OK);

@@ -21,11 +21,11 @@ public class Contract {
 	private long contractID;
 
 	@Basic(optional = false)
-	@OneToOne(cascade = {CascadeType.ALL})
+	@OneToOne(cascade = CascadeType.PERSIST)
 	private Customer policyOwner;
 	
 	@Basic(optional = false)
-	@OneToOne(cascade = {CascadeType.ALL})
+	@OneToOne(cascade = CascadeType.PERSIST)
 	private Customer insuredPerson;
 	
 	@Basic(optional = false)

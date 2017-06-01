@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -12,6 +13,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity(name = "Customer")
 @Table(name = "customers")
@@ -42,7 +45,9 @@ public class Customer {
 	private String job;
 	
 	//@ElementCollection(targetClass = Contract.class)
-	@OneToMany
+	
+	@JsonIgnore
+	@OneToMany(cascade = CascadeType.ALL)
 	private List<Contract> ownedContracts = new ArrayList<Contract>();
 	
 	public long getCustomerID() {
@@ -93,11 +98,20 @@ public class Customer {
 		this.job = job;
 	}
 
-	
+	@JsonIgnore
 	public List<Contract> getOwnedContracts() {
 		return ownedContracts;
 	}
 
+	
+	@JsonProperty
+	public void setOwnedContracts(List<Contract> newOwnedContracts) {
+		clearOwnedContracts();
+		for (Contract value : newOwnedContracts) {
+			addToOwnedContracts(value);
+		}
+	}
+	
 	public boolean addToOwnedContracts(Contract ownedContractsValue) {
 		if (!ownedContracts.contains(ownedContractsValue)) {
 			boolean result = ownedContracts.add(ownedContractsValue);
@@ -122,14 +136,7 @@ public class Customer {
 		}
 	}
 
-	public void setOwnedContracts(List<Contract> newOwnedContracts) {
-		clearOwnedContracts();
-		for (Contract value : newOwnedContracts) {
-			addToOwnedContracts(value);
-		}
-	}
-		
-	
+
 	@Override
 	public String toString() {
 		
@@ -139,7 +146,7 @@ public class Customer {
 		return "Customer " + " [id: " + getCustomerID() + "]" + " [firstName: " 
 		+ getFirstName() + "]" + " [lastName: " + getLastName() + "]"  
 		+ " [birthday: " + birthday + "]" + " [address: " + getAddress() + "]"  
-		+ " [job: " + getJob() + "]" + " [ownedContracts: " + getOwnedContracts().toString() + "]";
+		+ " [job: " + getJob() + "]" ; // + " [ownedContracts: " + getOwnedContracts().toString() + "]";
 	}
 	
 	public String toStringWithoutID() {
@@ -149,7 +156,7 @@ public class Customer {
 		
 		return "Customer " + " [firstName: " + getFirstName() + "]" + " [lastName: "
 				+ getLastName() + "]" + " [birthday: " + birthday + "]" + " [address: " + getAddress() + "]" + 
-				" [job: " + getJob() + "]" + " [ownedContracts: " + getOwnedContracts().toString() + "]";
+				" [job: " + getJob() + "]" + " ]"; //" [ownedContracts: " + getOwnedContracts().toString() + "]";
 	}
 	
 	public long customerHashCodeNoID() {
