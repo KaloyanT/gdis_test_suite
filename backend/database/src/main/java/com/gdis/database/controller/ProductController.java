@@ -1,6 +1,5 @@
 package com.gdis.database.controller;
 
-
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,7 +99,7 @@ public class ProductController {
     		
 		productRepository.save(updatedProduct);
         	
-		return new ResponseEntity<>(currentProduct, HttpStatus.ACCEPTED);
+		return new ResponseEntity<>(HttpStatus.ACCEPTED);
 	}
      
 	@RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)

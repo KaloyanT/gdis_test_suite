@@ -10,11 +10,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.gdis.database.model.Contract;
 import com.gdis.database.model.Customer;
 import com.gdis.database.model.ModifyContract;
-import com.gdis.database.model.NewContract;
 import com.gdis.database.model.Product;
 import com.gdis.database.service.ContractRepository;
 import com.gdis.database.service.CustomerRepository;
@@ -115,7 +113,7 @@ public class ModifyContractController {
 		
 		modifyContractRepository.save(currentContract);
 		
-		return new ResponseEntity<>(currentContract, HttpStatus.OK);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 	
@@ -133,7 +131,7 @@ public class ModifyContractController {
 		
 		modifyContractRepository.delete(currentContract);
 		
-		return new ResponseEntity<NewContract>(HttpStatus.OK);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 	
 	

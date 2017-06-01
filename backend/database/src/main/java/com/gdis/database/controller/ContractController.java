@@ -90,7 +90,7 @@ public class ContractController {
 		// Check if the global variable is changed in the duplicateContractFound method
 		contractRepository.save(getContractToSave());
 		
-		return new ResponseEntity<>(newContract, HttpStatus.CREATED);
+		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
 	
 	
@@ -120,7 +120,7 @@ public class ContractController {
 		*/
 		contractRepository.save(updatedContract);
 			
-		return new ResponseEntity<>(currentContract, HttpStatus.ACCEPTED);
+		return new ResponseEntity<>(HttpStatus.ACCEPTED);
 	}
 	
 	
