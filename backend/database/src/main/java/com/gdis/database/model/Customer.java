@@ -44,8 +44,6 @@ public class Customer {
 	@Basic(optional = false)
 	private String job;
 	
-	//@ElementCollection(targetClass = Contract.class)
-	
 	@JsonIgnore
 	@OneToMany(cascade = CascadeType.ALL)
 	private List<Contract> ownedContracts = new ArrayList<Contract>();
