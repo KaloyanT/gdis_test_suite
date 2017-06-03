@@ -3,7 +3,6 @@ package com.gdis.database.model;
 import java.util.HashMap;
 import java.util.Map;
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -13,40 +12,60 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.MapKeyColumn;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
-@Entity(name = "Story")
-@Table(name = "stories")
-public class Story {
+@Entity(name = "BasicStory")
+@Table(name = "basicStories")
+public class BasicStoryTest {
 	
 	@Id
-	@GenericGenerator(name = "storyIdGenerator", strategy = "increment")
-	@GeneratedValue(generator = "storyIdGenerator")
+	@GenericGenerator(name = "basicStoryTestIdGenerator", strategy = "increment")
+	@GeneratedValue(generator = "basicStoryTestIdGenerator")
+	@Column(name = "storyTestID")
+	private long storyTestID;
+	
+	// Use this ID to associate a story, like New Contract, with id
+	//@JsonIgnore
 	@Column(name = "storyID")
 	private long storyID;
 	
 	@Basic(optional = false)
-	private String testName;
+	private String storyName;
 	
 	@Basic(optional = false)
-	@OneToOne(cascade = {CascadeType.ALL})
-	private Contract contract;
-	
+	private String testName;
+
 	@ElementCollection
 	@MapKeyColumn(name = "attributes_key")
 	@Column(name = "value")
-	@CollectionTable(name = "story_attributes", joinColumns = @JoinColumn(name = "storyID"))
-	@JoinTable(name = "story_attributes", joinColumns = @JoinColumn(name = "storyID"))
+	@CollectionTable(name = "basicStory_attributes", joinColumns = @JoinColumn(name = "storyTestID"))
+	@JoinTable(name = "basicStory_attributes", joinColumns = @JoinColumn(name = "storyTestID"))
 	private Map<String, String> attributes = new HashMap<String, String>();
 	 
+	
+	public long getStoryTestID() {
+		return storyTestID;
+	}
+
+	public void setStoryTestID(long storyTestID) {
+		this.storyTestID = storyTestID;
+	}
+	
 	public long getStoryID() {
 		return storyID;
 	}
 
 	public void setStoryID(long storyID) {
 		this.storyID = storyID;
+	}
+	
+	public String getStoryName() {
+		return storyName;
+	}
+
+	public void setStoryName(String storyName) {
+		this.storyName = storyName;
 	}
 
 	public String getTestName() {
@@ -57,15 +76,7 @@ public class Story {
 		this.testName = testName;
 	}
 
-	public Contract getContract() {
-		return contract;
-	}
 
-	public void setContract(Contract contract) {
-		this.contract = contract;
-	}
-
-	
 	public Map<String, String> getAttributes() {
 		return attributes;
 	}
@@ -74,28 +85,24 @@ public class Story {
 		this.attributes = attributes;
 	}
 	
-	/*
+	
 	@Override
 	public String toString() {
 		
-		//SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy");
-		//String newEndDate = dateFormatter.format(getNewEndDate());
-		
-		return "ContractRequest " + " [ID: " + getStoryID() + "]" + " [ Contract: " + getContract() + "]"
-				+ " [testName: ]" + getTestName() + "]" + " [attributes: " + getAttributes().toString() + "]";
-	}
-	
-	public String toStringWithoutID() {
-	
-		// SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy");
-		// String newEndDate = dateFormatter.format(getNewEndDate());
-		
-		return "ContractRequest " + " [ Contract: " + getContract() + "]" + " [testName: ]" + getTestName() + "]" 
+		return "ContractRequest " + " [BasicStoryTestID: " + getStoryTestID() + "]" 
+				+ " [storyName: " + getStoryName() + "]" + " [testName: " + getTestName() + "]"
 				+ " [attributes: " + getAttributes().toString() + "]";
 	}
 	
 	
+	public String toStringWithoutID() {
+		
+		return "ContractRequest " + " [storyName: " + getStoryName() + "]" 
+				+ " [testName: " + getTestName() + "]" + " [attributes: " + getAttributes().toString() + "]";
+	}
 	
+	
+	/*
 	public long storyExistsInDB(List<Story> existingStories) {
 		
 		if( (existingStories == null) || (existingStories.isEmpty()) ) {
