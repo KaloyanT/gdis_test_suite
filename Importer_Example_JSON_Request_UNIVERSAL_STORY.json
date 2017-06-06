@@ -1,0 +1,19 @@
+{
+	"storyType": "basicStoryTest",
+	"storyName": "newContract",
+	"testName": "storyExample",
+	"testData": [
+	{
+		"row1": {"firstName": "Max", "lastName": "Mustermann", "birthday": "01/01/2017"} 
+		
+	}, 
+	
+	{
+		"row2": {"firstName": "John", "lastName": "Mustermann", "birthday": "01/01/2017"}
+	}
+	
+	]
+}
+
+
+

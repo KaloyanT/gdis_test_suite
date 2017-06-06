@@ -1,5 +1,6 @@
 package com.gdis.importer.controller;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.gdis.importer.model.JSONWrapper;
@@ -42,22 +44,27 @@ public class ImportTestCaseRequestController {
 		setTestCaseToImport(jsonWrapper);
 		
 		// Return HTTP 400 if the JSON is missing the Story Type or The test data
-		if(missingStory(testCaseToImport) == true) {
-			testCaseToImport = null;
+		if(missingStoryType(getTestCaseToImport()) == true) {
+			setTestCaseToImport(null);
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		} else {
-			setStoryTypeImport(testCaseToImport.getStoryType());
+			setStoryTypeImport(getTestCaseToImport().getStoryType());
 		}
 		
-		if(missingTestData(testCaseToImport) == true) {
-			testCaseToImport = null;
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		if(missingStoryName(getTestCaseToImport()) == true) {
+			setTestCaseToImport(null);
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 		
-		checkTestName(testCaseToImport);
+		if(missingTestData(getTestCaseToImport()) == true) {
+			setTestCaseToImport(null);
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+		
+		checkTestName(getTestCaseToImport());
 		
 		chunksToImport = new ArrayList<ObjectNode>();
-		chunkJSON(testCaseToImport);
+		chunkJSON(getTestCaseToImport());
 		
 		DBClient dbClient = new DBClient();
 		
@@ -83,10 +90,19 @@ public class ImportTestCaseRequestController {
 	}
 	
 	
-	private boolean missingStory(JSONWrapper jsonWrapper) {
+	private boolean missingStoryType(JSONWrapper jsonWrapper) {
 		
 		// No Story Type. Can't import
 		if( (jsonWrapper.getStoryType() == null) || (jsonWrapper.getStoryType().trim().length() == 0)) {
+			return true;
+		}
+		return false;
+	}
+	
+	private boolean missingStoryName(JSONWrapper jsonWrapper) {
+		
+		// No Story Name. Can't import
+		if( (jsonWrapper.getStoryName() == null) || (jsonWrapper.getStoryName().trim().length() == 0)) {
 			return true;
 		}
 		return false;
@@ -134,10 +150,13 @@ public class ImportTestCaseRequestController {
 	 * Chunk the received JSON into individual JSONs, that will be sent to the 
 	 * Global Variable for all the chunks
 	 * JSON Format: 
-	 * "storyType": "new contract",
+	 * "storyType": "basicStoryTest",
+	 * "storyName": "newContract", 
 	 * "testName": "name",
-	 * "exampleCustomerID": "1",
-	 * "customerData": {"name": "jack", "age": "20"}
+	 * "testData": [
+	 * 	"attributes": {"name": "jack", "age": "20"}, 
+	 *  "attributes": {"name": "john", "age": "20"}
+	 * ]
 	 */
 	 private void chunkJSON(JSONWrapper jsonWrapper) {
 		
@@ -151,14 +170,30 @@ public class ImportTestCaseRequestController {
 			
 			//chunk.put("storyType", jsonWrapper.getStoryType());
 			chunk.put("testName", jsonWrapper.getTestName());
-			chunk.setAll(j);
-			//chunk.put("exampleCustomerID", j.getTestCaseCustomerID());
+			chunk.put("storyName", jsonWrapper.getStoryName());
+			// chunk.setAll(j);
+			
+			String row = j.elements().next().toString();
+			
+			JsonNode jsonNode = null;
+			
+			try {
+				jsonNode = objectMapper.readTree(row);
+			} catch (IOException e) {
+				
+			}
+			
+			
+			chunk.set("attributes", jsonNode);
+			
 			
 			/**
-			 *  Get Every Key Value Pair so at the end the JSON looks like this: 
-			 *  "testName": "name",
-			 *  "name": "jack",
-			 *  "age": "20"
+			 *  Get Every Key Value Pair so at the end the every JSON chunk looks like this: 
+			 * "storyName": "newContract", 
+			 * "testName": "name",
+			 * "testData": [
+			 * "attributes": {"name": "jack", "age": "20"}
+	 * ]
 			 */
 			chunksToImport.add(chunk);
 		}	

@@ -16,7 +16,7 @@ import com.gdis.database.util.CustomErrorType;
 import com.gdis.database.util.PreCondition;
 
 @RestController
-@RequestMapping("/db/stories")
+@RequestMapping("/db/basicStoryTest")
 public class BasicStoryTestController {
 
 	@Autowired
