@@ -10,11 +10,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.gdis.database.model.Contract;
 import com.gdis.database.model.Customer;
 import com.gdis.database.model.ModifyContract;
-import com.gdis.database.model.NewContract;
 import com.gdis.database.model.Product;
 import com.gdis.database.service.ContractRepository;
 import com.gdis.database.service.CustomerRepository;
@@ -99,7 +97,7 @@ public class ModifyContractController {
 	public ResponseEntity<?> updateModifyContract(@PathVariable("id") long id, 
 			@RequestBody ModifyContract modifiedContract) {
 		
-		PreCondition.require(id >= 0, "New Contract ID can't be negative!");
+		PreCondition.require(id >= 0, "ModifyContract ID can't be negative!");
 		
 		ModifyContract currentContract = modifyContractRepository.findByModifiedContractID(id);
 
@@ -115,7 +113,7 @@ public class ModifyContractController {
 		
 		modifyContractRepository.save(currentContract);
 		
-		return new ResponseEntity<>(currentContract, HttpStatus.OK);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 	
@@ -133,7 +131,7 @@ public class ModifyContractController {
 		
 		modifyContractRepository.delete(currentContract);
 		
-		return new ResponseEntity<NewContract>(HttpStatus.NO_CONTENT);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 	
 	

@@ -106,7 +106,7 @@ public class CustomerController {
 		
 		customerRepository.save(newCustomer);
 		
-		return new ResponseEntity<>(newCustomer, HttpStatus.CREATED);
+		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
 	
 	
@@ -131,7 +131,7 @@ public class CustomerController {
 		
 		customerRepository.save(updatedCustomer);
 		
-		return new ResponseEntity<>(currentCustomer, HttpStatus.ACCEPTED);
+		return new ResponseEntity<>(HttpStatus.ACCEPTED);
 	}
 	
 	
@@ -146,7 +146,7 @@ public class CustomerController {
 			return new ResponseEntity<>(new CustomErrorType("Customer with id " + id
 					+ " not found"), HttpStatus.NOT_FOUND);
 		}
-		
+				
 		customerRepository.deleteById(id);
 		
 		return new ResponseEntity<>(HttpStatus.OK);

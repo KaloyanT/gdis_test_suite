@@ -138,7 +138,7 @@ public class NewContractController {
 
 		newContractRepository.save(currentContract);
 		
-		return new ResponseEntity<NewContract>(currentContract, HttpStatus.OK);
+		return new ResponseEntity<NewContract>(HttpStatus.OK);
 	}
 
 	
@@ -156,7 +156,7 @@ public class NewContractController {
 		
 		newContractRepository.delete(currentContract);
 		
-		return new ResponseEntity<NewContract>(HttpStatus.NO_CONTENT);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
 	
@@ -166,7 +166,7 @@ public class NewContractController {
 		
 		newContractRepository.deleteAll();
 		
-		return new ResponseEntity<NewContract>(HttpStatus.NO_CONTENT);
+		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
 
