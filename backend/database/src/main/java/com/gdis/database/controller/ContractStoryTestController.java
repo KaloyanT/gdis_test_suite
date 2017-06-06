@@ -48,7 +48,7 @@ public class ContractStoryTestController {
 		
 		PreCondition.require(id >= 0, "Story ID can't be negative!");
 		
-		ContractStoryTest story = contractStoryRepository.findByStoryTestID(id);
+		ContractStoryTest story = contractStoryRepository.findByBasicStoryTestID(id);
 		
 		if (story == null) {
 			return new ResponseEntity<>(new CustomErrorType("Story with id " + id
@@ -86,7 +86,7 @@ public class ContractStoryTestController {
 		
 		PreCondition.require(id >= 0, "Story ID can't be negative!");
 		
-		ContractStoryTest currentStory = contractStoryRepository.findByStoryTestID(id);
+		ContractStoryTest currentStory = contractStoryRepository.findByBasicStoryTestID(id);
 		
 		if (currentStory == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);

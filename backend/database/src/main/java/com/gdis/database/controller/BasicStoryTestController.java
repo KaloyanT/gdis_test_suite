@@ -24,8 +24,9 @@ public class BasicStoryTestController {
 	
 	private BasicStoryTest storyToSave;
 	
+	
 	@RequestMapping(method = RequestMethod.GET)
-	public ResponseEntity<?> getAllBasicStories() {
+	public ResponseEntity<?> getAllBasicStoryTests() {
 		
 		Iterable<BasicStoryTest> storyIterable = basicStoryRepository.findAll();
 		
@@ -42,11 +43,11 @@ public class BasicStoryTestController {
 	}
 	
 	@RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
-	public ResponseEntity<?> getBasicStory(@PathVariable("id") long id) {
+	public ResponseEntity<?> getBasicStoryTestByID(@PathVariable("id") long id) {
 		
 		PreCondition.require(id >= 0, "Story ID can't be negative!");
 		
-		BasicStoryTest story = basicStoryRepository.findByStoryTestID(id);
+		BasicStoryTest story = basicStoryRepository.findByBasicStoryTestID(id);
 		
 		if (story == null) {
 			return new ResponseEntity<>(new CustomErrorType("Story with id " + id
@@ -57,34 +58,61 @@ public class BasicStoryTestController {
 	
 	
 	@RequestMapping(value = "/insert", method = RequestMethod.POST)
-	public ResponseEntity<?> createBasicStory(@RequestBody BasicStoryTest newStory) {
+	public ResponseEntity<?> createBasicStoryTest(@RequestBody BasicStoryTest newBasicStoryTest) {
 	    
 		
-		if(newStory == null) {
+		if(newBasicStoryTest == null) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 		
-		setStoryToSave(newStory);
+		setStoryToSave(newBasicStoryTest);
 		
-		/*
-		boolean duplicateExists = duplicateModifiedContractFound(getModifiedContractToSave());
+		
+		boolean testExists = testExists(getStoryToSave());
 	
-		if(duplicateExists == true) {
+		if(testExists == true) {
 			return new ResponseEntity<>(HttpStatus.CONFLICT);
-		}*/
+		}
 		
-		basicStoryRepository.save(newStory);
+		basicStoryRepository.save(newBasicStoryTest);
 			
 		return new ResponseEntity<>(HttpStatus.CREATED);
 		
 	}
+	
+	@RequestMapping(value = "/update/{id}", method = RequestMethod.PUT)
+	public ResponseEntity<?> updateBasicStoryTestByID(@PathVariable("id") long id, 
+			@RequestBody BasicStoryTest updatedBasicStoryTest) {
+		
+		PreCondition.require(id >= 0, "BasicStoryTestID can't be negative!");
+		
+		if(updatedBasicStoryTest == null) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+		
+		BasicStoryTest currentTest = basicStoryRepository.findByBasicStoryTestID(id);
+
+		if (currentTest == null) {
+			return new ResponseEntity<>(new CustomErrorType("Unable to update. BasicStoryTest with ID "
+					+ id + " not found."), HttpStatus.NOT_FOUND);
+		}
+	
+		currentTest.setStoryName(updatedBasicStoryTest.getStoryName());
+		currentTest.setTestName(updatedBasicStoryTest.getTestName());
+		currentTest.setAttributes(updatedBasicStoryTest.getAttributes());
+		
+		basicStoryRepository.save(currentTest);
+		
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+	
 
 	@RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
-	public ResponseEntity<?> deleteBasicStory(@PathVariable("id") long id) {
+	public ResponseEntity<?> deleteBasicStoryTest(@PathVariable("id") long id) {
 		
 		PreCondition.require(id >= 0, "Story ID can't be negative!");
 		
-		BasicStoryTest currentStory = basicStoryRepository.findByStoryTestID(id);
+		BasicStoryTest currentStory = basicStoryRepository.findByBasicStoryTestID(id);
 		
 		if (currentStory == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -103,4 +131,26 @@ public class BasicStoryTestController {
 	public void setStoryToSave(BasicStoryTest storyToSave) {
 		this.storyToSave = storyToSave;
 	}
+	
+	
+	private boolean testExists(BasicStoryTest newBasicStoryTest) {
+		
+		
+		List<BasicStoryTest> similarTests = basicStoryRepository.findByStoryNameAndTestName(
+				newBasicStoryTest.getStoryName(), newBasicStoryTest.getTestName());
+		
+		long basicStoryTestID = newBasicStoryTest.storyExistsInDB(similarTests);
+		
+		
+		if(basicStoryTestID > 0) {
+			return true;
+		}
+				
+		
+		//setStoryToSave(newBasicStoryTest);
+		
+		return false;
+	} 
+	
+	
 }

@@ -1,6 +1,7 @@
 package com.gdis.database.model;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.persistence.Basic;
 import javax.persistence.CollectionTable;
@@ -15,20 +16,20 @@ import javax.persistence.MapKeyColumn;
 import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
-@Entity(name = "BasicStory")
-@Table(name = "basicStories")
+@Entity(name = "BasicStoryTest")
+@Table(name = "basicStoryTest")
 public class BasicStoryTest {
 	
 	@Id
 	@GenericGenerator(name = "basicStoryTestIdGenerator", strategy = "increment")
 	@GeneratedValue(generator = "basicStoryTestIdGenerator")
-	@Column(name = "storyTestID")
-	private long storyTestID;
+	@Column(name = "basicStoryTestID")
+	private long basicStoryTestID;
 	
 	// Use this ID to associate a story, like New Contract, with id
-	//@JsonIgnore
-	@Column(name = "storyID")
-	private long storyID;
+	// @JsonIgnore
+	// @Column(name = "storyID")
+	// private long storyID;
 	
 	@Basic(optional = false)
 	private String storyName;
@@ -39,25 +40,17 @@ public class BasicStoryTest {
 	@ElementCollection
 	@MapKeyColumn(name = "attributes_key")
 	@Column(name = "value")
-	@CollectionTable(name = "basicStory_attributes", joinColumns = @JoinColumn(name = "storyTestID"))
-	@JoinTable(name = "basicStory_attributes", joinColumns = @JoinColumn(name = "storyTestID"))
+	@CollectionTable(name = "basicStoryTest_attributes", joinColumns = @JoinColumn(name = "basicStoryTestID"))
+	@JoinTable(name = "basicStoryTest_attributes", joinColumns = @JoinColumn(name = "basicStoryTestID"))
 	private Map<String, String> attributes = new HashMap<String, String>();
 	 
 	
-	public long getStoryTestID() {
-		return storyTestID;
+	public long getBasicStoryTestID() {
+		return basicStoryTestID;
 	}
 
-	public void setStoryTestID(long storyTestID) {
-		this.storyTestID = storyTestID;
-	}
-	
-	public long getStoryID() {
-		return storyID;
-	}
-
-	public void setStoryID(long storyID) {
-		this.storyID = storyID;
+	public void setBasicStoryTestID(long basicStoryTestID) {
+		this.basicStoryTestID = basicStoryTestID;
 	}
 	
 	public String getStoryName() {
@@ -89,7 +82,7 @@ public class BasicStoryTest {
 	@Override
 	public String toString() {
 		
-		return "ContractRequest " + " [BasicStoryTestID: " + getStoryTestID() + "]" 
+		return "ContractRequest " + " [BasicStoryTestID: " + getBasicStoryTestID() + "]" 
 				+ " [storyName: " + getStoryName() + "]" + " [testName: " + getTestName() + "]"
 				+ " [attributes: " + getAttributes().toString() + "]";
 	}
@@ -102,26 +95,49 @@ public class BasicStoryTest {
 	}
 	
 	
-	/*
-	public long storyExistsInDB(List<Story> existingStories) {
+	public long basicStoryTestHashCodeNoID() {
 		
-		if( (existingStories == null) || (existingStories.isEmpty()) ) {
+		long hash = Long.MAX_VALUE;
+		long mapHash = 0L;
+		
+		
+		hash ^= getStoryName().hashCode();
+		hash ^= getTestName().hashCode();
+		
+		
+		
+		for(Map.Entry<String, String> entry : getAttributes().entrySet()) {
+			String keyValuePair = entry.getKey() + ":" + entry.getValue();
+			mapHash += keyValuePair.hashCode();
+		}
+		
+		hash ^= mapHash;
+		
+		return hash;
+	}
+	
+	
+	
+	public long storyExistsInDB(List<BasicStoryTest> existingBasicStories) {
+		
+		if( (existingBasicStories == null) || (existingBasicStories.isEmpty()) ) {
 			return -1L;
 		}
 		
-		String newStoryString = this.toStringWithoutID();
+		//String newBasicStoryTestString = this.toStringWithoutID();
+		long newBasicStoryTestHash = this.basicStoryTestHashCodeNoID();
 		
-		for(Story s : existingStories) {
+		for(BasicStoryTest bst : existingBasicStories) {
 						
-			String temp = s.toStringWithoutID();
+			long temp = bst.basicStoryTestHashCodeNoID();
 			
-			if(newStoryString.equals(temp)) {
-				return s.getStoryID();
+			if(newBasicStoryTestHash == temp) {
+				return bst.getBasicStoryTestID();
 			}
 		}
 		
 		return -1L;
-	} */
+	} 
 	
 	/*
 	private void formatDates() {

@@ -97,7 +97,7 @@ public class ModifyContractController {
 	public ResponseEntity<?> updateModifyContract(@PathVariable("id") long id, 
 			@RequestBody ModifyContract modifiedContract) {
 		
-		PreCondition.require(id >= 0, "New Contract ID can't be negative!");
+		PreCondition.require(id >= 0, "ModifyContract ID can't be negative!");
 		
 		ModifyContract currentContract = modifyContractRepository.findByModifiedContractID(id);
 

@@ -30,7 +30,7 @@ public class ContractStoryTest extends BasicStoryTest {
 	@Override
 	public String toString() {
 		
-		return "ContractRequest " + " [BasicStoryTestID: " + getStoryTestID() + "]"
+		return "ContractRequest " + " [BasicStoryTestID: " + getBasicStoryTestID() + "]"
 				+ " [contract: " + getContract().toString() + " ]"
 				+ " [storyName: " + getStoryName() + "]" + " [testName: " + getTestName() + "]"
 				+ " [attributes: " + getAttributes().toString() + "]";

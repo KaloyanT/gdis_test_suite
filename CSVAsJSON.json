@@ -1,8 +1,0 @@
-{
-	"csvFileName": "someName",
-	"headers": ["name", "age"],
-	"rows": [
-		["max mustermann", "20"], 
-		["john smith", "30"]
-	]
-}

@@ -6,12 +6,12 @@ import com.gdis.database.model.BasicStoryTest;
 
 public interface BasicStoryTestRepository extends CrudRepository<BasicStoryTest, Long> {
 
-	public BasicStoryTest findByStoryTestID(long id);
+	public BasicStoryTest findByBasicStoryTestID(long id);
 	
-	public BasicStoryTest findByStoryID(long id);
-	
-	public List<BasicStoryTest> findByTestName(String testName);
+	public BasicStoryTest findByTestName(String testName);
 	
 	public List<BasicStoryTest> findByStoryName(String storyName);
+	
+	public List<BasicStoryTest> findByStoryNameAndTestName(String storyName, String testnaName);
 	
 }
