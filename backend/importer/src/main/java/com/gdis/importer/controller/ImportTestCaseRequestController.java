@@ -65,7 +65,7 @@ public class ImportTestCaseRequestController {
 		
 		chunksToImport = new ArrayList<ObjectNode>();
 		chunkJSON(getTestCaseToImport());
-		
+				
 		DBClient dbClient = new DBClient();
 		
 		dbClient.importChunksInDB(chunksToImport, getStoryTypeImport());
@@ -173,7 +173,11 @@ public class ImportTestCaseRequestController {
 			chunk.put("storyName", jsonWrapper.getStoryName());
 			// chunk.setAll(j);
 			
-			String row = j.elements().next().toString();
+			// With List<ObjectNode>
+			//String row = j.elements().next().toString();
+			
+			// With HashSet<ObjectNode>
+			String row = j.toString();
 			
 			JsonNode jsonNode = null;
 			

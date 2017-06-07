@@ -1,6 +1,8 @@
 package com.gdis.importer.model;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
+
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class JSONWrapper {
@@ -12,7 +14,8 @@ public class JSONWrapper {
 	private String storyName;
 	
 	//private List<JSONSchema> testData;
-	private List<ObjectNode> testData;
+	//private List<ObjectNode> testData;
+	private Set<ObjectNode> testData = new HashSet<ObjectNode>();
 	
 	public String getTestName() {
 		return testName;
@@ -31,11 +34,11 @@ public class JSONWrapper {
 		this.storyType = storyType;
 	}
 	
-	public List<ObjectNode> getTestData() {
+	public Set<ObjectNode> getTestData() {
 		return testData;
 	}
 
-	public void setTestData(List<ObjectNode> testData) {
+	public void setTestData(Set<ObjectNode> testData) {
 		this.testData = testData;
 	}
 
