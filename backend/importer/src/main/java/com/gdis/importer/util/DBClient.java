@@ -48,15 +48,13 @@ public class DBClient {
 	}
 	
 	//public void importChunksInDB(List<ObjectNode> chunks, String storyType) {
-	public void importChunksInDB(ObjectNode json, String storyType) {
+	public void importChunksInDB(ObjectNode json, final String storyType) {
 		
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
 
 		RestTemplate restTemplate = new RestTemplate();
 		
-		// Debug DB POST Request Simulator
-		// final String url = "http://localhost:8083/importer/database/" + storyType;
 		final String url = getDB_URL() + "/" + storyType + "/insert";
 		
 		

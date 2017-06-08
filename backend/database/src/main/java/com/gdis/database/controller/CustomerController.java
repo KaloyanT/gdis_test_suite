@@ -59,7 +59,7 @@ public class CustomerController {
 	}
 	
 	
-	@RequestMapping(value= "/byLastName/{lastName}", method = RequestMethod.GET)
+	@RequestMapping(value= "/by-last-name/{lastName}", method = RequestMethod.GET)
 	public ResponseEntity<?> findCustomerByLastName(@PathVariable("lastName") String lastName) {
 		
 		List<Customer> response = customerRepository.findByLastName(lastName);
@@ -68,7 +68,7 @@ public class CustomerController {
 	}
 	
 	
-	@RequestMapping(value = "/{id}/ownedContracts", method = RequestMethod.GET)
+	@RequestMapping(value = "/{id}/owned-contracts", method = RequestMethod.GET)
 	public ResponseEntity<?> getOwnedContractsOfCustomer(@PathVariable("id") long id) {
 		
 		PreCondition.require(id >= 0, "Customer ID can't be negative!");

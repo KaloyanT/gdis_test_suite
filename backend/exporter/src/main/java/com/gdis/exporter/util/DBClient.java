@@ -1,4 +1,4 @@
-package com.gdis.exporter.util;
+ package com.gdis.exporter.util;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -58,7 +58,7 @@ public class DBClient {
 	}
 	
 	
-	public List<JSONResponse> exportAllTestsFromDB() {
+	public List<JSONResponse> exportAllTestsFromDB(final String storyType) {
 		
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
@@ -67,7 +67,7 @@ public class DBClient {
 		List<JSONResponse> res = null;
 		
 		
-		final String url = getDB_URL() + "/" + "basicStoryTest";
+		final String url = getDB_URL() + "/" + storyType;
 		
 		ResponseEntity<JSONResponse[]> response = null; 
 		
@@ -87,7 +87,7 @@ public class DBClient {
 	}
 	
 	
-	public List<JSONResponse> exportTestsFromDBByStoryName(String storyName) {
+	public List<JSONResponse> exportTestsFromDBByStoryName(final String storyType, final String storyName) {
 		
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
@@ -96,7 +96,7 @@ public class DBClient {
 		List<JSONResponse> res = null;
 		
 		
-		final String url = getDB_URL() + "/" + "basicStoryTest" + "/get/byStoryName/" + storyName;
+		final String url = getDB_URL() + "/" + storyType + "/get/by-story-name/" + storyName;
 		
 		ResponseEntity<JSONResponse[]> response = null; 
 		
@@ -116,7 +116,7 @@ public class DBClient {
 	} 
 	
 	
-	public JSONResponse exportCTestFromDBByTestName(String testName) {
+	public JSONResponse exportCTestFromDBByTestName(final String storyType, final String testName) {
 		
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
@@ -124,7 +124,7 @@ public class DBClient {
 		RestTemplate restTemplate = new RestTemplate();
 		JSONResponse res = null;
 		
-		final String url = getDB_URL() + "/" + "basicStoryTest" + "/get/byTestName/" + testName;
+		final String url = getDB_URL() + "/" + storyType + "/get/by-test-name/" + testName;
 		
 		ResponseEntity<JSONResponse> response = null; 
 		

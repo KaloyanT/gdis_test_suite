@@ -25,7 +25,7 @@ import com.gdis.importer.util.PreCondition;
 import com.gdis.importer.util.DBClient;
 
 @RestController
-@RequestMapping("/importer/i/testCase")
+@RequestMapping("/importer")
 public class ImportTestCaseRequestController {
 	
 	private JSONWrapper testCaseToImport;
@@ -36,7 +36,7 @@ public class ImportTestCaseRequestController {
 	
 	private ObjectNode jsonToExport;
 	
-	@RequestMapping(method = RequestMethod.POST, consumes = 
+	@RequestMapping(value = "/i/test-case", method = RequestMethod.POST, consumes = 
 	{ MediaType.APPLICATION_JSON_UTF8_VALUE}, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE})		
 	public ResponseEntity<?> handleImportRequest(@RequestBody JSONWrapper jsonWrapper) {	
 

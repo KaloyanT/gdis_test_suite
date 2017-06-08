@@ -12,28 +12,28 @@ import com.gdis.exporter.model.JSONResponse;
 import com.gdis.exporter.util.DBClient;
 
 @RestController
-@RequestMapping("/exporter/e/testCase")
+@RequestMapping("/exporter/e")
 public class ExportTestCaseRequestController {
 	
-	@RequestMapping(value = "/all", method = RequestMethod.GET)
-	public ResponseEntity<?> getAllTests() {
+	@RequestMapping(value = "/{storyType}/all", method = RequestMethod.GET)
+	public ResponseEntity<?> getAllTests(@PathVariable("storyType") String storyType) {
 	
 		DBClient dbClient = new DBClient();
 		
-		List<JSONResponse> response = dbClient.exportAllTestsFromDB();
+		List<JSONResponse> response = dbClient.exportAllTestsFromDB(storyType);
 		
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 	
 	
-	@RequestMapping(value = "/byStoryName/{storyName}", method = RequestMethod.GET)
-	public ResponseEntity<?> getTestsByStoryName(@PathVariable("storyName") String storyName) {
+	@RequestMapping(value = "/{storyType}/by-story-name/{storyName}", method = RequestMethod.GET)
+	public ResponseEntity<?> getTestsByStoryName(@PathVariable("storyType") String storyType, @PathVariable("storyName") String storyName) {
 		
 		//ObjectMapper objectMapper = new ObjectMapper();
 		
 		DBClient dbClient = new DBClient();
 		
-		List<JSONResponse> response = dbClient.exportTestsFromDBByStoryName(storyName);
+		List<JSONResponse> response = dbClient.exportTestsFromDBByStoryName(storyType, storyName);
 		
 		//System.out.println(response.size());
 		
@@ -45,13 +45,13 @@ public class ExportTestCaseRequestController {
 	}
 	
 	
-	@RequestMapping(value = "/byTestName/{testName}", method = RequestMethod.GET)
-	public ResponseEntity<?> getTestsByTestName(@PathVariable("testName") String testName) {
+	@RequestMapping(value = "/{storyType}/by-test-name/{testName}", method = RequestMethod.GET)
+	public ResponseEntity<?> getTestsByTestName(@PathVariable("storyType") String storyType, @PathVariable("testName") String testName) {
 		
 		
 		DBClient dbClient = new DBClient();
 		
-		JSONResponse response = dbClient.exportCTestFromDBByTestName(testName);
+		JSONResponse response = dbClient.exportCTestFromDBByTestName(storyType, testName);
 		
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}

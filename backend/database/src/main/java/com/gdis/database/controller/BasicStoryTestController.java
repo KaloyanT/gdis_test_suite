@@ -57,7 +57,7 @@ public class BasicStoryTestController {
 	}
 	
 	
-	@RequestMapping(value = "/get/byStoryName/{storyName}", method = RequestMethod.GET)
+	@RequestMapping(value = "/get/by-story-name/{storyName}", method = RequestMethod.GET)
 	public ResponseEntity<?> getBasicStoryTestByStoryName(@PathVariable("storyName") String storyName) {
 		
 		if( (storyName == null) || (storyName.isEmpty()) || (storyName.trim().length() == 0) ) {
@@ -75,7 +75,7 @@ public class BasicStoryTestController {
 	}
 	
 	
-	@RequestMapping(value = "/get/byTestName/{testName}", method = RequestMethod.GET)
+	@RequestMapping(value = "/get/by-test-name/{testName}", method = RequestMethod.GET)
 	public ResponseEntity<?> getBasicStoryTestByTestName(@PathVariable("testName") String testName) {
 		
 		if( (testName == null) || (testName.isEmpty()) || (testName.trim().length() == 0) ) {
