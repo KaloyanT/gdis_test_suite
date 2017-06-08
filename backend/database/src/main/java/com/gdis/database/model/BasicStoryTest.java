@@ -1,18 +1,15 @@
 package com.gdis.database.model;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.persistence.Basic;
-import javax.persistence.CollectionTable;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.MapKeyColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -37,13 +34,18 @@ public class BasicStoryTest {
 	@Basic(optional = false)
 	private String testName;
 
+	/*
 	@ElementCollection
 	@MapKeyColumn(name = "attributes_key")
 	@Column(name = "value")
 	@CollectionTable(name = "basicStoryTest_attributes", joinColumns = @JoinColumn(name = "basicStoryTestID"))
 	@JoinTable(name = "basicStoryTest_attributes", joinColumns = @JoinColumn(name = "basicStoryTestID"))
 	private Map<String, String> attributes = new HashMap<String, String>();
-	 
+	*/
+	
+	@OneToMany(cascade = CascadeType.ALL)
+	private List<BasicStoryTestElement> data = new ArrayList<BasicStoryTestElement>();
+	
 	
 	public long getBasicStoryTestID() {
 		return basicStoryTestID;
@@ -69,7 +71,7 @@ public class BasicStoryTest {
 		this.testName = testName;
 	}
 
-
+	/*
 	public Map<String, String> getAttributes() {
 		return attributes;
 	}
@@ -77,39 +79,48 @@ public class BasicStoryTest {
 	public void setAttributes(Map<String, String> attributes) {
 		this.attributes = attributes;
 	}
-	
+	*/
 	
 	@Override
 	public String toString() {
 		
 		return "ContractRequest " + " [BasicStoryTestID: " + getBasicStoryTestID() + "]" 
-				+ " [storyName: " + getStoryName() + "]" + " [testName: " + getTestName() + "]"
-				+ " [attributes: " + getAttributes().toString() + "]";
+				+ " [storyName: " + getStoryName() + "]" + " [testName: " + getTestName() + "]" 
+				 + " [data: " + getData().toString() + "]";
 	}
 	
 	
 	public String toStringWithoutID() {
 		
 		return "ContractRequest " + " [storyName: " + getStoryName() + "]" 
-				+ " [testName: " + getTestName() + "]" + " [attributes: " + getAttributes().toString() + "]";
+				+ " [testName: " + getTestName() + "]" + " [data: " + getData().toString() + "]";
 	}
 	
 	
 	public long basicStoryTestHashCodeNoID() {
 		
 		long hash = Long.MAX_VALUE;
-		long mapHash = 0L;
+		long mapHash = Long.MAX_VALUE;
 		
 		
 		hash ^= getStoryName().hashCode();
 		hash ^= getTestName().hashCode();
 		
 		
+		for(BasicStoryTestElement bste : getData()) {
+			
+			for(Map.Entry<String, String> entry : bste.getAttributes().entrySet()) {
+				String keyValuePair = entry.getKey() + ":" + entry.getValue();
+				mapHash ^= keyValuePair.hashCode();
+			}
+		}
 		
+		/*
 		for(Map.Entry<String, String> entry : getAttributes().entrySet()) {
 			String keyValuePair = entry.getKey() + ":" + entry.getValue();
 			mapHash += keyValuePair.hashCode();
 		}
+		*/
 		
 		hash ^= mapHash;
 		
@@ -137,6 +148,15 @@ public class BasicStoryTest {
 		}
 		
 		return -1L;
+	}
+	
+
+	public List<BasicStoryTestElement> getData() {
+		return data;
+	}
+
+	public void setData(List<BasicStoryTestElement> data) {
+		this.data = data;
 	} 
 	
 	/*

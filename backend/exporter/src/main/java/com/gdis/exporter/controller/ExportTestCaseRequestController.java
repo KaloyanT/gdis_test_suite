@@ -1,29 +1,57 @@
 package com.gdis.exporter.controller;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.gdis.exporter.model.JSONResponse;
+import com.gdis.exporter.util.DBClient;
 
 @RestController
-@RequestMapping("/exporter/e/testcase")
+@RequestMapping("/exporter/e/testCase")
 public class ExportTestCaseRequestController {
 	
+	@RequestMapping(value = "/all", method = RequestMethod.GET)
+	public ResponseEntity<?> getAllTests() {
 	
-	@RequestMapping(method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE})
-	public ResponseEntity<?> handleGetRequest(@RequestParam(value="param") String param) {
+		DBClient dbClient = new DBClient();
 		
-		System.out.println(param);
+		List<JSONResponse> response = dbClient.exportAllTestsFromDB();
 		
-		ObjectMapper mapper = new ObjectMapper();
-		ObjectNode response = mapper.createObjectNode();
-		response.put("param", param);
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+	
+	
+	@RequestMapping(value = "/byStoryName/{storyName}", method = RequestMethod.GET)
+	public ResponseEntity<?> getTestsByStoryName(@PathVariable("storyName") String storyName) {
+		
+		//ObjectMapper objectMapper = new ObjectMapper();
+		
+		DBClient dbClient = new DBClient();
+		
+		List<JSONResponse> response = dbClient.exportTestsFromDBByStoryName(storyName);
+		
+		//System.out.println(response.size());
+		
+		//ObjectNode node = objectMapper.createObjectNode();
+		
+		
+		
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+	
+	
+	@RequestMapping(value = "/byTestName/{testName}", method = RequestMethod.GET)
+	public ResponseEntity<?> getTestsByTestName(@PathVariable("testName") String testName) {
+		
+		
+		DBClient dbClient = new DBClient();
+		
+		JSONResponse response = dbClient.exportCTestFromDBByTestName(testName);
 		
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}

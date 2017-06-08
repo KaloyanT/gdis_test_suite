@@ -57,6 +57,43 @@ public class BasicStoryTestController {
 	}
 	
 	
+	@RequestMapping(value = "/get/byStoryName/{storyName}", method = RequestMethod.GET)
+	public ResponseEntity<?> getBasicStoryTestByStoryName(@PathVariable("storyName") String storyName) {
+		
+		if( (storyName == null) || (storyName.isEmpty()) || (storyName.trim().length() == 0) ) {
+			return new ResponseEntity<>(new CustomErrorType("Invalid Story Name"), HttpStatus.NOT_FOUND);
+		}
+		
+		List<BasicStoryTest> storyList = basicStoryRepository.findByStoryName(storyName);
+		
+		if (storyList == null) {
+			return new ResponseEntity<>(new CustomErrorType("Story with name " + storyName
+					+ " not found"), HttpStatus.NOT_FOUND);
+		}
+		
+		return new ResponseEntity<>(storyList, HttpStatus.OK);
+	}
+	
+	
+	@RequestMapping(value = "/get/byTestName/{testName}", method = RequestMethod.GET)
+	public ResponseEntity<?> getBasicStoryTestByTestName(@PathVariable("testName") String testName) {
+		
+		if( (testName == null) || (testName.isEmpty()) || (testName.trim().length() == 0) ) {
+			return new ResponseEntity<>(new CustomErrorType("Invalid Test Name"), HttpStatus.NOT_FOUND);
+		}
+		
+		BasicStoryTest story = basicStoryRepository.findByTestName(testName);
+		
+		if (story == null) {
+			return new ResponseEntity<>(new CustomErrorType("Test with name " + testName
+					+ " not found"), HttpStatus.NOT_FOUND);
+		}
+		
+		return new ResponseEntity<>(story, HttpStatus.OK);
+	}
+	
+	
+	
 	@RequestMapping(value = "/insert", method = RequestMethod.POST)
 	public ResponseEntity<?> createBasicStoryTest(@RequestBody BasicStoryTest newBasicStoryTest) {
 	    
@@ -67,11 +104,19 @@ public class BasicStoryTestController {
 		
 		setStoryToSave(newBasicStoryTest);
 		
-		
-		boolean testExists = testExists(getStoryToSave());
+		long testExists = testExists(getStoryToSave());
 	
-		if(testExists == true) {
-			return new ResponseEntity<>(HttpStatus.CONFLICT);
+		if(testExists == -1) {
+			
+			//newBasicStoryTest.setBasicStoryTestID(testExists);
+			
+			return new ResponseEntity<>(new CustomErrorType("A Test with the same name already exists"),  
+					HttpStatus.CONFLICT);
+		
+		} else if (testExists == -2) {
+			
+			return new ResponseEntity<>(new CustomErrorType("This test already exists"),  
+					HttpStatus.CONFLICT);
 		}
 		
 		basicStoryRepository.save(newBasicStoryTest);
@@ -99,7 +144,8 @@ public class BasicStoryTestController {
 	
 		currentTest.setStoryName(updatedBasicStoryTest.getStoryName());
 		currentTest.setTestName(updatedBasicStoryTest.getTestName());
-		currentTest.setAttributes(updatedBasicStoryTest.getAttributes());
+		currentTest.setData(updatedBasicStoryTest.getData());
+		//currentTest.setAttributes(updatedBasicStoryTest.getAttributes());
 		
 		basicStoryRepository.save(currentTest);
 		
@@ -115,7 +161,8 @@ public class BasicStoryTestController {
 		BasicStoryTest currentStory = basicStoryRepository.findByBasicStoryTestID(id);
 		
 		if (currentStory == null) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(new CustomErrorType("Unable to delete. BasicStoryTest with ID "
+					+ id + " not found."), HttpStatus.NOT_FOUND);
 		}
 		
 		basicStoryRepository.delete(currentStory);
@@ -132,8 +179,21 @@ public class BasicStoryTestController {
 		this.storyToSave = storyToSave;
 	}
 	
-	
-	private boolean testExists(BasicStoryTest newBasicStoryTest) {
+	/**
+	 * 
+	 * @param newBasicStoryTest
+	 * @return
+	 */
+	private long testExists(BasicStoryTest newBasicStoryTest) {
+		
+		
+		BasicStoryTest testWithSameName = basicStoryRepository.findByTestName(newBasicStoryTest.getTestName());
+		
+		// Return 1 if there is a test with the same testNamee
+		if(testWithSameName != null) {
+			return -1L;
+			//return testWithSameName.getBasicStoryTestID();
+		}
 		
 		
 		List<BasicStoryTest> similarTests = basicStoryRepository.findByStoryNameAndTestName(
@@ -142,14 +202,16 @@ public class BasicStoryTestController {
 		long basicStoryTestID = newBasicStoryTest.storyExistsInDB(similarTests);
 		
 		
+		// Return 2 if there is a test with the same storyName, testName, and attributes
 		if(basicStoryTestID > 0) {
-			return true;
+			return -2L;
 		}
-				
+		
 		
 		//setStoryToSave(newBasicStoryTest);
-		
-		return false;
+
+		// Return 0 if the Test for this Story doesn't already exist
+		return 0;
 	} 
 	
 	

@@ -3,7 +3,6 @@ package com.gdis.importer.util;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 import java.util.Properties;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -42,13 +41,14 @@ public class DBClient {
 			throw new FileNotFoundException("Custom Properties File not found!");
 		}
 		
-		DB_URL = properties.getProperty("databaseAPI_URL");
+		setDB_URL(properties.getProperty("databaseAPI_URL"));
 		
 		inputStream.close();
 		
 	}
 	
-	public void importChunksInDB(List<ObjectNode> chunks, String storyType) {
+	//public void importChunksInDB(List<ObjectNode> chunks, String storyType) {
+	public void importChunksInDB(ObjectNode json, String storyType) {
 		
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
@@ -57,12 +57,12 @@ public class DBClient {
 		
 		// Debug DB POST Request Simulator
 		// final String url = "http://localhost:8083/importer/database/" + storyType;
-		final String url = DB_URL + "/" + storyType + "/insert";
+		final String url = getDB_URL() + "/" + storyType + "/insert";
 		
 		
-		for(ObjectNode i : chunks) {
+		//for(ObjectNode i : chunks) {
 			
-			HttpEntity<String> entity = new HttpEntity<String>(i.toString(), headers);
+			HttpEntity<String> entity = new HttpEntity<String>(json.toString(), headers);
 			//ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
 			//ResponseEntity<String> response = null;
 			
@@ -73,6 +73,14 @@ public class DBClient {
 			}
 			
 			
-		}
+		//}
+	}
+
+	public static String getDB_URL() {
+		return DB_URL;
+	}
+
+	public static void setDB_URL(String dB_URL) {
+		DB_URL = dB_URL;
 	}
 }

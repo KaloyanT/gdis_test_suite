@@ -2,7 +2,6 @@ package com.gdis.importer.model;
 
 import java.util.HashSet;
 import java.util.Set;
-
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class JSONWrapper {

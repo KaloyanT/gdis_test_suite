@@ -33,7 +33,7 @@ public class ContractStoryTest extends BasicStoryTest {
 		return "ContractRequest " + " [BasicStoryTestID: " + getBasicStoryTestID() + "]"
 				+ " [contract: " + getContract().toString() + " ]"
 				+ " [storyName: " + getStoryName() + "]" + " [testName: " + getTestName() + "]"
-				+ " [attributes: " + getAttributes().toString() + "]";
+				+ " [attributes: "; // + getAttributes().toString() + "]";
 	}
 	
 	@Override
@@ -41,7 +41,7 @@ public class ContractStoryTest extends BasicStoryTest {
 		
 		return "ContractRequest " + " [contract: " + getContract().toString() + " ]"
 				+ " [storyName: " + getStoryName() + "]" + " [testName: " + getTestName() + "]"
-				+ " [attributes: " + getAttributes().toString() + "]";
+				+ " [attributes: "; // + getAttributes().toString() + "]";
 	}
 
 }

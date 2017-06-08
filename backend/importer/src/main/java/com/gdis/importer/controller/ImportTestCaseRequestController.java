@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.gdis.importer.model.JSONWrapper;
 import com.gdis.importer.util.PreCondition;
@@ -29,9 +30,11 @@ public class ImportTestCaseRequestController {
 	
 	private JSONWrapper testCaseToImport;
 
-	private List<ObjectNode> chunksToImport;
+	private List<ObjectNode> attributeChunksToImport;
 
 	private String storyTypeImport;
+	
+	private ObjectNode jsonToExport;
 	
 	@RequestMapping(method = RequestMethod.POST, consumes = 
 	{ MediaType.APPLICATION_JSON_UTF8_VALUE}, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE})		
@@ -63,12 +66,17 @@ public class ImportTestCaseRequestController {
 		
 		checkTestName(getTestCaseToImport());
 		
-		chunksToImport = new ArrayList<ObjectNode>();
+		attributeChunksToImport = new ArrayList<ObjectNode>();
 		chunkJSON(getTestCaseToImport());
-				
+		
+		ObjectMapper mapper = new ObjectMapper();
+		jsonToExport = mapper.createObjectNode();
+		
+		buildJsonToExport(getJsonToExport(), getTestCaseToImport(), attributeChunksToImport);
+		
 		DBClient dbClient = new DBClient();
 		
-		dbClient.importChunksInDB(chunksToImport, getStoryTypeImport());
+		dbClient.importChunksInDB(getJsonToExport(), getStoryTypeImport());
 		
 		
 		return new ResponseEntity<>(HttpStatus.OK);
@@ -154,8 +162,8 @@ public class ImportTestCaseRequestController {
 	 * "storyName": "newContract", 
 	 * "testName": "name",
 	 * "testData": [
-	 * 	"attributes": {"name": "jack", "age": "20"}, 
-	 *  "attributes": {"name": "john", "age": "20"}
+	 * 	 {"name": "jack", "age": "20"}, 
+	 *   {"name": "john", "age": "20"}
 	 * ]
 	 */
 	 private void chunkJSON(JSONWrapper jsonWrapper) {
@@ -169,8 +177,8 @@ public class ImportTestCaseRequestController {
 			chunk = objectMapper.createObjectNode();
 			
 			//chunk.put("storyType", jsonWrapper.getStoryType());
-			chunk.put("testName", jsonWrapper.getTestName());
-			chunk.put("storyName", jsonWrapper.getStoryName());
+			//chunk.put("testName", jsonWrapper.getTestName());
+			//chunk.put("storyName", jsonWrapper.getStoryName());
 			// chunk.setAll(j);
 			
 			// With List<ObjectNode>
@@ -192,16 +200,34 @@ public class ImportTestCaseRequestController {
 			
 			
 			/**
-			 *  Get Every Key Value Pair so at the end the every JSON chunk looks like this: 
-			 * "storyName": "newContract", 
-			 * "testName": "name",
-			 * "testData": [
+			 *  Get Every Key Value Pair so at the end every JSON chunk looks like this: 
 			 * "attributes": {"name": "jack", "age": "20"}
 	 * ]
 			 */
-			chunksToImport.add(chunk);
+			attributeChunksToImport.add(chunk);
 		}	
 	}	
+	 
+	 
+	private void buildJsonToExport(ObjectNode json, JSONWrapper testCase, List<ObjectNode> attributes) {
+		
+		json.put("storyType", testCase.getStoryType());
+		json.put("testName", testCase.getTestName());
+		json.put("storyName", testCase.getStoryName());
+		
+		ObjectMapper mapper = new ObjectMapper();
+		
+		//ArrayNode arrayNode = json.putArray("data");
+		ArrayNode arrayNode = mapper.createArrayNode();
+		
+		for(ObjectNode j : attributes) {
+			arrayNode.add(j);
+		}
+		
+		json.putArray("data").addAll(arrayNode);
+		
+		setJsonToExport(json);
+	}
 	
 	
 	
@@ -221,6 +247,16 @@ public class ImportTestCaseRequestController {
 
 	public void setStoryTypeImport(String storyTypeImport) {
 		this.storyTypeImport = storyTypeImport;
+	}
+
+
+	public ObjectNode getJsonToExport() {
+		return jsonToExport;
+	}
+
+
+	public void setJsonToExport(ObjectNode jsonToExport) {
+		this.jsonToExport = jsonToExport;
 	}
 	
 }
