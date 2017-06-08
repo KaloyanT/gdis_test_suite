@@ -60,15 +60,15 @@ public class DBClient {
 		
 		//for(ObjectNode i : chunks) {
 			
-			HttpEntity<String> entity = new HttpEntity<String>(json.toString(), headers);
+		HttpEntity<String> entity = new HttpEntity<String>(json.toString(), headers);
 			//ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
 			//ResponseEntity<String> response = null;
 			
-			try {
+		try {
 				restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
-			} catch(HttpClientErrorException e) {
+		} catch(HttpClientErrorException e) {
 				//System.out.println(e.getStatusCode());
-			}
+		}
 			
 			
 		//}
