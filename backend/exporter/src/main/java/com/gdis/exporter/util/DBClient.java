@@ -78,7 +78,7 @@ public class DBClient {
 		}
 		
 		if(response != null) {
-			System.out.println(response.toString());
+			//System.out.println(response.toString());
 			res = new ArrayList<>(Arrays.asList(response.getBody()));
 		}
 		
@@ -107,7 +107,7 @@ public class DBClient {
 		}
 		
 		if(response != null) {
-			System.out.println(response.toString());
+			//System.out.println(response.toString());
 			res = new ArrayList<>(Arrays.asList(response.getBody()));
 		}
 		
@@ -131,11 +131,11 @@ public class DBClient {
 		try {
 			response = restTemplate.getForEntity(url, JSONResponse.class);
 		} catch(HttpClientErrorException e) {
-			System.out.println(e.getStatusCode());
+			//System.out.println(e.getStatusCode());
 		}
 		
 		if(response != null) {
-			System.out.println(response.toString());
+			//System.out.println(response.toString());
 			res = response.getBody();
 		}
 		

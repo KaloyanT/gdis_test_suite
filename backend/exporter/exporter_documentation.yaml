@@ -1,0 +1,118 @@
+swagger: '2.0'
+info:
+  description: >-
+    These APIs are used to interact with the Exporter and to export tests from
+    the database.
+  version: 1.0.0
+  title: Exporter
+  contact:
+    email: placeholder@rwth-aachen.de
+  license:
+    name: GNU GPL v3
+    url: 'https://www.gnu.org/licenses/gpl.txt'
+host: localhost
+basePath: /v2
+tags:
+  - name: exporter
+    description: Operations that the Exporter provide
+schemes:
+  - http
+paths:
+  '/exporter/e/{storyType}/all':
+    get:
+      tags:
+        - exporter
+      summary: Returns all tests for this storyType (only basicStoryTest currently)
+      description: Basically returns all existing tests for this storyType
+      operationId: getAllTestsByStoryType
+      produces:
+        - application/json
+      parameters:
+        - name: storyType
+          in: path
+          description: The storyType of the tests which have to be exported
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Returns a list with all the tests with this storyType. Can be empty.
+          schema:
+            $ref: '#/definitions/JSONResponse'
+  '/exporter/e/{storyType}/by-story-name/{storyName}':
+    get:
+      tags:
+        - exporter
+      summary: >-
+        Returns all tests for this storyType (only basicStoryTest currently) and
+        with this storyName
+      description: >-
+        Basically returns all existing tests for this storyType with this
+        storyName
+      operationId: getTestsByStoryName
+      produces:
+        - application/json
+      parameters:
+        - name: storyType
+          in: path
+          description: The storyType of the tests which have to be exported
+          required: true
+          type: string
+        - name: storyName
+          in: path
+          description: The storyName of the tests which have to be exported
+          required: true
+          type: string
+      responses:
+        '200':
+          description: >-
+            Returns a list with all the tests with this storyType and storyName.
+            Can be empty.
+          schema:
+            $ref: '#/definitions/JSONResponse'
+  '/exporter/e/{storyType}/by-test-name/{testName}':
+    get:
+      tags:
+        - exporter
+      summary: >-
+        Returns the test for this storyType (only basicStoryTest currently) and
+        with this testName
+      description: Basically returns the test for this storyType with this testName
+      operationId: getTestsByTestName
+      produces:
+        - application/json
+      parameters:
+        - name: storyType
+          in: path
+          description: The storyType of the tests which have to be exported
+          required: true
+          type: string
+        - name: testName
+          in: path
+          description: The testName of the test which has to be exported
+          required: true
+          type: string
+      responses:
+        '200':
+          description: >-
+            Returns a list which cointains a single element - the test with this
+            storyType and storyName. The list can also be empty.
+          schema:
+            $ref: '#/definitions/JSONResponse'
+definitions:
+  JSONResponse:
+    type: object
+    properties:
+      testName:
+        type: string
+        description: The name under which the test is saved in the database
+      storyType:
+        type: string
+        description: The storyType (only basicStoryType currenly) of the test
+      storyName:
+        type: string
+        description: The storyName of the test
+      testData:
+        type: array
+        description: >-
+          The actual test data. The data actually represents the rows of the
+          tables from the Front End.
