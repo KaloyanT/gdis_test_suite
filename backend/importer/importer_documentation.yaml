@@ -1,0 +1,61 @@
+swagger: '2.0'
+info:
+  description: >-
+    These APIs are used to interact with the Importer and to import, modify and
+    delete tests to/from the database.
+  version: 1.0.0
+  title: Importer
+  contact:
+    email: placeholder@rwth-aachen.de
+  license:
+    name: GNU GPL v3
+    url: 'https://www.gnu.org/licenses/gpl.txt'
+host: localhost
+basePath: /v2
+tags:
+  - name: importer
+    description: Operations that the Importer provide
+schemes:
+  - http
+paths:
+  /importer/i/test-case:
+    post:
+      tags:
+        - importer
+      summary: Import a new test to the database
+      description: Import a new test to the database
+      operationId: handleImportRequest
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: >-
+            The new test with all of its test data that has to be saved in the
+            database
+          required: true
+          schema:
+            $ref: '#/definitions/JSONWrapper'
+      responses:
+        '200':
+          description: Test successfully imported
+        '400':
+          description: Test data is corrupted
+definitions:
+  JSONWrapper:
+    type: object
+    properties:
+      testName:
+        type: string
+        description: The name under which the test will be saved in the database
+      storyType:
+        type: string
+        description: The storyType (only basicStoryType currenly) of the new test
+      storyName:
+        type: string
+        description: The storyName of the new test
+      testData:
+        type: array
+        description: >-
+          The actual test data. The data actually represents the rows of the
+          tables from the Front End.

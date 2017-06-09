@@ -25,7 +25,7 @@ public class ExportTestCaseRequestController {
 	
 	
 	@RequestMapping(value = "/{storyType}/all", method = RequestMethod.GET)
-	public ResponseEntity<?> getAllTests(@PathVariable("storyType") String storyType) {
+	public ResponseEntity<?> getAllTestsByStoryType(@PathVariable("storyType") String storyType) {
 	
 		DBClient dbClient = new DBClient();
 		
@@ -105,8 +105,7 @@ public class ExportTestCaseRequestController {
 		setElementsToExport(res);
 		
 	}
-		
-
+	
 
 	public List<ObjectNode> getElementsToExport() {
 		return elementsToExport;
