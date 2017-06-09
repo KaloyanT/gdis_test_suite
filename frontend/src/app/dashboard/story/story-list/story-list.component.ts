@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NgModule } from '@angular/core';
 import {Story} from '../story.model';
 
 @Component({
@@ -7,10 +7,16 @@ import {Story} from '../story.model';
   styleUrls: ['./story-list.component.css']
 })
 export class StoryListComponent implements OnInit {
+  selectedAll = false;
   stories: Story[] = [
-    new Story('Story 1', '1', '../tabelle.html'),
-    new Story('Story 2', '2', '../tabelle.html'),
-    new Story('Story 3', '3', '../tabelle.html'),
+    new Story('Story 1', '1', '../tabelle.html', false),
+    new Story('Story 2', '2', '../tabelle.html', false),
+    new Story('Story 3', '3', '../tabelle.html', false),
+  ];
+  inputs: Story[] = [
+    new Story('Story 1', '1', '../tabelle.html', false),
+    new Story('Story 2', '2', '../tabelle.html', false),
+    new Story('Story 3', '3', '../tabelle.html', false),
   ];
 
   storyStatus: boolean[] = [];
@@ -21,9 +27,16 @@ export class StoryListComponent implements OnInit {
   ngOnInit() {
   }
 
+  checkAll() {
+    this.selectedAll = true ? false : true;
+    // for (const st of this.inputs) {
+    //   st.selected = true;
+    // }
+  }
+
   displayIndex(i) {
     console.log(i);
-    for (var j = 0; j < this.storyStatus.length; j++) {
+    for (let j = 0; j < this.storyStatus.length; j++) {
       this.storyStatus[j] = false;
     }
     //   if (this.storyStatus[i] === true) {
@@ -86,3 +99,4 @@ export class StoryListComponent implements OnInit {
 //   };
 // }]);
 }
+
