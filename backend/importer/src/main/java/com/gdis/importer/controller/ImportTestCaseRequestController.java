@@ -76,8 +76,11 @@ public class ImportTestCaseRequestController {
 		
 		DBClient dbClient = new DBClient();
 		
-		dbClient.importChunksInDB(getJsonToExport(), getStoryTypeImport());
+		HttpStatus dbClientResponse = dbClient.importTestInDB(getJsonToExport(), getStoryTypeImport());
 		
+		if(dbClientResponse.value() != HttpStatus.CREATED.value()) {
+			return new ResponseEntity<>(dbClientResponse);
+		}
 		
 		return new ResponseEntity<>(HttpStatus.OK);
 		//return new ResponseEntity<JSONWrapper>(HttpStatus.OK);

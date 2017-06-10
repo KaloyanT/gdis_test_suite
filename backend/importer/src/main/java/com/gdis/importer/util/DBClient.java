@@ -7,8 +7,11 @@ import java.util.Properties;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -48,7 +51,11 @@ public class DBClient {
 	}
 	
 	//public void importChunksInDB(List<ObjectNode> chunks, String storyType) {
-	public void importChunksInDB(ObjectNode json, final String storyType) {
+	public HttpStatus importTestInDB(ObjectNode json, final String storyType) {
+		
+		//HttpStatus errorCode = null;
+		ResponseEntity<String> response = null;
+		
 		
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
@@ -57,21 +64,30 @@ public class DBClient {
 		
 		final String url = getDB_URL() + "/" + storyType + "/insert";
 		
-		
-		//for(ObjectNode i : chunks) {
-			
 		HttpEntity<String> entity = new HttpEntity<String>(json.toString(), headers);
-			//ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
-			//ResponseEntity<String> response = null;
 			
 		try {
-				restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+			response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
 		} catch(HttpClientErrorException e) {
-				//System.out.println(e.getStatusCode());
+			
+			//errorCode = e.getStatusCode();
+			return e.getStatusCode();
+			
+		} catch (RestClientException re) {
+			// No DB Connection
+			//errorCode = 500;
+			return HttpStatus.INTERNAL_SERVER_ERROR;
+			
 		}
-			
-			
-		//}
+		
+		/*
+		if(errorCode != 0) {
+			return errorCode;
+		}
+		 return response.getStatusCodeValue();
+		*/
+	
+		return response.getStatusCode();
 	}
 
 	public static String getDB_URL() {

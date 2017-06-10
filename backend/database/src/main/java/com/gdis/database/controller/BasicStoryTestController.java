@@ -89,7 +89,10 @@ public class BasicStoryTestController {
 					+ " not found"), HttpStatus.NOT_FOUND);
 		}
 		
-		return new ResponseEntity<>(story, HttpStatus.OK);
+		List<BasicStoryTest> storyList = new ArrayList<BasicStoryTest>();
+		storyList.add(story);
+		
+		return new ResponseEntity<>(storyList, HttpStatus.OK);
 	}
 	
 	

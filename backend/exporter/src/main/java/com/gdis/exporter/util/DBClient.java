@@ -11,6 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import com.gdis.exporter.model.JSONResponse;
 
@@ -74,7 +75,10 @@ public class DBClient {
 		try {
 			response = restTemplate.getForEntity(url, JSONResponse[].class);
 		} catch(HttpClientErrorException e) {
-			//System.out.println(e.getStatusCode());
+			return null;
+		} catch (RestClientException re) {
+			// No DB Connection
+			return null;
 		}
 		
 		if(response != null) {
@@ -103,11 +107,13 @@ public class DBClient {
 		try {
 			response = restTemplate.getForEntity(url, JSONResponse[].class);
 		} catch(HttpClientErrorException e) {
-			//System.out.println(e.getStatusCode());
+			return null;
+		} catch (RestClientException re) {
+			// No DB Connection
+			return null;
 		}
 		
 		if(response != null) {
-			//System.out.println(response.toString());
 			res = new ArrayList<>(Arrays.asList(response.getBody()));
 		}
 		
@@ -116,28 +122,31 @@ public class DBClient {
 	} 
 	
 	
-	public JSONResponse exportCTestFromDBByTestName(final String storyType, final String testName) {
+	public List<JSONResponse> exportTestFromDBByTestName(final String storyType, final String testName) {
 		
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
 
 		RestTemplate restTemplate = new RestTemplate();
-		JSONResponse res = null;
+		List<JSONResponse> res = null;
 		
 		final String url = getDB_URL() + "/" + storyType + "/get/by-test-name/" + testName;
 		
-		ResponseEntity<JSONResponse> response = null; 
+		ResponseEntity<JSONResponse[]> response = null; 
 		
 		try {
-			response = restTemplate.getForEntity(url, JSONResponse.class);
+			response = restTemplate.getForEntity(url, JSONResponse[].class);
 		} catch(HttpClientErrorException e) {
-			//System.out.println(e.getStatusCode());
+			return new ArrayList<JSONResponse>();
+		} catch (RestClientException re) {
+			// No DB Connection
+			return null;
 		}
 		
 		if(response != null) {
-			//System.out.println(response.toString());
-			res = response.getBody();
-		}
+			res = new ArrayList<>(Arrays.asList(response.getBody()));
+		
+		} 
 		
 		
 		return res;

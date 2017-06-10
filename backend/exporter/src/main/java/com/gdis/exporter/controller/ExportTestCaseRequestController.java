@@ -31,6 +31,10 @@ public class ExportTestCaseRequestController {
 		
 		List<JSONResponse> response = dbClient.exportAllTestsFromDB(storyType);
 		
+		if(response == null) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
 		buildJsonElementsToExport(response, storyType);
 		
 		return new ResponseEntity<>(getElementsToExport(), HttpStatus.OK);
@@ -46,6 +50,10 @@ public class ExportTestCaseRequestController {
 		DBClient dbClient = new DBClient();
 		
 		List<JSONResponse> response = dbClient.exportTestsFromDBByStoryName(storyType, storyName);
+		
+		if(response == null) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 		
 		buildJsonElementsToExport(response, storyType);
 		
@@ -66,13 +74,13 @@ public class ExportTestCaseRequestController {
 		
 		DBClient dbClient = new DBClient();
 		
-		JSONResponse response = dbClient.exportCTestFromDBByTestName(storyType, testName);
+		List<JSONResponse> response = dbClient.exportTestFromDBByTestName(storyType, testName);
 		
-		List<JSONResponse> responseAsList = new ArrayList<JSONResponse>();
-		responseAsList.add(response);
+		if(response == null) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 		
-		
-		buildJsonElementsToExport(responseAsList, storyType);
+		buildJsonElementsToExport(response, storyType);
 		
 		
 		return new ResponseEntity<>(getElementsToExport(), HttpStatus.OK);
