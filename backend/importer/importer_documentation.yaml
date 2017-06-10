@@ -40,7 +40,11 @@ paths:
         '200':
           description: Test successfully imported
         '400':
-          description: Test data is corrupted
+          description: Test data is corrupted or incomplete
+        '409': 
+          description: A test with the same name already exists 
+        '500': 
+          description: Internal server error. Can't connect to the database or similar 
 definitions:
   JSONWrapper:
     type: object

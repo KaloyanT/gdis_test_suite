@@ -2,14 +2,12 @@ package com.gdis.exporter.controller;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -45,8 +43,6 @@ public class ExportTestCaseRequestController {
 	public ResponseEntity<?> getTestsByStoryName(@PathVariable("storyType") String storyType, 
 			@PathVariable("storyName") String storyName) {
 		
-		//ObjectMapper objectMapper = new ObjectMapper();
-		
 		DBClient dbClient = new DBClient();
 		
 		List<JSONResponse> response = dbClient.exportTestsFromDBByStoryName(storyType, storyName);
@@ -56,13 +52,7 @@ public class ExportTestCaseRequestController {
 		}
 		
 		buildJsonElementsToExport(response, storyType);
-		
-		//System.out.println(response.size());
-		
-		//ObjectNode node = objectMapper.createObjectNode();
-		
-		
-		
+				
 		return new ResponseEntity<>(getElementsToExport(), HttpStatus.OK);
 	}
 	

@@ -40,9 +40,7 @@ public class ImportTestCaseRequestController {
 	{ MediaType.APPLICATION_JSON_UTF8_VALUE}, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE})		
 	public ResponseEntity<?> handleImportRequest(@RequestBody JSONWrapper jsonWrapper) {	
 
-		//Precondition.require(!json.equals("{}"), "JSON length == 0!");
 		PreCondition.notNull(jsonWrapper, "JSON is empty!");
-		
 		
 		setTestCaseToImport(jsonWrapper);
 		

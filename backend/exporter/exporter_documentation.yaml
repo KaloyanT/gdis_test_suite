@@ -38,6 +38,8 @@ paths:
           description: Returns a list with all the tests with this storyType. Can be empty.
           schema:
             $ref: '#/definitions/JSONResponse'
+        '500': 
+          description: Internal server error. Can't connect to the database or similar 
   '/exporter/e/{storyType}/by-story-name/{storyName}':
     get:
       tags:
@@ -69,6 +71,8 @@ paths:
             Can be empty.
           schema:
             $ref: '#/definitions/JSONResponse'
+        '500': 
+          description: Internal server error. Can't connect to the database or similar 
   '/exporter/e/{storyType}/by-test-name/{testName}':
     get:
       tags:
@@ -98,6 +102,8 @@ paths:
             storyType and storyName. The list can also be empty.
           schema:
             $ref: '#/definitions/JSONResponse'
+        '500': 
+          description: Internal server error. Can't connect to the database or similar 
 definitions:
   JSONResponse:
     type: object
