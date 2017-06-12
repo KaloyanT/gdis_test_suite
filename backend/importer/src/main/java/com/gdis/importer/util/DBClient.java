@@ -1,56 +1,65 @@
 package com.gdis.importer.util;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+@Component
 public class DBClient {
 	
-	private static String DB_URL;
+	private String DATABASEAPI_URL;
 	
-	public DBClient() {
+	@Autowired
+	public DBClient(@Value("${DATABASEAPI_URL}") String DATABASEAPI_URL) {
 		
-		try {
-			readAndSetDBUrl();
+		this.DATABASEAPI_URL = DATABASEAPI_URL;
+		
+		/*try {
+			readAndSetDBUrlIfNull();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
+		}*/
+		
 	}
 	
-	private void readAndSetDBUrl() throws IOException, FileNotFoundException {
+	/*
+	private void readAndSetDBUrlIfNull() throws IOException, FileNotFoundException {
+		
+		if(getDB_URL() != null) {
+			return;
+		}
 		
 		// Read customProperties file
 		Properties properties = new Properties();
 		InputStream inputStream = null;
 		
-		inputStream = getClass().getClassLoader().getResourceAsStream("customProperties.properties");
+		inputStream = getClass().getClassLoader().getResourceAsStream("application.properties");
 		
 		if(inputStream != null) {
 			properties.load(inputStream);
 		} else {
-			throw new FileNotFoundException("Custom Properties File not found!");
+			throw new FileNotFoundException("Application Properties File not found!");
 		}
 		
 		setDB_URL(properties.getProperty("databaseAPI_URL"));
 		
 		inputStream.close();
 		
-	}
+	}*/
 	
-	//public void importChunksInDB(List<ObjectNode> chunks, String storyType) {
+	
 	public HttpStatus importTestInDB(ObjectNode json, final String storyType) {
 		
 		//HttpStatus errorCode = null;
@@ -62,7 +71,11 @@ public class DBClient {
 
 		RestTemplate restTemplate = new RestTemplate();
 		
-		final String url = getDB_URL() + "/" + storyType + "/insert";
+		if(getDATABASEAPI_URL() == null) {
+			return HttpStatus.INTERNAL_SERVER_ERROR;
+		}
+		
+		final String url = getDATABASEAPI_URL() + "/" + storyType + "/insert";
 		
 		HttpEntity<String> entity = new HttpEntity<String>(json.toString(), headers);
 			
@@ -90,11 +103,11 @@ public class DBClient {
 		return response.getStatusCode();
 	}
 
-	public static String getDB_URL() {
-		return DB_URL;
+	public String getDATABASEAPI_URL() {
+		return DATABASEAPI_URL;
 	}
 
-	public static void setDB_URL(String dB_URL) {
-		DB_URL = dB_URL;
+	public void setDATABASEAPI_URL(String DATABASEAPI_URL) {
+		this.DATABASEAPI_URL = DATABASEAPI_URL;
 	}
 }

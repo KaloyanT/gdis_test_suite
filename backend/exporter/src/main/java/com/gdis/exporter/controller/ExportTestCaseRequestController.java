@@ -2,6 +2,8 @@ package com.gdis.exporter.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,12 +23,13 @@ public class ExportTestCaseRequestController {
 	
 	private List<ObjectNode> elementsToExport;
 	
+	@Autowired
+	private DBClient dbClient;
 	
 	@RequestMapping(value = "/{storyType}/all", method = RequestMethod.GET)
 	public ResponseEntity<?> getAllTestsByStoryType(@PathVariable("storyType") String storyType) {
 	
-		DBClient dbClient = new DBClient();
-		
+			
 		List<JSONResponse> response = dbClient.exportAllTestsFromDB(storyType);
 		
 		if(response == null) {
@@ -43,7 +46,6 @@ public class ExportTestCaseRequestController {
 	public ResponseEntity<?> getTestsByStoryName(@PathVariable("storyType") String storyType, 
 			@PathVariable("storyName") String storyName) {
 		
-		DBClient dbClient = new DBClient();
 		
 		List<JSONResponse> response = dbClient.exportTestsFromDBByStoryName(storyType, storyName);
 		
@@ -61,8 +63,6 @@ public class ExportTestCaseRequestController {
 	public ResponseEntity<?> getTestsByTestName(@PathVariable("storyType") String storyType, 
 			@PathVariable("testName") String testName) {
 		
-		
-		DBClient dbClient = new DBClient();
 		
 		List<JSONResponse> response = dbClient.exportTestFromDBByTestName(storyType, testName);
 		

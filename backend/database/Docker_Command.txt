@@ -1,0 +1,6 @@
+mvn clean package docker:build
+
+Docker command: 
+docker run -d --name database --links gdis_db:mysql -p 8081:8081 \ 
+					-e DATABASE_HOST=gdis_db -e DATABASE_PORT=3306 -e DATABASE_NAME=gdis_db \ 
+					-e DATABASE_USER=gdis_db_user -e DATABASE_PASSWORD=abcd1234 gdis.db/database

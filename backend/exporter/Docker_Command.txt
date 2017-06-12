@@ -1,0 +1,5 @@
+mvn clean package docker:build
+
+Docker command: 
+docker run -d --name exporter -p 8082:8082 \ 
+					-e DATABASE_URL=192.168.99.100 -e DATABASE_PORT=8081 gdis.exporter/exporter
