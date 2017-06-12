@@ -4,3 +4,7 @@ services:
     build: backend/api
     ports:
       - "40042:5000"
+  frontend:
+    build: frontend
+    ports:
+      - "80:8080"
