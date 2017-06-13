@@ -1,0 +1,22 @@
+<div class="jumbotron text-center">
+    <h1>GDIS Test Daten Import</h1>
+
+    <p>{{ message }}</p>
+
+    <div class="col-sm-3">
+    	<p>Bitte Datei(en) auswählen.</p>
+    </div>
+
+    <div class="input-group col-sm-6">
+        <label class="input-group-btn">
+            <span class="btn btn-primary">
+                Select <input type="file" style="display: none;" id="file" accept='text/csv' name="file" multiple>
+            </span>
+        </label>
+        	<input type="text" class="form-control" readonly>
+    </div>
+
+    <div class="col-sm-3">
+		<button class="btn btn-primary" ng-click="upload()" style="float: left;">Import</button>
+	</div>
+</div>

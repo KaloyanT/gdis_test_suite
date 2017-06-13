@@ -1,20 +1,27 @@
-<!-- index.html -->
-    <!DOCTYPE html>
+<html ng-app="gdisApp">
+<head>
+  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.0/css/font-awesome.css" />
+  <link rel="stylesheet" href="gdisStyles.css">
 
-    <!-- define angular app -->
-    <html ng-app="scotchApp">
-    <head>
-      <script src="script.js"></script>
-    </head>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.25/angular.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.25/angular-route.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.2.1.js"></script>
+  <script src="script.js"></script>
+</head>
 
-    <!-- define angular controller -->
-    <body ng-controller="mainController">
+<body ng-controller="mainController"> 
+<ul ng-controller="navBarController">
+  <li data-ng-click="sortCategory('home')" ng-class="{'active' : isActive('home')}"><a href="#">Home</a></li>
+  <li data-ng-click="sortCategory('import')" ng-class="{'active' : isActive('import')}"><a href="#import">Import</a></li>
+  <li data-ng-click="sortCategory('export')" ng-class="{'active' : isActive('export')}"><a href="#export">Export</a></li>
+</ul>
 
+<div style="padding:20px;margin-top:30px;background-color:#CCCCCC;height:1500px;" id="main">
+    <div ng-view></div>
 
-    <!-- MAIN CONTENT AND INJECTED VIEWS -->
-    <div id="main">
-        {{ message }}
+</div>
 
-        <!-- angular templating -->
-        <!-- this is where content will be injected -->
-    </div>
+</body>
+</html>
