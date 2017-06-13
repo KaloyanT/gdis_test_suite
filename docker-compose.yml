@@ -1,6 +1,13 @@
 version: "2"
 services:
-  api:
-    build: backend/api
-    ports:
-      - "40042:5000"
+#  api:
+#    build: backend/api
+#    ports:
+#      - "40042:5000"
+  mysql_db:
+    image: mysql-server:latest
+    environment: 
+      - MYSQL_DATABASE=gdis_db
+      - MYSQL_USER=gdis_db_user
+      - MYSQL_PASSWORD=abcd1234
+      - MYSQL_ROOT_PASSWORD=abcd1234
