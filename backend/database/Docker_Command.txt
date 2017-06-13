@@ -1,3 +1,9 @@
+Requirements: 
+MySQL-Server should be running at the address given for the property 
+spring.datasource.url under database/src/main/resources/application.properties 
+Set the address to localhost or 192.168.99.100 (The IP of the Docker VirtualBox VM). After that you can run the mvn command given below 
+Note: Look at the application.properties and not application-docker.properties
+
 mvn clean package docker:build
 
 Docker command: 
