@@ -8,3 +8,10 @@ services:
     build: frontend
     ports:
       - "80:8080"
+ mysql_db:
+  image: mysql/mysql-server:latest
+  environment: 
+     - MYSQL_DATABASE=gdis_db
+     - MYSQL_USER=gdis_db_user
+     - MYSQL_PASSWORD=abcd1234
+     - MYSQL_ROOT_PASSWORD=abcd1234

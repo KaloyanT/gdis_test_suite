@@ -41,22 +41,27 @@ gdisApp.controller('importController', function($scope, $http) {
     $scope.message = 'Hier können Daten importiert werden.';
     
     $scope.upload = function() {
-        var f = document.getElementById('file').files[0],
-            r = new FileReader();
+        var f = document.getElementById('file').files;
 
         if(f) {
-            console.log(f);
+            r = new FileReader();
+            
+            for (file in f){
 
-            r.onloadend = function(e) {
-                var data = e.target.result;
-                console.log(e);
-                $http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
-                $http.defaults.headers.post['dataType'] = 'text/csv'
-                console.log(data);
-                $http.post('http://localhost:40042/record', data);
-            }
+                console.log(file);
 
-            r.readAsText(f);            
+                r.onloadend = function(e) {
+                    var data = e.target.result;
+                    console.log(e);
+                    $http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
+                    $http.defaults.headers.post['dataType'] = 'text/csv'
+                    console.log(data);
+                    $http.post('http://localhost:40042/record', data);
+                }
+
+                r.readAsText(file); 
+
+            }           
         } else {
             alert('Keine Dateien ausgesucht!');
         }
