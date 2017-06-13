@@ -14,9 +14,8 @@ def allowed_file(request, filename):
 class Record(Resource):
 
     def post(self):
-
         if 'file' not in request.files:
-            resp = Response(response=str(request.form), status=400)
+            resp = Response(response=str(request.data), status=400)
             print('fdajkfdkadgdf')
             print(request.form)
             print(request.values)
