@@ -23,27 +23,14 @@ public class BasicStoryTest {
 	@Column(name = "basicStoryTestID")
 	private long basicStoryTestID;
 	
-	// Use this ID to associate a story, like New Contract, with id
-	// @JsonIgnore
-	// @Column(name = "storyID")
-	// private long storyID;
-	
 	@Basic(optional = false)
 	private String storyName;
 	
 	@Basic(optional = false)
+	@Column(unique = true)
 	private String testName;
-
-	/*
-	@ElementCollection
-	@MapKeyColumn(name = "attributes_key")
-	@Column(name = "value")
-	@CollectionTable(name = "basicStoryTest_attributes", joinColumns = @JoinColumn(name = "basicStoryTestID"))
-	@JoinTable(name = "basicStoryTest_attributes", joinColumns = @JoinColumn(name = "basicStoryTestID"))
-	private Map<String, String> attributes = new HashMap<String, String>();
-	*/
 	
-	@OneToMany(cascade = CascadeType.ALL)
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "basicStoryTest", orphanRemoval = true)
 	private List<BasicStoryTestElement> data = new ArrayList<BasicStoryTestElement>();
 	
 	
@@ -69,17 +56,7 @@ public class BasicStoryTest {
 
 	public void setTestName(String testName) {
 		this.testName = testName;
-	}
-
-	/*
-	public Map<String, String> getAttributes() {
-		return attributes;
-	}
-
-	public void setAttributes(Map<String, String> attributes) {
-		this.attributes = attributes;
-	}
-	*/
+	}	
 	
 	@Override
 	public String toString() {
@@ -114,13 +91,6 @@ public class BasicStoryTest {
 				mapHash ^= keyValuePair.hashCode();
 			}
 		}
-		
-		/*
-		for(Map.Entry<String, String> entry : getAttributes().entrySet()) {
-			String keyValuePair = entry.getKey() + ":" + entry.getValue();
-			mapHash += keyValuePair.hashCode();
-		}
-		*/
 		
 		hash ^= mapHash;
 		
@@ -158,6 +128,24 @@ public class BasicStoryTest {
 	public void setData(List<BasicStoryTestElement> data) {
 		this.data = data;
 	} 
+	
+	public void addData(BasicStoryTestElement dataElement) {
+		data.add(dataElement);
+		dataElement.setBasicStoryTest(this);
+	}
+	
+	public void removeData(BasicStoryTestElement dataElement) {
+		data.remove(dataElement);
+		dataElement.setBasicStoryTest(null);
+	}
+	
+	public void clearData() {
+		
+		for(BasicStoryTestElement bste : getData()) {
+			bste.setBasicStoryTest(null);
+		}
+		data.clear();
+	}
 	
 	/*
 	private void formatDates() {

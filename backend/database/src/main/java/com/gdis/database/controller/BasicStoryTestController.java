@@ -149,11 +149,27 @@ public class BasicStoryTestController {
 			return new ResponseEntity<>(new CustomErrorType("Unable to update. BasicStoryTest with ID "
 					+ id + " not found."), HttpStatus.NOT_FOUND);
 		}
+		
+		BasicStoryTest testWithSameName = basicStoryRepository.findByTestName(updatedBasicStoryTest.getTestName());
+		
+		if(testWithSameName != null) {
+			
+			if(currentTest.getBasicStoryTestID() != testWithSameName.getBasicStoryTestID()) {
+				return new ResponseEntity<>(new CustomErrorType("Unable to update. There is another test"
+						+ "with this testName."), HttpStatus.CONFLICT);
+			}
+		}
+		
+		currentTest.clearData();
 	
 		currentTest.setStoryName(updatedBasicStoryTest.getStoryName());
 		currentTest.setTestName(updatedBasicStoryTest.getTestName());
-		currentTest.setData(updatedBasicStoryTest.getData());
+		//currentTest.setData(updatedBasicStoryTest.getData());
 		//currentTest.setAttributes(updatedBasicStoryTest.getAttributes());
+		
+		for(BasicStoryTestElement bste : updatedBasicStoryTest.getData()) {
+			currentTest.addData(bste);
+		}
 		
 		basicStoryRepository.save(currentTest);
 		

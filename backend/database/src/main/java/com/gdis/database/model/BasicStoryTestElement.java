@@ -2,18 +2,17 @@ package com.gdis.database.model;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
+import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyColumn;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -35,8 +34,10 @@ public class BasicStoryTestElement {
 	@JoinTable(name = "basicStoryTestElement_attributes", joinColumns = @JoinColumn(name = "basicStoryTestElementID"))
 	private Map<String, String> attributes = new HashMap<String, String>();
 	
-	// @ManyToOne
-	@OneToOne(cascade = CascadeType.ALL)
+	// @OneToOne(cascade = CascadeType.ALL)
+	//@ManyToOne(cascade = CascadeType.ALL)
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "basic_story_test_basicStoryTestID")
 	private BasicStoryTest basicStoryTest;
 	
 	@JsonIgnore
@@ -64,5 +65,30 @@ public class BasicStoryTestElement {
 
 	public void setBasicStoryTest(BasicStoryTest basicStoryTest) {
 		this.basicStoryTest = basicStoryTest;
+	}
+	
+	/**
+	 * Override the default equals method for consistency
+	 */
+	@Override
+	public boolean equals(Object o) {
+		
+		if(this == o) {
+			return true;
+		}
+		if(! (o instanceof BasicStoryTestElement) ) {
+			return false;
+		}
+		
+		return (this.basicStoryTestElementID != 0) && 
+				(this.basicStoryTestElementID == ((BasicStoryTestElement) o).basicStoryTestElementID);
+	}
+	
+	/**
+	 * Use this hashCode for consistency
+	 */
+	@Override
+	public int hashCode() {
+		return 1;
 	}
 }
