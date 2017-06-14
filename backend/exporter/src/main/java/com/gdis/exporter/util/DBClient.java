@@ -36,15 +36,15 @@ public class DBClient {
 	
 	public List<JSONResponse> exportAllTestsFromDB(final String storyType) {
 		
+		if(getDATABASEAPI_URL() == null) {
+			return null;
+		}
+		
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
 
 		RestTemplate restTemplate = new RestTemplate();
 		List<JSONResponse> res = null;
-		
-		if(getDATABASEAPI_URL() == null) {
-			return null;
-		}
 		
 		final String url = getDATABASEAPI_URL() + "/" + storyType;
 		
@@ -71,15 +71,15 @@ public class DBClient {
 	
 	public List<JSONResponse> exportTestsFromDBByStoryName(final String storyType, final String storyName) {
 		
+		if(getDATABASEAPI_URL() == null) {
+			return null;
+		}
+		
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
 
 		RestTemplate restTemplate = new RestTemplate();
 		List<JSONResponse> res = null;
-		
-		if(getDATABASEAPI_URL() == null) {
-			return null;
-		}
 		
 		final String url = getDATABASEAPI_URL() + "/" + storyType + "/get/by-story-name/" + storyName;
 		
@@ -105,15 +105,15 @@ public class DBClient {
 	
 	public List<JSONResponse> exportTestFromDBByTestName(final String storyType, final String testName) {
 		
+		if(getDATABASEAPI_URL() == null) {
+			return null;
+		}
+		
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
 
 		RestTemplate restTemplate = new RestTemplate();
 		List<JSONResponse> res = null;
-		
-		if(getDATABASEAPI_URL() == null) {
-			return null;
-		}
 		
 		final String url = getDATABASEAPI_URL() + "/" + storyType + "/get/by-test-name/" + testName;
 		

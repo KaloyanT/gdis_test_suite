@@ -41,10 +41,63 @@ paths:
           description: Test successfully imported
         '400':
           description: Test data is corrupted or incomplete
-        '409': 
-          description: A test with the same name already exists 
-        '500': 
-          description: Internal server error. Can't connect to the database or similar 
+        '409':
+          description: A test with the same name already exists
+        '500':
+          description: Internal server error. Can't connect to the database or similar
+  '/importer/u/test-case/{id}':
+    put:
+      tags:
+        - importer
+      summary: Update a test case in the database
+      operationId: handleUpdateRequest
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: The updated test with all of its updated test data
+          required: true
+          schema:
+            $ref: '#/definitions/JSONWrapper'
+        - name: id
+          in: path
+          description: The ID of the test which has to be updated
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Test successfully updated
+        '400':
+          description: >-
+            Updated Test Data is null. Should not be returned, since the test
+            data is checked before it is send to the database
+        '404':
+          description: A Test with this id doesn't exist
+  '/importer/d/test-case/{storyType}/{id}':
+    delete:
+      tags:
+        - importer
+      summary: Delete a the test case with the given ID from the database
+      operationId: handleDeleteRequest
+      parameters:
+        - name: storyType
+          in: path
+          description: The storyType of the test which has to be delete
+          required: true
+          type: string
+        - name: id
+          in: path
+          description: The ID of the test which has to be delete
+          required: true
+          type: integer
+          format: int64
+      responses:
+        '200':
+          description: Test successfully deleted
+        '404':
+          description: A Test with this id doesn't exist
 definitions:
   JSONWrapper:
     type: object

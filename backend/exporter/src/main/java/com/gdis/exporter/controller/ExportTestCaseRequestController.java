@@ -86,6 +86,7 @@ public class ExportTestCaseRequestController {
 			
 			ObjectNode currentNode = mapper.createObjectNode();
 			
+			//currentNode.put("basicStoryTestID", jResponse.getBasicStoryTestID());
 			currentNode.put("storyType", storyType);
 			currentNode.put("storyName", jResponse.getStoryName());
 			currentNode.put("testName", jResponse.getTestName());

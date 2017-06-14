@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class JSONResponse {
 	
+	private long basicStoryTestID;
+	
 	private String testName;
 	
 	private String storyName;
@@ -34,6 +36,14 @@ public class JSONResponse {
 
 	public void setData(List<ObjectNode> data) {
 		this.data = data;
+	}
+
+	public long getBasicStoryTestID() {
+		return basicStoryTestID;
+	}
+
+	public void setBasicStoryTestID(long basicStoryTestID) {
+		this.basicStoryTestID = basicStoryTestID;
 	}
 
 }

@@ -5,13 +5,13 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -28,7 +28,7 @@ import com.gdis.importer.util.DBClient;
 
 @RestController
 @RequestMapping("/importer")
-public class ImportTestCaseRequestController {
+public class TestCaseRequestController {
 	
 	private JSONWrapper testCaseToImport;
 
@@ -89,6 +89,68 @@ public class ImportTestCaseRequestController {
 		//return new ResponseEntity<JSONWrapper>(HttpStatus.OK);
 	}
 	
+	@RequestMapping(value = "/u/test-case/{id}", method = RequestMethod.PUT, consumes = 
+		{ MediaType.APPLICATION_JSON_UTF8_VALUE}, produces = {MediaType.APPLICATION_JSON_UTF8_VALUE})
+	public ResponseEntity<?> handleUpdateRequest(@PathVariable("id") long id, @RequestBody JSONWrapper jsonWrapper) {
+		
+		PreCondition.notNull(jsonWrapper, "JSON is empty!");
+		PreCondition.require(id >= 0, "Test ID can't be negative!");
+		
+		setTestCaseToImport(jsonWrapper);
+		
+		// Return HTTP 400 if the JSON is missing the Story Type or The test data
+		if(missingStoryType(getTestCaseToImport()) == true) {
+			setTestCaseToImport(null);
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		} else {
+			setStoryTypeImport(getTestCaseToImport().getStoryType());
+		}
+		
+		if(missingStoryName(getTestCaseToImport()) == true) {
+			setTestCaseToImport(null);
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+		
+		if(missingTestData(getTestCaseToImport()) == true) {
+			setTestCaseToImport(null);
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+		
+		checkTestName(getTestCaseToImport());
+		
+		attributeChunksToImport = new ArrayList<ObjectNode>();
+		chunkJSON(getTestCaseToImport());
+		
+		ObjectMapper mapper = new ObjectMapper();
+		jsonToExport = mapper.createObjectNode();
+		
+		buildJsonToExport(getJsonToExport(), getTestCaseToImport(), attributeChunksToImport);
+		
+		//DBClient dbClient = new DBClient();
+		
+		HttpStatus dbClientResponse = dbClient.updateTestInDB(getJsonToExport(), getStoryTypeImport(), id);
+		
+		if(dbClientResponse.value() != HttpStatus.OK.value()) {
+			return new ResponseEntity<>(dbClientResponse);
+		}
+		
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/d/test-case/{storyType}/{id}", method = RequestMethod.DELETE)
+	public ResponseEntity<?> handleDeleteRequest(@PathVariable("id") long id, 
+			@PathVariable("storyType") String storyType) {
+		
+		PreCondition.require(id >= 0, "Test ID can't be negative!");
+		
+		HttpStatus dbClientResponse = dbClient.deleteTestFromDB(storyType, id);
+		
+		if(dbClientResponse.value() != HttpStatus.OK.value()) {
+			return new ResponseEntity<>(dbClientResponse);
+		}
+		
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
 	
 	@ExceptionHandler({HttpMessageNotReadableException.class})
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
