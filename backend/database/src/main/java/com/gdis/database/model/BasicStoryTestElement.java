@@ -35,7 +35,7 @@ public class BasicStoryTestElement {
 	@JoinTable(name = "basicStoryTestElement_attributes", joinColumns = @JoinColumn(name = "basicStoryTestElementID"))
 	private Map<String, String> attributes = new HashMap<String, String>();
 	
-	
+	// @ManyToOne
 	@OneToOne(cascade = CascadeType.ALL)
 	private BasicStoryTest basicStoryTest;
 	

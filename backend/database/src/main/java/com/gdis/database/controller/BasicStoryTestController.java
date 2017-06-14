@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import com.gdis.database.model.BasicStoryTest;
+import com.gdis.database.model.BasicStoryTestElement;
 import com.gdis.database.service.BasicStoryTestRepository;
 import com.gdis.database.util.CustomErrorType;
 import com.gdis.database.util.PreCondition;
@@ -120,6 +121,10 @@ public class BasicStoryTestController {
 			
 			return new ResponseEntity<>(new CustomErrorType("This test already exists"),  
 					HttpStatus.CONFLICT);
+		}
+		
+		for(BasicStoryTestElement bste : newBasicStoryTest.getData()) {
+			bste.setBasicStoryTest(newBasicStoryTest);
 		}
 		
 		basicStoryRepository.save(newBasicStoryTest);
