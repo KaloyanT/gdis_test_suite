@@ -9,7 +9,7 @@ public interface BasicStoryTestRepository extends CrudRepository<BasicStoryTest,
 	public BasicStoryTest findByBasicStoryTestID(long id);
 	
 	public BasicStoryTest findByTestName(String testName);
-	
+		
 	public List<BasicStoryTest> findByStoryName(String storyName);
 	
 	public List<BasicStoryTest> findByStoryNameAndTestName(String storyName, String testnaName);
