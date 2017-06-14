@@ -75,6 +75,8 @@ paths:
             data is checked before it is send to the database
         '404':
           description: A Test with this id doesn't exist
+        '409':
+          description: A Test with this updated name already exists
   '/importer/d/test-case/{storyType}/{id}':
     delete:
       tags:
