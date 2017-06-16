@@ -1,4 +1,5 @@
 FROM frolvlad/alpine-oraclejdk8:slim
+#FROM openjdk:8-jre-alpine smaller image (80 MB smaller), builds and runs fine, not tested
 VOLUME /tmp
 ADD database-0.0.1.jar app.jar
 RUN sh -c 'touch /app.jar'
