@@ -2,7 +2,6 @@ package com.gdis.exporter.controller;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +28,6 @@ public class ExportTestCaseRequestController {
 	@RequestMapping(value = "/{storyType}/all", method = RequestMethod.GET)
 	public ResponseEntity<?> getAllTestsByStoryType(@PathVariable("storyType") String storyType) {
 	
-			
 		List<JSONResponse> response = dbClient.exportAllTestsFromDB(storyType);
 		
 		if(response == null) {

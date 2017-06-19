@@ -22,6 +22,7 @@ public class DBClient {
 	
 	@Autowired
 	public DBClient(@Value("${DATABASEAPI_URL}") String DATABASEAPI_URL) {
+
 		this.DATABASEAPI_URL = DATABASEAPI_URL;		
 	}
 
@@ -35,7 +36,7 @@ public class DBClient {
 	
 	
 	public List<JSONResponse> exportAllTestsFromDB(final String storyType) {
-		
+
 		if(getDATABASEAPI_URL() == null) {
 			return null;
 		}
