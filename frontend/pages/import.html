@@ -1,22 +1,62 @@
-<div class="jumbotron text-center">
+<div class="jumbotron text-center  container-fluid">
     <h1>GDIS Test Daten Import</h1>
 
     <p>{{ message }}</p>
 
-    <div class="col-sm-3">
-    	<p>Bitte Datei(en) auswählen.</p>
+    <div class="row">
+        <br />
     </div>
-
-    <div class="input-group col-sm-6">
-        <label class="input-group-btn">
-            <span class="btn btn-primary">
-                Select <input type="file" style="display: none;" id="file" accept='text/csv' name="file" multiple>
-            </span>
-        </label>
-        	<input type="text" class="form-control" readonly>
+    <div class="row">
+        <div class="col-sm-3">
+        	<p>Bitte Datei(en) auswählen.</p>
+        </div>
+        <div class="input-group col-sm-6">
+            <label class="input-group-btn">
+                <span class="btn btn-primary">
+                    Select <input ng-model="search" type="file" style="display: none;" id="file" accept='text/csv' name="file" ng-model="file" multiple>
+                </span>
+            </label>
+            	<input type="text" class="form-control" value="No files selected!" readonly>
+        </div>
+        <div class="col-sm-3">
+            <p style="float: left"><b>Auswahl</b></p>
+        </div>
+<!--         <div class="col-sm-3">
+            <button class="btn btn-primary" ng-click="upload()" style="float: left;">Import</button>
+        </div> -->
     </div>
+    <div class="row">
+        <br />
+    </div>
+    <span ng-show='uploads.length > 0'>
+    <div class="row">
+        <div class="col-sm-9">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Filename</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tr ng-repeat="x in uploads">
+                        <td>{{$index + 1}}</td>
+                        <td>{{ x.name }}</td>
+                        <td>{{ x.curUpStatus }}</td>
+                        <td>
+                            <i class="fa fa-lg fa-trash-o fa-fw" aria-hidden="true" ng-click="removeRow($index)"></i>
+                        </td>
+                    </tr>
+                </table>
+        </div>
+        <div class="col-sm-3">
+            <button class="btn btn-primary btn-space" ng-click="upload();" style="float: left;">Upload</button>
+            <button class="btn btn-primary btn-space" id="reset" ng-click="clear()" style="float: left;">Clear All</button>
+        </div>
+    </div>
+    <div class="row">
+    </div>
+    </span>
 
-    <div class="col-sm-3">
-		<button class="btn btn-primary" ng-click="upload()" style="float: left;">Import</button>
-	</div>
 </div>
