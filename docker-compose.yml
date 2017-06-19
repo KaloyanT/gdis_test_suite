@@ -1,41 +1,47 @@
 version: "2"
 services:
-#  api:
-#    build: backend/api
-#    ports:
-#      - "40042:5000"
   mysql_db:
-    image: mysql/mysql-server:latest
+    image: mysql:5.7
     environment: 
-      - MYSQL_DATABASE=gdis_db
-      - MYSQL_USER=gdis_db_user
-      - MYSQL_PASSWORD=abcd1234
-      - MYSQL_ROOT_PASSWORD=abcd1234
+      MYSQL_DATABASE: 'gdis_db'
+      MYSQL_USER: 'gdis_db_user'
+      MYSQL_PASSWORD: 'abcd1234'
+      MYSQL_ROOT_PASSWORD: 'abcd1234'
     ports: 
       - 3306:3306
   db_microservice:
     image: gdis.db/database
     depends_on: 
       - mysql_db
+    links:
+      - mysql_db
     ports: 
       - 8081:8081
     environment: 
-      - DATABASE_HOST=gdis_db
+      - DATABASE_HOST=mysql_db
       - DATABASE_PORT=3306
       - DATABASE_NAME=gdis_db
       - DATABASE_USER=gdis_db_user
       - DATABASE_PASSWORD=abcd1234
-    importer: 
-      image: gdis.importer/importer
-      ports: 
-        - 8083:8083
-      environment: 
-        - DATABASE_URL=192.168.99.100 # or localhost
-        - DATABASE_PORT=8081
-    exporter: 
-      image: gdis.exporter/exporter
-      ports: 
-        - 8082:8082
-      environment: 
-        - DATABASE_URL=192.168.99.100 # or localhost
-        - DATABASE_PORT=8081
+  importer: 
+    image: gdis.importer/importer
+    ports: 
+      - 8083:8083
+    environment: 
+      - DATABASE_URL=db_microservice # or localhost
+      - DATABASE_PORT=8081
+  exporter: 
+    image: gdis.exporter/exporter
+    ports: 
+      - 8082:8082
+    environment:
+      - DATABASE_URL=db_microservice # or localhost
+      - DATABASE_PORT=8081
+  api:
+    build: backend/api
+    ports:
+      - "40042:5000"
+  frontend:
+    build: frontend
+    ports:
+      - "80:8080"
