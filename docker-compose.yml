@@ -28,14 +28,14 @@ services:
     ports: 
       - 8083:8083
     environment: 
-      - DATABASE_URL=localhost # or localhost
+      - DATABASE_URL=db_microservice # or localhost
       - DATABASE_PORT=8081
   exporter: 
     image: gdis.exporter/exporter
     ports: 
       - 8082:8082
     environment:
-      - DATABASE_URL=localhost # or localhost
+      - DATABASE_URL=db_microservice # or localhost
       - DATABASE_PORT=8081
   api:
     build: backend/api

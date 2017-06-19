@@ -3,6 +3,8 @@ import io
 import csv
 import json
 import requests
+from datetime import datetime
+import calendar
 from flask_restful import Resource, request
 from flask import render_template, Response
 from werkzeug.utils import secure_filename
@@ -32,18 +34,22 @@ class Record(Resource):
                               for (key, value) in row}
                               for row in data]
 
+            d = datetime.utcnow()
+            unixtime = calendar.timegm(d.utctimetuple())
+
             ret_arr = {
                 "storyType": "basicStoryTest",
-                "storyName": "newContract",
-                "testName": "storyExample",
+                "storyName": "newContract.T{}".format(unixtime),
+                "testName": "storyExample.T{}".format(unixtime),
                 "testData": dict_from_data
             }
 
             s = json.dumps(ret_arr)
+            headers = {'Accept-Encoding': 'UTF-8', 'Content-Type': 'application/json', 'Accept': '*/*'}
 
-            requests.post('http://importer:8083/importer/i/test-case', json=s)
+            r = requests.post('http://importer:8083/importer/i/test-case', headers=headers, data=s)
 
-            resp = Response(response=s, status=200)
+            resp = Response(response=s, status=r.status_code)
             resp.headers['Access-Control-Allow-Origin'] = '*'
             return resp
         except:
