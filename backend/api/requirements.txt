@@ -3,3 +3,4 @@ Flask_RESTful
 werkzeug
 requests
 flask-cors
+pandas
