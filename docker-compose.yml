@@ -1,9 +1,5 @@
 version: "2"
 services:
-#  api:
-#    build: backend/api
-#    ports:
-#      - "40042:5000"
   mysql_db:
     image: mysql/mysql-server:latest
     environment: 
@@ -30,12 +26,20 @@ services:
       ports: 
         - 8083:8083
       environment: 
-        - DATABASE_URL=192.168.99.100 # or localhost
+        - DATABASE_URL=localhost # or localhost
         - DATABASE_PORT=8081
     exporter: 
       image: gdis.exporter/exporter
       ports: 
         - 8082:8082
       environment: 
-        - DATABASE_URL=192.168.99.100 # or localhost
+        - DATABASE_URL=localhost # or localhost
         - DATABASE_PORT=8081
+  api:
+    build: backend/api
+    ports:
+      - "40042:5000"
+  frontend:
+    build: frontend
+    ports:
+      - "80:8080"
