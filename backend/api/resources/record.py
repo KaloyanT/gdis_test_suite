@@ -3,6 +3,7 @@ import io
 import csv
 import json
 import requests
+import random
 from datetime import datetime
 import calendar
 from flask_restful import Resource, request
@@ -39,8 +40,8 @@ class Record(Resource):
 
             ret_arr = {
                 "storyType": "basicStoryTest",
-                "storyName": "newContract.T{}".format(unixtime),
-                "testName": "storyExample.T{}".format(unixtime),
+                "storyName": "newContract.T{}.{}".format(unixtime, random.randint(0, 100)),
+                "testName": "storyExample.T{}.{}".format(unixtime, random.randint(0, 100)),
                 "testData": dict_from_data
             }
 

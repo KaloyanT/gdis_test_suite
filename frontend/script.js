@@ -143,6 +143,30 @@ gdisApp.controller('importController', function($scope, $http) {
     });
 });
 
-gdisApp.controller('exportController', function($scope) {
+gdisApp.controller('exportController', function($scope, $http) {
     $scope.message = 'Hier können Daten exportiert werden.';
+
+    var init = function () {
+        $http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
+
+        $http.get('http://localhost:40042/record/json').then(function successCallback(response) {
+            test_data = response.data; 
+            
+            var storyNames = [];
+
+            for (var i = 0; i < test_data.length; i++) {
+
+                storyNames.push(test_data[i].storyName);
+
+            }
+
+            console.log(storyNames);
+            $scope.storyNames = storyNames;
+
+        }, function errorCallback(response) {
+            alert('Fehler beim Datenholen aufgetreten.');
+        });
+    };
+    init();
+
 });
