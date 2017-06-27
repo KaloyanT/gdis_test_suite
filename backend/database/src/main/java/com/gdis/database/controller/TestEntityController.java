@@ -1,7 +1,10 @@
 package com.gdis.database.controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.gdis.database.model.StoryTestElement;
 import com.gdis.database.model.TestEntity;
 import com.gdis.database.service.TestEntityRepository;
 import com.gdis.database.util.CustomErrorType;
@@ -58,7 +64,7 @@ public class TestEntityController {
 	
 	
 	@RequestMapping(value = "/get/by-entity-name/{entityName}", method = RequestMethod.GET)
-	public ResponseEntity<?> getTestEntityByEntityName(@PathVariable("storyName") String entityName) {
+	public ResponseEntity<?> getTestEntityByEntityName(@PathVariable("entityName") String entityName) {
 		
 		if( (entityName == null) || (entityName.isEmpty()) || (entityName.trim().length() == 0) ) {
 			return new ResponseEntity<>(new CustomErrorType("Invalid Story Name"), HttpStatus.NOT_FOUND);
@@ -72,6 +78,60 @@ public class TestEntityController {
 		}
 		
 		return new ResponseEntity<>(testEntity, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/get/objects-for-entity/{entityName}", method = RequestMethod.GET)
+	public ResponseEntity<?> getObectsForTestEntity(@PathVariable("entityName") String entityName) {
+		
+		TestEntity testEntity = testEntityRepository.findByEntityName(entityName);
+		
+		if (testEntity == null) {
+			return new ResponseEntity<>(new CustomErrorType("TestEntity with name " + entityName
+					+ " not found"), HttpStatus.NOT_FOUND);
+		}
+		
+		
+		List<StoryTestElement> columnsContainingEntity = testEntity.getColumnsContainingEntity();
+		
+		Map<String, List<StoryTestElement>> groupedColumns 
+		= new HashMap<String, List<StoryTestElement>>();
+		
+		ObjectMapper objectMapper = new ObjectMapper();
+		List<ObjectNode> res = new ArrayList<ObjectNode>();
+		
+		for(StoryTestElement ste : columnsContainingEntity) {
+			
+			if(groupedColumns.containsKey(ste.getColumnName())) {
+				
+				List<StoryTestElement> currentList = groupedColumns.get(ste.getColumnName());
+				currentList.add(ste);
+				groupedColumns.put(ste.getColumnName(), currentList);
+			} else {
+				
+				List<StoryTestElement> temp = new ArrayList<StoryTestElement>();
+				temp.add(ste);
+				groupedColumns.put(ste.getColumnName(), temp);
+			}
+		}
+
+		
+		for(Map.Entry<String, List<StoryTestElement>> entry : groupedColumns.entrySet()) {
+			
+			int numbersOfRows = entry.getValue().get(0).getAttributes().size();
+			
+			for(int j = 0; j < numbersOfRows; j++) {
+				
+				ObjectNode current = objectMapper.createObjectNode();
+				
+				for(StoryTestElement ste : entry.getValue()) {
+					current.put(ste.getColumnName(), ste.getAttributes().get(j));
+				}
+				res.add(current);
+				
+			}
+		}
+		
+		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
 	
 	@RequestMapping(value = "/insert", method = RequestMethod.POST)

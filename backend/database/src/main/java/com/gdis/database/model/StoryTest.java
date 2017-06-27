@@ -18,6 +18,7 @@ public class StoryTest {
 	
 	@Id
 	@GenericGenerator(name = "storyTestIdGenerator", strategy = "increment")
+		
 	@GeneratedValue(generator = "storyTestIdGenerator")
 	@Column(name = "storyTestID")
 	private long storyTestID;
@@ -28,17 +29,7 @@ public class StoryTest {
 	@Basic(optional = false)
 	@Column(unique = true)
 	private String testName;
-	
-	//@ElementCollection
-	//@MapKeyColumn(name = "mappings_key")
-	//@Column(name = "value")
-	//@CollectionTable(name = "storyTest_mappings", joinColumns = @JoinColumn(name = "story_test_storyTestElementID"))
-	//@JoinTable(name = "storyTest_mappings", joinColumns = @JoinColumn(name = "story_test_storyTestElementID"))
-	
-	//@OneToMany(cascade = CascadeType.ALL)
-	//@MapKey(name = "testEntityID")
-	
-	
+		
 	//@OneToMany(cascade = CascadeType.ALL, mappedBy = "storyTest", orphanRemoval = true)
 	//private Map<String, TestEntity> mappings = new HashMap<String, TestEntity>();
 	//@ManyToMany(mappedBy = "testsContainingEntity")
