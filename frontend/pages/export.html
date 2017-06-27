@@ -1,0 +1,43 @@
+<div class="jumbotron text-center">
+    <h1>GDIS Test Daten Export</h1>
+
+    <p>{{ message }}</p>
+    <div class="row">
+        <br />
+    </div>
+    <div class="row">
+        <div class="col-sm-3">
+        	<p>Bitte Storyname auswählen.</p>
+        </div>
+        <div class="input-group col-sm-6">
+		<select ng-model="item" ng-options="item as item for item in storyNames">
+ 		</select>
+        </div>
+        <div class="col-sm-3">
+            <p style="float: left"><b>Auswahl</b></p>
+        </div>
+<!--         <div class="col-sm-3">
+            <button class="btn btn-primary" ng-click="upload()" style="float: left;">Import</button>
+        </div> -->
+    </div>
+    <div class="row">
+        <br />
+    </div>
+    <span ng-show="item.length > 0">
+    <div class="row">
+        <div class="col-sm-9">
+        	<p><b>Placeholder Storydaten Table :(</b></p>
+            <table class="table table-hover">
+
+            </table>
+        </div>
+        <div class="col-sm-3">
+        	<p style="float: left"><b>Storydaten Ausgabe</b></p>
+        </div>
+    </div>
+    </span>
+    <div class="row">
+    </div>
+    <div class="row">
+    </div>
+</div>

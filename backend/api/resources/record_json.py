@@ -1,9 +1,10 @@
 from flask_restful import Resource
+from flask import jsonify, Response
 import requests
+import json
 
 class RecordJson(Resource):
 
-	def get(self):
-		# Still need path to endpoint for this to work, everything else should work just finde
-		return 'got your request, please fill in correct Endpoint in Code to continue.'
-		# return requests.get('http://localhost:8082/e/TODO')
+    def get(self):
+        data = requests.get('http://exporter:8082/exporter/e/basicStoryTest/all').text
+        return Response(response=data, mimetype='application/json')
