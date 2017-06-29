@@ -8,5 +8,7 @@ import com.gdis.database.model.TestEntity;
 
 public interface StoryTestElementRepository extends CrudRepository<StoryTestElement, Long> {
 	
+	public StoryTestElement findByStoryTestElementID(long id);
+	
 	public List<StoryTestElement> getByTestEntity(TestEntity testEntity);
 }

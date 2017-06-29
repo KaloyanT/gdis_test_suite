@@ -114,19 +114,36 @@ public class TestEntityController {
 			}
 		}
 
-		
+		/*
+		 * Now, when the columns are grouped into tests, iterate through all test 
+		 * and get the j-th Row from each Column and add it to the ObjectNode with Index index
+		 */
 		for(Map.Entry<String, List<StoryTestElement>> entry : groupedColumns.entrySet()) {
 			
 			int numbersOfRows = entry.getValue().get(0).getAttributes().size();
 			
+			// Use this index to keep track in which ObjectNode the current "key": "value" pair
+			// has to be inserted
+			int index = 0;
+			
 			for(int j = 0; j < numbersOfRows; j++) {
 				
-				ObjectNode current = objectMapper.createObjectNode();
 				
 				for(StoryTestElement ste : entry.getValue()) {
-					current.put(ste.getColumnName(), ste.getAttributes().get(j));
+					
+					if((res.size() > index) && ( res.get(index) != null)) {
+						
+						res.get(index).put(ste.getColumnName(), ste.getAttributes().get(j));
+						index++;
+						
+					} else {
+						ObjectNode current = objectMapper.createObjectNode();
+						current.put(ste.getColumnName(), ste.getAttributes().get(j));
+						res.add(current);
+						index++;
+					}
+						
 				}
-				res.add(current);
 				
 			}
 		}

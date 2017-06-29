@@ -17,6 +17,7 @@ import org.hibernate.annotations.GenericGenerator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+
 @Entity(name = "StoryTestElement")
 @Table(name = "storyTestElement")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
@@ -32,6 +33,10 @@ public class StoryTestElement {
 	private String columnName;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "story_test_storyTestID")
+	private StoryTest storyTest;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "test_entity_testEntityID")
 	//@JsonProperty(value = "testEntity")
 	//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "entityName", scope = TestEntity.class)
@@ -39,24 +44,16 @@ public class StoryTestElement {
 	//@JsonUnwrapped
 	private TestEntity testEntity;
 	
-	/*
-	@ElementCollection
-	@MapKeyColumn(name = "attributes_key")
-	@Column(name = "value")
-	@CollectionTable(name = "storyTestElement_attributes", joinColumns = @JoinColumn(name = "story_test_element_storyTestElementID"))
-	@JoinTable(name = "storyTestElement_attributes", joinColumns = @JoinColumn(name = "story_test_element_storyTestElementID"))
-	private Map<String, String> attributes = new HashMap<String, String>();
-	*/
+	
+	// Use this only to make the Incoming JSON simpler. Just Find the TestEntity with the given name here during import
+	@Basic(optional = false)
+	private String entityName;
+	
 	
 	@ElementCollection
 	@CollectionTable(name = "storyTestElement_attributes", joinColumns = @JoinColumn(name = "story_test_element_storyTestElementID"))
 	@Column(name = "rows")
-	private List<String> attributes = new ArrayList<String>();
-	
-	
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "story_test_storyTestID")
-	private StoryTest storyTest;
+	private List<String> attributes = new ArrayList<String>();	
 	
 	@JsonIgnore
 	public long getStoryTestElementID() {
@@ -154,6 +151,7 @@ public class StoryTestElement {
 	//@JsonProperty(value = "testEntity")
 	//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "entityName", scope = TestEntity.class)
 	//@JsonIdentityReference(alwaysAsId = true) 
+	// @JsonIgnore
 	public TestEntity getTestEntity() {
 		return testEntity;
 	}
@@ -161,5 +159,13 @@ public class StoryTestElement {
 	
 	public void setTestEntity(TestEntity testEntity) {
 		this.testEntity = testEntity;
+	}
+
+	public String getEntityName() {
+		return entityName;
+	}
+
+	public void setEntity(String entityName) {
+		this.entityName = entityName;
 	}
 }

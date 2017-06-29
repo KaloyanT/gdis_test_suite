@@ -25,6 +25,9 @@ public class StoryTestController {
 	@Autowired
 	private StoryTestRepository storyTestRepository;
 	
+	//@Autowired
+	//private StoryTestElementRepository storyTestElementRepository;
+	
 	@Autowired
 	private TestEntityRepository testEntityRepository;
 	
@@ -127,30 +130,19 @@ public class StoryTestController {
 			return new ResponseEntity<>(new CustomErrorType("This test already exists"),  
 					HttpStatus.CONFLICT);
 		}
-		
-		/*
-		System.out.println(newStoryTest.getTestEntities().toString());
-		
-		for(TestEntity te : newStoryTest.getTestEntities()) {
-			
-			TestEntity entity = testEntityRepository.findByEntityName(te.getEntityName());
-			
-			if(entity != null) {
-				te = entity;
-			} else {
-				return new ResponseEntity<>(new CustomErrorType("Such TestEntity doesn't exist!"),  
-						HttpStatus.NOT_FOUND);
-			}
-			
-			entity.addTestContainingEntitiy(newStoryTest);
-		}*/
-		
-		
+				
 		
 		for(StoryTestElement ste : newStoryTest.getData()) {
 			
+			// Register TestEntity for StoryTestElement manually since Jackson can't map it, although the right annotations are used
+			TestEntity entity = null;
 			
-			TestEntity entity = testEntityRepository.findByEntityName(ste.getTestEntity().getEntityName());
+			if(ste.getTestEntity() == null) {
+				entity = testEntityRepository.findByEntityName(ste.getEntityName());
+			} else {
+				entity = testEntityRepository.findByEntityName(ste.getTestEntity().getEntityName());
+			}
+			
 			
 			if(entity != null) {
 				ste.setTestEntity(entity);
@@ -159,13 +151,22 @@ public class StoryTestController {
 						HttpStatus.NOT_FOUND);
 			}
 			
+			
+			// Check if Columns exist
 			/*
-			 *  Add the StoryTestElement to the TestEntities list
-			 */
+			List<StoryTestElement> columnsWithThisEntityType = entity.getColumnsContainingEntity();
+			
+			for(StoryTestElement duplicateColumn : columnsWithThisEntityType) {
+				
+				if(duplicateColumn.getAttributes().containsAll(ste.getAttributes())) {
+					System.out.println("duplicate column");
+					ste = storyTestElementRepository.findByStoryTestElementID(duplicateColumn.getStoryTestElementID());
+				} 
+			}*/
+			
 			entity.addColumnsContainingEntity(ste);
-			
-			
 			ste.setStoryTest(newStoryTest);
+			
 		}
 		
 		storyTestRepository.save(newStoryTest);
