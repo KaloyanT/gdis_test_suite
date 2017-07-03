@@ -42,6 +42,7 @@ public class StoryTestElement {
 	//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "entityName", scope = TestEntity.class)
 	//@JsonIdentityReference(alwaysAsId = true) 
 	//@JsonUnwrapped
+	@JsonIgnore
 	private TestEntity testEntity;
 	
 	
@@ -156,7 +157,6 @@ public class StoryTestElement {
 		return testEntity;
 	}
 
-	
 	public void setTestEntity(TestEntity testEntity) {
 		this.testEntity = testEntity;
 	}

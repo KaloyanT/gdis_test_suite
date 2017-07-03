@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.gdis.database.model.StoryTest;
 import com.gdis.database.model.StoryTestElement;
 import com.gdis.database.model.TestEntity;
+import com.gdis.database.service.StoryTestElementRepository;
 import com.gdis.database.service.StoryTestRepository;
 import com.gdis.database.service.TestEntityRepository;
 import com.gdis.database.util.CustomErrorType;
@@ -25,8 +26,8 @@ public class StoryTestController {
 	@Autowired
 	private StoryTestRepository storyTestRepository;
 	
-	//@Autowired
-	//private StoryTestElementRepository storyTestElementRepository;
+	@Autowired
+	private StoryTestElementRepository storyTestElementRepository;
 	
 	@Autowired
 	private TestEntityRepository testEntityRepository;
@@ -118,19 +119,16 @@ public class StoryTestController {
 		
 		long testExists = testExists(getStoryToSave());
 	
-		if(testExists == -1) {
-			
-			//newBasicStoryTest.setBasicStoryTestID(testExists);
-			
+		if(testExists == -1) {			
 			return new ResponseEntity<>(new CustomErrorType("A Test with the same name already exists"),  
 					HttpStatus.CONFLICT);
-		
 		} else if (testExists == -2) {
 			
 			return new ResponseEntity<>(new CustomErrorType("This test already exists"),  
 					HttpStatus.CONFLICT);
 		}
 				
+		int randomIndex = 0;
 		
 		for(StoryTestElement ste : newStoryTest.getData()) {
 			
@@ -153,26 +151,44 @@ public class StoryTestController {
 			
 			
 			// Check if Columns exist
-			/*
+			
+			
+			
 			List<StoryTestElement> columnsWithThisEntityType = entity.getColumnsContainingEntity();
 			
-			for(StoryTestElement duplicateColumn : columnsWithThisEntityType) {
+			System.out.println(randomIndex);
+			///System.out.println(columnsWithThisEntityType.isEmpty());
+			
+			if(columnsWithThisEntityType.size() > 0) {
+				for(StoryTestElement duplicateColumn : columnsWithThisEntityType) {
 				
-				if(duplicateColumn.getAttributes().containsAll(ste.getAttributes())) {
-					System.out.println("duplicate column");
-					ste = storyTestElementRepository.findByStoryTestElementID(duplicateColumn.getStoryTestElementID());
-				} 
-			}*/
-			
-			entity.addColumnsContainingEntity(ste);
-			ste.setStoryTest(newStoryTest);
-			
+					/*
+					if(duplicateColumn.getAttributes() == null) {
+						System.out.println("null");
+					} else {
+						//entity.addColumnsContainingEntity(ste); NULL POINTER HERE
+						ste.setStoryTest(newStoryTest);
+					}*/
+					
+					
+					if(duplicateColumn.getAttributes().containsAll(ste.getAttributes())) {
+						System.out.println("duplicate column");
+						ste = storyTestElementRepository.findByStoryTestElementID(duplicateColumn.getStoryTestElementID());
+					} else {
+						//entity.addColumnsContainingEntity(ste);
+						ste.setStoryTest(newStoryTest);
+					}
+				}				
+			} else { 
+				entity.addColumnsContainingEntity(ste);
+				ste.setStoryTest(newStoryTest);
+				randomIndex++;
+			}
 		}
 		
 		storyTestRepository.save(newStoryTest);
 			
 		return new ResponseEntity<>(HttpStatus.CREATED);
-		
 	}
 	
 	@RequestMapping(value = "/update/{id}", method = RequestMethod.PUT)
