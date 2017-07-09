@@ -63,6 +63,56 @@ public class StoryTestController {
 	}
 	
 	
+	@RequestMapping(value = "/export", method = RequestMethod.GET)
+	public ResponseEntity<?> getAllStoryTestsForExport() {
+		
+		Iterable<StoryTest> storyTestIterable = storyTestRepository.findAll();
+		
+		if(storyTestIterable == null) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+		
+		List<StoryTest> storyTestList = new ArrayList<StoryTest>();
+		
+		// Java 8 Method Reference is used here
+		storyTestIterable.forEach(storyTestList::add);
+		
+		ObjectMapper objectMapper = new ObjectMapper();
+		ObjectNode storyTestObjectNode = objectMapper.createObjectNode();
+		ArrayNode storyTestDataArray = objectMapper.createArrayNode();
+		List<ObjectNode> storyTestExportList = new ArrayList<ObjectNode>();
+		
+		for(StoryTest st : storyTestList) {
+			
+			storyTestObjectNode.put("testName", st.getTestName());
+			
+			for(StoryTestElement ste : st.getData()) {
+				
+				ObjectNode temp = objectMapper.createObjectNode();
+				
+				temp.put("columnName", ste.getColumnName());
+				
+				// Add the data to the ArrayNode and add the array node to the
+				// temp ObjectNode
+				ArrayNode storyTestElementRows = objectMapper.createArrayNode();	
+				ste.getRows().forEach(storyTestElementRows::add);
+				
+				temp.putArray("rows").addAll(storyTestElementRows);
+				
+				// Now add this ObjectNode to the array with Columns
+				storyTestDataArray.add(temp);	
+			}
+			
+			// Finally, add the array with columns to the ObjectNode that has to be returned
+			storyTestObjectNode.putArray("data").addAll(storyTestDataArray);
+			
+			storyTestExportList.add(storyTestObjectNode);
+			
+		}
+		
+		return new ResponseEntity<>(storyTestExportList, HttpStatus.OK);
+	}
+	
 	@RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
 	public ResponseEntity<?> getStoryTestByID(@PathVariable("id") long id) {
 		
@@ -146,6 +196,57 @@ public class StoryTestController {
 		}
 		
 		return new ResponseEntity<>(storyTestList, HttpStatus.OK);
+	}
+	
+	
+	@RequestMapping(value = "/get/by-story-name/{storyName}/export", method = RequestMethod.GET)
+	public ResponseEntity<?> getStoryTestByStoryNameForExport(@PathVariable("storyName") String storyName) {
+		
+		if( (storyName == null) || (storyName.isEmpty()) || (storyName.trim().length() == 0) ) {
+			return new ResponseEntity<>(new CustomErrorType("Invalid Story Name"), HttpStatus.NOT_FOUND);
+		}
+		
+		List<StoryTest> storyTestList = storyTestRepository.findByStoryName(storyName);
+		
+		if (storyTestList == null) {
+			return new ResponseEntity<>(new CustomErrorType("StoryTest with name " + storyName
+					+ " not found"), HttpStatus.NOT_FOUND);
+		}
+		
+		ObjectMapper objectMapper = new ObjectMapper();
+		ObjectNode storyTestObjectNode = objectMapper.createObjectNode();
+		ArrayNode storyTestDataArray = objectMapper.createArrayNode();
+		List<ObjectNode> storyTestExportList = new ArrayList<ObjectNode>();
+		
+		for(StoryTest st : storyTestList) {
+			
+			storyTestObjectNode.put("testName", st.getTestName());
+			
+			for(StoryTestElement ste : st.getData()) {
+				
+				ObjectNode temp = objectMapper.createObjectNode();
+				
+				temp.put("columnName", ste.getColumnName());
+				
+				// Add the data to the ArrayNode and add the array node to the
+				// temp ObjectNode
+				ArrayNode storyTestElementRows = objectMapper.createArrayNode();	
+				ste.getRows().forEach(storyTestElementRows::add);
+				
+				temp.putArray("rows").addAll(storyTestElementRows);
+				
+				// Now add this ObjectNode to the array with Columns
+				storyTestDataArray.add(temp);	
+			}
+			
+			// Finally, add the array with columns to the ObjectNode that has to be returned
+			storyTestObjectNode.putArray("data").addAll(storyTestDataArray);
+			
+			storyTestExportList.add(storyTestObjectNode);
+			
+		}
+		
+		return new ResponseEntity<>(storyTestExportList, HttpStatus.OK);
 	}
 	
 	

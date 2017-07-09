@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-public class JSONResponse {
+public class StoryTestExportModel {
 	
-	private long basicStoryTestID;
+	private long storyTestID;
 	
 	private String testName;
 	
@@ -38,12 +38,12 @@ public class JSONResponse {
 		this.data = data;
 	}
 
-	public long getBasicStoryTestID() {
-		return basicStoryTestID;
+	public long getStoryTestID() {
+		return storyTestID;
 	}
 
-	public void setBasicStoryTestID(long basicStoryTestID) {
-		this.basicStoryTestID = basicStoryTestID;
+	public void setStoryTestID(long storyTestID) {
+		this.storyTestID = storyTestID;
 	}
 
 }
