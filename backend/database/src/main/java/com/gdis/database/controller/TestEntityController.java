@@ -1,10 +1,7 @@
 package com.gdis.database.controller;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,9 +10,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.gdis.database.model.StoryTestElement;
 import com.gdis.database.model.TestEntity;
 import com.gdis.database.service.TestEntityRepository;
 import com.gdis.database.util.CustomErrorType;
@@ -29,7 +23,6 @@ public class TestEntityController {
 	private TestEntityRepository testEntityRepository;
 	
 	private TestEntity entityToSave;
-	
 	
 	@RequestMapping(method = RequestMethod.GET)
 	public ResponseEntity<?> getAllTestEntities() {
@@ -48,6 +41,7 @@ public class TestEntityController {
 		return new ResponseEntity<>(testEntitiesList, HttpStatus.OK);
 	}
 	
+	
 	@RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
 	public ResponseEntity<?> getTestEntityByID(@PathVariable("id") long id) {
 		
@@ -56,10 +50,14 @@ public class TestEntityController {
 		TestEntity testEntity = testEntityRepository.findByTestEntityID(id);
 		
 		if (testEntity == null) {
-			return new ResponseEntity<>(new CustomErrorType("TestEntity with id " + id
+			return new ResponseEntity<>(new CustomErrorType("TestEntity with ID " + id
 					+ " not found"), HttpStatus.NOT_FOUND);
 		}
-		return new ResponseEntity<>(testEntity, HttpStatus.OK);
+		
+		List<TestEntity> testEntityAsList = new ArrayList<TestEntity>();
+		testEntityAsList.add(testEntity);
+		
+		return new ResponseEntity<>(testEntityAsList, HttpStatus.OK);
 	}
 	
 	
@@ -67,7 +65,7 @@ public class TestEntityController {
 	public ResponseEntity<?> getTestEntityByEntityName(@PathVariable("entityName") String entityName) {
 		
 		if( (entityName == null) || (entityName.isEmpty()) || (entityName.trim().length() == 0) ) {
-			return new ResponseEntity<>(new CustomErrorType("Invalid Story Name"), HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(new CustomErrorType("Invalid Entity Name"), HttpStatus.NOT_FOUND);
 		}
 		
 		TestEntity testEntity = testEntityRepository.findByEntityName(entityName);
@@ -77,11 +75,19 @@ public class TestEntityController {
 					+ " not found"), HttpStatus.NOT_FOUND);
 		}
 		
-		return new ResponseEntity<>(testEntity, HttpStatus.OK);
+		List<TestEntity> testEntityAsList = new ArrayList<TestEntity>();
+		testEntityAsList.add(testEntity);
+		
+		return new ResponseEntity<>(testEntityAsList, HttpStatus.OK);
 	}
 	
-	@RequestMapping(value = "/get/objects-for-entity/{entityName}", method = RequestMethod.GET)
-	public ResponseEntity<?> getObectsForTestEntity(@PathVariable("entityName") String entityName) {
+	
+	@RequestMapping(value = "/get/attributes-for-entity/{entityName}", method = RequestMethod.GET)
+	public ResponseEntity<?> getAttributesForTestEntity(@PathVariable("entityName") String entityName) {
+		
+		if( (entityName == null) || (entityName.isEmpty()) || (entityName.trim().length() == 0) ) {
+			return new ResponseEntity<>(new CustomErrorType("Invalid Entity Name"), HttpStatus.NOT_FOUND);
+		}
 		
 		TestEntity testEntity = testEntityRepository.findByEntityName(entityName);
 		
@@ -90,66 +96,9 @@ public class TestEntityController {
 					+ " not found"), HttpStatus.NOT_FOUND);
 		}
 		
-		
-		List<StoryTestElement> columnsContainingEntity = testEntity.getColumnsContainingEntity();
-		
-		Map<String, List<StoryTestElement>> groupedColumns 
-		= new HashMap<String, List<StoryTestElement>>();
-		
-		ObjectMapper objectMapper = new ObjectMapper();
-		List<ObjectNode> res = new ArrayList<ObjectNode>();
-		
-		for(StoryTestElement ste : columnsContainingEntity) {
-			
-			if(groupedColumns.containsKey(ste.getColumnName())) {
-				
-				List<StoryTestElement> currentList = groupedColumns.get(ste.getColumnName());
-				currentList.add(ste);
-				groupedColumns.put(ste.getColumnName(), currentList);
-			} else {
-				
-				List<StoryTestElement> temp = new ArrayList<StoryTestElement>();
-				temp.add(ste);
-				groupedColumns.put(ste.getColumnName(), temp);
-			}
-		}
-
-		/*
-		 * Now, when the columns are grouped into tests, iterate through all test 
-		 * and get the j-th Row from each Column and add it to the ObjectNode with Index index
-		 */
-		for(Map.Entry<String, List<StoryTestElement>> entry : groupedColumns.entrySet()) {
-			
-			int numbersOfRows = entry.getValue().get(0).getAttributes().size();
-			
-			// Use this index to keep track in which ObjectNode the current "key": "value" pair
-			// has to be inserted
-			int index = 0;
-			
-			for(int j = 0; j < numbersOfRows; j++) {
-				
-				
-				for(StoryTestElement ste : entry.getValue()) {
-					
-					if((res.size() > index) && ( res.get(index) != null)) {
-						
-						res.get(index).put(ste.getColumnName(), ste.getAttributes().get(j));
-						index++;
-						
-					} else {
-						ObjectNode current = objectMapper.createObjectNode();
-						current.put(ste.getColumnName(), ste.getAttributes().get(j));
-						res.add(current);
-						index++;
-					}
-						
-				}
-				
-			}
-		}
-		
-		return new ResponseEntity<>(res, HttpStatus.OK);
+		return new ResponseEntity<>(testEntity.getTestEntityAttributes(), HttpStatus.OK);
 	}
+	
 	
 	@RequestMapping(value = "/insert", method = RequestMethod.POST)
 	public ResponseEntity<?> createTestEntity(@RequestBody TestEntity newTestEntity) {
@@ -161,9 +110,9 @@ public class TestEntityController {
 		
 		setEntityToSave(newTestEntity);
 		
-		long testExists = entityExists(getEntityToSave());
+		long entityExists = entityExists(getEntityToSave());
 	
-		if(testExists == -1) {
+		if(entityExists == -1) {
 			
 			//newBasicStoryTest.setBasicStoryTestID(testExists);
 			
@@ -172,11 +121,119 @@ public class TestEntityController {
 		
 		}
 		
-		
 		testEntityRepository.save(newTestEntity);
 			
 		return new ResponseEntity<>(HttpStatus.CREATED);
 		
+	}
+	
+	
+	@RequestMapping(value = "/insert/attribute/{entityName}/{newAttribute}", method = RequestMethod.POST)
+	public ResponseEntity<?> addAttributeForEntity(@PathVariable("entityName") String entityName, 
+			@PathVariable("newAttribute") String newAttribute) {
+	    
+		if( (entityName == null) || (entityName.isEmpty()) || (entityName.trim().length() == 0) ) {
+			return new ResponseEntity<>(new CustomErrorType("Invalid Entity Name"), HttpStatus.NOT_FOUND);
+		}
+		
+		if( (newAttribute == null) || (newAttribute.isEmpty()) || (newAttribute.trim().length() == 0) ) {
+			return new ResponseEntity<>(new CustomErrorType("Invalid Attribute Name"), HttpStatus.NOT_FOUND);
+		}
+		
+		TestEntity testEntity = testEntityRepository.findByEntityName(entityName);
+		
+		if (testEntity == null) {
+			return new ResponseEntity<>(new CustomErrorType("TestEntity with name " + entityName
+					+ " not found"), HttpStatus.NOT_FOUND);
+		}
+		
+		if( (newAttribute == null) || (newAttribute.isEmpty()) || (newAttribute.trim().length() == 0) ) {
+			return new ResponseEntity<>(new CustomErrorType("Invalid attribute for entity"), HttpStatus.NOT_FOUND);
+		}
+		
+		testEntity.addTestEntityAttribute(newAttribute);
+		
+		testEntityRepository.save(testEntity);
+			
+		return new ResponseEntity<>(HttpStatus.CREATED);
+		
+	}
+	
+	
+	@RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
+	public ResponseEntity<?> deleteTestEntityByID(@PathVariable("id") long id) {
+		
+		PreCondition.require(id >= 0, "TestEntity ID can't be negative!");
+		
+		TestEntity testEntity = testEntityRepository.findByTestEntityID(id);
+		
+		if (testEntity == null) {
+			return new ResponseEntity<>(new CustomErrorType("Unable to delete. TestEntity with ID "
+					+ id + " not found."), HttpStatus.NOT_FOUND);
+		}
+		
+		testEntityRepository.delete(testEntity);
+		
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/delete/by-entity-name/{entityName}", method = RequestMethod.DELETE)
+	public ResponseEntity<?> deleteTestEntityByEntityName(@PathVariable("entityName") String entityName) {
+		
+		if( (entityName == null) || (entityName.isEmpty()) || (entityName.trim().length() == 0) ) {
+			return new ResponseEntity<>(new CustomErrorType("Invalid Test Name"), HttpStatus.NOT_FOUND);
+		}
+		
+		TestEntity testEntity = testEntityRepository.findByEntityName(entityName);
+		
+		if (testEntity == null) {
+			return new ResponseEntity<>(new CustomErrorType("Unable to delete. TestEntity with entityName "
+					+ entityName + " not found."), HttpStatus.NOT_FOUND);
+		}
+		
+		testEntityRepository.delete(testEntity);
+		
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+	
+	
+	@RequestMapping(value = "update/{id}", method = RequestMethod.PUT)
+	public ResponseEntity<?> updateTestEntity(@PathVariable("id") long id, @RequestBody TestEntity newTestEntity) {
+		
+		PreCondition.require(id >= 0, "TestEntity ID can't be negative!");
+		
+		if(newTestEntity == null) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+		
+		TestEntity currentTestEntity = testEntityRepository.findByTestEntityID(id);
+		
+		if(currentTestEntity == null) {
+			return new ResponseEntity<>(new CustomErrorType("Unable to update. TestEntity with ID "
+					+ id + " not found."), HttpStatus.NOT_FOUND);
+		}
+		
+		TestEntity entityWithTheSameName = testEntityRepository.findByEntityName(newTestEntity.getEntityName());
+		
+		if(entityWithTheSameName != null) {
+			
+			if(currentTestEntity.getTestEntityID() != entityWithTheSameName.getTestEntityID()) {
+				return new ResponseEntity<>(new CustomErrorType("Unable to update. There is another TestEntity "
+						+ "with this entityName."), HttpStatus.CONFLICT);
+			}
+		}
+		
+		// Begin the update process. This consist of clearing the attributes for the current entity
+		// and inserting the ones of the new one. The Lists columnsContainingEntity and objectsForThis
+		// Entity won't be touched. Further changes have to be made if a column (StoryTestElement)
+		// already contains an entity with an attribute that has been deleted or changed 
+		currentTestEntity.clearTestEntityAttribute();
+		currentTestEntity.setEntityName(newTestEntity.getEntityName());
+		newTestEntity.getTestEntityAttributes().forEach(currentTestEntity.getTestEntityAttributes()::add);
+		
+		testEntityRepository.save(currentTestEntity);
+		
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 	public TestEntity getEntityToSave() {

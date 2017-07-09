@@ -6,19 +6,25 @@ import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Entity(name = "StoryTest")
 @Table(name = "storyTest")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class StoryTest {
 	
 	@Id
 	@GenericGenerator(name = "storyTestIdGenerator", strategy = "increment")
-		
 	@GeneratedValue(generator = "storyTestIdGenerator")
 	@Column(name = "storyTestID")
 	private long storyTestID;
@@ -26,16 +32,17 @@ public class StoryTest {
 	@Basic(optional = false)
 	private String storyName;
 	
+	 @ManyToOne(fetch = FetchType.LAZY)
+	 @JoinColumn(name = "story_storyID")
+	 @Basic(optional = false)
+	 @JsonIgnore // It's not need to return the StoryObject with the storyTest
+	 private Story story;
+	
 	@Basic(optional = false)
 	@Column(unique = true)
 	private String testName;
-		
-	//@OneToMany(cascade = CascadeType.ALL, mappedBy = "storyTest", orphanRemoval = true)
-	//private Map<String, TestEntity> mappings = new HashMap<String, TestEntity>();
-	//@ManyToMany(mappedBy = "testsContainingEntity")
-	//private List<TestEntity> testEntities = new ArrayList<TestEntity>();
 	
-	
+	// Each test has a List of Columns. Every column has a List with rows. 
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "storyTest", orphanRemoval = true)
 	private List<StoryTestElement> data = new ArrayList<StoryTestElement>();
 	
@@ -83,7 +90,7 @@ public class StoryTest {
 	public long storyTestHashCodeNoID() {
 		
 		long hash = Long.MAX_VALUE;
-		long mapHash = Long.MAX_VALUE;
+		long dataHash = Long.MAX_VALUE;
 		
 		
 		hash ^= getStoryName().hashCode();
@@ -91,18 +98,13 @@ public class StoryTest {
 		
 		
 		for(StoryTestElement bste : getData()) {
-			/*
-			for(Map.Entry<String, String> entry : bste.getAttributes().entrySet()) {
-				String keyValuePair = entry.getKey() + ":" + entry.getValue();
-				mapHash ^= keyValuePair.hashCode();
-			}*/
 			
-			for(String s : bste.getAttributes()) {
-				mapHash ^= s.hashCode();
+			for(String s : bste.getRows()) {
+				dataHash ^= s.hashCode();
 			}
 		}
 		
-		hash ^= mapHash;
+		hash ^= dataHash;
 		
 		return hash;
 	}
@@ -156,15 +158,14 @@ public class StoryTest {
 		}
 		data.clear();
 	}
-
-	/*
-	public Map<String, TestEntity> getMappings() {
-		return mappings;
+	
+	public Story getStory() {
+		return story;
 	}
 
-	public void setMappings(Map<String, TestEntity> mappings) {
-		this.mappings = mappings;
-	}*/
+	public void setStory(Story story) {
+		this.story = story;
+	}
 	
 	@Override
 	public boolean equals(Object o) {
