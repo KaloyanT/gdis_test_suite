@@ -22,48 +22,14 @@ public class DBClient {
 	@Autowired
 	public DBClient(@Value("${DATABASEAPI_URL}") String DATABASEAPI_URL) {
 		
-		this.DATABASEAPI_URL = DATABASEAPI_URL;
-		
-		/*try {
-			readAndSetDBUrlIfNull();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}*/
-		
+		this.DATABASEAPI_URL = DATABASEAPI_URL;		
 	}
 	
-	/*
-	private void readAndSetDBUrlIfNull() throws IOException, FileNotFoundException {
-		
-		if(getDB_URL() != null) {
-			return;
-		}
-		
-		// Read customProperties file
-		Properties properties = new Properties();
-		InputStream inputStream = null;
-		
-		inputStream = getClass().getClassLoader().getResourceAsStream("application.properties");
-		
-		if(inputStream != null) {
-			properties.load(inputStream);
-		} else {
-			throw new FileNotFoundException("Application Properties File not found!");
-		}
-		
-		setDB_URL(properties.getProperty("databaseAPI_URL"));
-		
-		inputStream.close();
-		
-	}*/
 	
-	
-	public HttpStatus importTestInDB(ObjectNode json, final String storyType) {
+	public ResponseEntity<String> importStoryTestInDB(ObjectNode json, final String storyType) {
 		
 		if(getDATABASEAPI_URL() == null) {
-			return HttpStatus.INTERNAL_SERVER_ERROR;
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		
 		//HttpStatus errorCode = null;
@@ -84,22 +50,22 @@ public class DBClient {
 		} catch(HttpClientErrorException e) {
 			
 			//errorCode = e.getStatusCode();
-			return e.getStatusCode();
+			return new ResponseEntity<>(e.getStatusCode());
 			
 		} catch (RestClientException re) {
 			// No DB Connection
 			//errorCode = 500;
-			return HttpStatus.INTERNAL_SERVER_ERROR;
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 			
 		}
 		
-		return response.getStatusCode();
+		return response;
 	}
 	
-	public HttpStatus updateTestInDB(ObjectNode json, final String storyType, final long id) {
+	public ResponseEntity<String> updateStoryTestInDB(ObjectNode json, final String storyType, final long id) {
 		
 		if(getDATABASEAPI_URL() == null) {
-			return HttpStatus.INTERNAL_SERVER_ERROR;
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		
 		ResponseEntity<String> response = null;
@@ -118,20 +84,20 @@ public class DBClient {
 		} catch(HttpClientErrorException e) {
 			
 			//errorCode = e.getStatusCode();
-			return e.getStatusCode();
+			return new ResponseEntity<>(e.getStatusCode());
 			
 		} catch (RestClientException re) {
 			// No DB Connection
-			//errorCode = 500;
-			return HttpStatus.INTERNAL_SERVER_ERROR;
+			// HttpStatus = 500;
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 			
 		}
 		
-		return response.getStatusCode();
+		return response;
 		
 	}
 	
-	public HttpStatus deleteTestFromDB(final String storyType, final long id) {
+	public HttpStatus deleteStoryTestFromDB(final String storyType, final long id) {
 		
 		if(getDATABASEAPI_URL() == null) {
 			return HttpStatus.INTERNAL_SERVER_ERROR;
@@ -163,6 +129,105 @@ public class DBClient {
 		}
 		
 		return response.getStatusCode();
+	}
+	
+	
+	public ResponseEntity<String> importStoryInDB(ObjectNode json) {
+		
+		if(getDATABASEAPI_URL() == null) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+		ResponseEntity<String> response = null;
+		
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+
+		RestTemplate restTemplate = new RestTemplate();
+				
+		final String url = getDATABASEAPI_URL() + "/story/insert";
+		
+		HttpEntity<String> entity = new HttpEntity<String>(json.toString(), headers);
+			
+		try {
+			response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+		} catch(HttpClientErrorException e) {
+			
+			return new ResponseEntity<>(e.getStatusCode());
+			
+		} catch (RestClientException re) {
+			// No DB Connection
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			
+		}
+		
+		return response;
+	}
+	
+	
+	public ResponseEntity<String> importEntityInDB(ObjectNode json) {
+		
+		if(getDATABASEAPI_URL() == null) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+		ResponseEntity<String> response = null;
+		
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+
+		RestTemplate restTemplate = new RestTemplate();
+				
+		final String url = getDATABASEAPI_URL() + "/testEntity/insert";
+		
+		HttpEntity<String> entity = new HttpEntity<String>(json.toString(), headers);
+			
+		try {
+			response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+		} catch(HttpClientErrorException e) {
+			
+			return new ResponseEntity<>(e.getStatusCode());
+			
+		} catch (RestClientException re) {
+			// No DB Connection
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			
+		}
+		
+		return response;
+	}
+	
+	
+	public ResponseEntity<String> importEntityAttributeInDB(final String entityName, final String newAttribute) {
+		
+		if(getDATABASEAPI_URL() == null) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+		ResponseEntity<String> response = null;
+		
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+
+		RestTemplate restTemplate = new RestTemplate();
+				
+		final String url = getDATABASEAPI_URL() + "/testEntity/insert/attribute/" + entityName + "/" + newAttribute;
+		
+		HttpEntity<String> entity = new HttpEntity<String>("{ }", headers);
+			
+		try {
+			response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+		} catch(HttpClientErrorException e) {
+			
+			return new ResponseEntity<>(e.getStatusCode());
+			
+		} catch (RestClientException re) {
+			// No DB Connection
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			
+		}
+		
+		return response;
 	}
 
 	public String getDATABASEAPI_URL() {

@@ -151,6 +151,10 @@ public class TestEntityController {
 			return new ResponseEntity<>(new CustomErrorType("Invalid attribute for entity"), HttpStatus.NOT_FOUND);
 		}
 		
+		if(testEntity.getTestEntityAttributes().contains(newAttribute)) {
+			return new ResponseEntity<>(new CustomErrorType("The attribute already exists for this entity"), HttpStatus.CONFLICT);
+		}
+		
 		testEntity.addTestEntityAttribute(newAttribute);
 		
 		testEntityRepository.save(testEntity);

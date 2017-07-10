@@ -18,7 +18,7 @@ import com.gdis.exporter.util.DBClient;
 
 @RestController
 @RequestMapping("/exporter/e")
-public class ExportTestCaseRequestController {
+public class ExportStoryTestRequestController {
 	
 	
 	private List<ObjectNode> elementsToExport;
