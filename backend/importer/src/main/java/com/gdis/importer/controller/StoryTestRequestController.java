@@ -19,7 +19,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.gdis.importer.model.StoryTestImportModel;
-import com.gdis.importer.util.PreCondition;
 import com.gdis.importer.util.CustomErrorType;
 import com.gdis.importer.util.DBClient;
 
@@ -28,8 +27,6 @@ import com.gdis.importer.util.DBClient;
 public class StoryTestRequestController {
 	
 	private StoryTestImportModel storyTestToImport;
-
-	private String storyTypeImport;
 	
 	private ObjectNode jsonToImport;
 	
@@ -45,14 +42,6 @@ public class StoryTestRequestController {
 		}
 		
 		setStoryTestToImport(newStoryTest);
-		
-		// Return HTTP 400 if the JSON is missing the Story Type or The test data
-		if(missingStoryType(getStoryTestToImport()) == true) {
-			setStoryTestToImport(null);
-			return new ResponseEntity<>(new CustomErrorType("Invalid StoryType"), HttpStatus.BAD_REQUEST);
-		} else {
-			setStoryTypeImport(getStoryTestToImport().getStoryType());
-		}
 		
 		if(missingStoryName(getStoryTestToImport()) == true) {
 			setStoryTestToImport(null);
@@ -78,37 +67,26 @@ public class StoryTestRequestController {
 		
 		buildJsonToImport(getJsonToImport(), getStoryTestToImport());
 		
-		ResponseEntity<String> dbClientResponse = dbClient.importStoryTestInDB(getJsonToImport(), getStoryTypeImport());
+		ResponseEntity<String> dbClientResponse = dbClient.importStoryTestInDB(getJsonToImport());
 		
-		if(dbClientResponse.getStatusCodeValue() != HttpStatus.CREATED.value()) {
-			return dbClientResponse;
+		if(dbClientResponse == null) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		
-		return new ResponseEntity<>(HttpStatus.OK);
+		return dbClientResponse;
 	}
 	
 	
-	@RequestMapping(value = "/u/test-case/{id}", method = RequestMethod.PUT, consumes = 
+	@RequestMapping(value = "/u/test-case/{testName}", method = RequestMethod.PUT, consumes = 
 		{ MediaType.APPLICATION_JSON_UTF8_VALUE})
-	public ResponseEntity<?> handleStoryTestUpdateRequest(@PathVariable("id") long id, @RequestBody StoryTestImportModel updatedStoryTest) {
+	public ResponseEntity<?> handleStoryTestUpdateRequest(@PathVariable("testName") String testName, 
+			@RequestBody StoryTestImportModel updatedStoryTest) {
 		
 		if(updatedStoryTest == null) {
 			return new ResponseEntity<>(new CustomErrorType("Invalid StoryTest JSON"), HttpStatus.NOT_FOUND);
 		}
-		
-		if(id <= 0) {
-			return new ResponseEntity<>(new CustomErrorType("Invalid StoryTest ID"), HttpStatus.NOT_FOUND);
-		}
-		
+	 
 		setStoryTestToImport(updatedStoryTest);
-		
-		// Return HTTP 400 if the JSON is missing the Story Type or The test data
-		if(missingStoryType(getStoryTestToImport()) == true) {
-			setStoryTestToImport(null);
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-		} else {
-			setStoryTypeImport(getStoryTestToImport().getStoryType());
-		}
 		
 		if(missingStoryName(getStoryTestToImport()) == true) {
 			setStoryTestToImport(null);
@@ -125,14 +103,12 @@ public class StoryTestRequestController {
 			return new ResponseEntity<>(new CustomErrorType("Invalid Mappings"), HttpStatus.BAD_REQUEST);
 		}
 		
+		if( (testName == null) || (testName.isEmpty()) || (testName.trim().length() == 0) ) {
+			return new ResponseEntity<>(new CustomErrorType("Invalid testName for StoryTest"), HttpStatus.BAD_REQUEST);
+		}
 		
 		checkTestName(getStoryTestToImport());
-		
-		/*
-		dataChunksToImport = new ArrayList<ObjectNode>();
-		chunkJSON(getStoryTestToImport());
-		*/
-		
+				
 		addMappingsToColumns(getStoryTestToImport());
 		
 		ObjectMapper mapper = new ObjectMapper();
@@ -140,31 +116,33 @@ public class StoryTestRequestController {
 		
 		buildJsonToImport(getJsonToImport(), getStoryTestToImport());
 		
-		//DBClient dbClient = new DBClient();
-		
-		ResponseEntity<String> dbClientResponse = dbClient.updateStoryTestInDB(getJsonToImport(), getStoryTypeImport(), id, null, true);
 				
-		if(dbClientResponse.getStatusCodeValue() != HttpStatus.OK.value()) {
-			return dbClientResponse;
+		ResponseEntity<String> dbClientResponse = dbClient.updateStoryTestInDB(getJsonToImport(), testName);
+				
+		if(dbClientResponse == null) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		
-		return new ResponseEntity<>(HttpStatus.OK);
+		return dbClientResponse;
 	}
 	
-	@RequestMapping(value = "/d/test-case/{storyType}/{id}", method = RequestMethod.DELETE)
-	public ResponseEntity<?> handleDeleteRequest(@PathVariable("id") long id, 
-			@PathVariable("storyType") String storyType) {
+	
+	@RequestMapping(value = "/d/test-case/{testName}", method = RequestMethod.DELETE)
+	public ResponseEntity<?> handleDeleteRequest(@PathVariable("testName") String testName) {
 		
-		PreCondition.require(id >= 0, "Test ID can't be negative!");
-		
-		HttpStatus dbClientResponse = dbClient.deleteStoryTestFromDB(storyType, id);
-		
-		if(dbClientResponse.value() != HttpStatus.OK.value()) {
-			return new ResponseEntity<>(dbClientResponse);
+		if( (testName == null) || (testName.isEmpty()) || (testName.trim().length() == 0) ) {
+			return new ResponseEntity<>(new CustomErrorType("Invalid testName for StoryTest"), HttpStatus.BAD_REQUEST);
 		}
 		
-		return new ResponseEntity<>(HttpStatus.OK);
+		ResponseEntity<String> dbClientResponse = dbClient.deleteStoryTestFromDB(testName);
+		
+		if(dbClientResponse == null) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+		return dbClientResponse;
 	}
+	
 	
 	@ExceptionHandler({HttpMessageNotReadableException.class})
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -179,16 +157,7 @@ public class StoryTestRequestController {
 		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 	}
 	
-	
-	private boolean missingStoryType(StoryTestImportModel jsonWrapper) {
-		
-		// No Story Type. Can't import
-		if( (jsonWrapper.getStoryType() == null) || (jsonWrapper.getStoryType().trim().length() == 0)) {
-			return true;
-		}
-		return false;
-	}
-	
+
 	private boolean missingStoryName(StoryTestImportModel jsonWrapper) {
 		
 		// No Story Name. Can't import
@@ -239,7 +208,7 @@ public class StoryTestRequestController {
 			DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyy-HH:mm:ss");
 			String date = dtf.format(LocalDateTime.now());
 					
-			String generatedTestName = storyTest.getStoryType().toString()
+			String generatedTestName = storyTest.getStoryName().toString()
 					+ "-TEST-" + date;
 			storyTest.setTestName(generatedTestName);
 		}
@@ -274,7 +243,6 @@ public class StoryTestRequestController {
 	 
 	private void buildJsonToImport(ObjectNode json, StoryTestImportModel storyTest) {
 		
-		json.put("storyType", storyTest.getStoryType());
 		json.put("testName", storyTest.getTestName());
 		json.put("storyName", storyTest.getStoryName());
 		
@@ -293,23 +261,12 @@ public class StoryTestRequestController {
 	}
 	
 	
-	
 	public StoryTestImportModel getStoryTestToImport() {
 		return storyTestToImport;
 	}
 
 	public void setStoryTestToImport(StoryTestImportModel storyTestToImport) {
 		this.storyTestToImport = storyTestToImport;
-	}
-
-
-	public String getStoryTypeImport() {
-		return storyTypeImport;
-	}
-
-
-	public void setStoryTypeImport(String storyTypeImport) {
-		this.storyTypeImport = storyTypeImport;
 	}
 
 

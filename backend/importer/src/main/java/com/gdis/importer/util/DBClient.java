@@ -26,7 +26,7 @@ public class DBClient {
 	}
 	
 	
-	public ResponseEntity<String> importStoryTestInDB(ObjectNode json, final String storyType) {
+	public ResponseEntity<String> importStoryTestInDB(ObjectNode json) {
 		
 		if(getDATABASEAPI_URL() == null) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -41,7 +41,7 @@ public class DBClient {
 
 		RestTemplate restTemplate = new RestTemplate();
 				
-		final String url = getDATABASEAPI_URL() + "/" + storyType + "/insert";
+		final String url = getDATABASEAPI_URL() + "/storyTest/insert";
 		
 		HttpEntity<String> entity = new HttpEntity<String>(json.toString(), headers);
 			
@@ -62,7 +62,8 @@ public class DBClient {
 		return response;
 	}
 	
-	public ResponseEntity<String> updateStoryTestInDB(ObjectNode json, final String storyType, final long id, final String testName, boolean byID) {
+	
+	public ResponseEntity<String> updateStoryTestInDB(ObjectNode json, final String testName) {
 		
 		if(getDATABASEAPI_URL() == null) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -75,24 +76,7 @@ public class DBClient {
 		
 		RestTemplate restTemplate = new RestTemplate();
 		
-		final String url;
-		
-		if(byID == true) {
-			
-			if(id <= 0) {
-				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-			}
-			
-			url = getDATABASEAPI_URL() + "/" + storyType + "/update/by-id/" + id;
-			
-		} else {
-
-			if( (testName == null) || (testName.isEmpty()) || (testName.trim().length() == 0) ) {
-				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-			}
-			
-			url = getDATABASEAPI_URL() + "/" + storyType + "/update/by-test-name/" + testName;
-		}
+		final String url = getDATABASEAPI_URL() + "/storyTest/update/by-test-name/" + testName;
 		
 		HttpEntity<String> entity = new HttpEntity<String>(json.toString(), headers);
 				
@@ -114,10 +98,11 @@ public class DBClient {
 		
 	}
 	
-	public HttpStatus deleteStoryTestFromDB(final String storyType, final long id) {
+	
+	public ResponseEntity<String> deleteStoryTestFromDB(final String testName) {
 		
 		if(getDATABASEAPI_URL() == null) {
-			return HttpStatus.INTERNAL_SERVER_ERROR;
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		
 		ResponseEntity<String> response = null;
@@ -127,7 +112,7 @@ public class DBClient {
 		
 		RestTemplate restTemplate = new RestTemplate();
 		
-		final String url = getDATABASEAPI_URL() + "/" + storyType + "/delete/" + id;
+		final String url = getDATABASEAPI_URL() + "/storyTest/delete/by-test-name" + testName;
 		
 		HttpEntity<String> entity = new HttpEntity<String>(headers);
 				
@@ -136,16 +121,16 @@ public class DBClient {
 		} catch(HttpClientErrorException e) {
 			
 			//errorCode = e.getStatusCode();
-			return e.getStatusCode();
+			return new ResponseEntity<>(e.getStatusCode());
 			
 		} catch (RestClientException re) {
 			// No DB Connection
 			//errorCode = 500;
-			return HttpStatus.INTERNAL_SERVER_ERROR;
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 			
 		}
 		
-		return response.getStatusCode();
+		return response;
 	}
 	
 	
@@ -182,7 +167,73 @@ public class DBClient {
 	}
 	
 	
-	public ResponseEntity<String> importEntityInDB(ObjectNode json) {
+	public ResponseEntity<String> updateStoryInDB(final String storyName, ObjectNode json) {
+		
+		if(getDATABASEAPI_URL() == null) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+		ResponseEntity<String> response = null;
+		
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+
+		RestTemplate restTemplate = new RestTemplate();
+				
+		final String url = getDATABASEAPI_URL() + "/story/update/by-story-name/" + storyName;
+		
+		HttpEntity<String> entity = new HttpEntity<String>(json.toString(), headers);
+			
+		try {
+			response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class);
+		} catch(HttpClientErrorException e) {
+			
+			return new ResponseEntity<>(e.getStatusCode());
+			
+		} catch (RestClientException re) {
+			// No DB Connection
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			
+		}
+		
+		return response;
+	}
+	
+	
+	public ResponseEntity<String> deleteStoryFromDB(final String storyName) {
+		
+		if(getDATABASEAPI_URL() == null) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+		ResponseEntity<String> response = null;
+		
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+
+		RestTemplate restTemplate = new RestTemplate();
+				
+		final String url = getDATABASEAPI_URL() + "/story/delete/by-story-name/" + storyName;
+		
+		HttpEntity<String> entity = new HttpEntity<String>(headers);
+			
+		try {
+			response = restTemplate.exchange(url, HttpMethod.DELETE, entity, String.class);
+		} catch(HttpClientErrorException e) {
+			
+			return new ResponseEntity<>(e.getStatusCode());
+			
+		} catch (RestClientException re) {
+			// No DB Connection
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			
+		}
+		
+		return response;
+	}
+	
+	
+	public ResponseEntity<String> importTestEntityInDB(ObjectNode json) {
 		
 		if(getDATABASEAPI_URL() == null) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -215,7 +266,7 @@ public class DBClient {
 	}
 	
 	
-	public ResponseEntity<String> importEntityAttributeInDB(final String entityName, ObjectNode json) {
+	public ResponseEntity<String> imporTestEntityAttributesInDB(final String entityName, ObjectNode json) {
 		
 		if(getDATABASEAPI_URL() == null) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -233,7 +284,7 @@ public class DBClient {
 		HttpEntity<String> entity = new HttpEntity<String>(json.toString(), headers);
 			
 		try {
-			response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
+			response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class);
 		} catch(HttpClientErrorException e) {
 			
 			return new ResponseEntity<>(e.getStatusCode());
@@ -246,6 +297,41 @@ public class DBClient {
 		
 		return response;
 	}
+	
+	
+	public ResponseEntity<String> updateTestEntityInDB(final String entityName, ObjectNode json) {
+		
+		if(getDATABASEAPI_URL() == null) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+		ResponseEntity<String> response = null;
+		
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+
+		RestTemplate restTemplate = new RestTemplate();
+				
+		final String url = getDATABASEAPI_URL() + "/testEntity/update/attributes/" + entityName;
+		
+		HttpEntity<String> entity = new HttpEntity<String>(json.toString(), headers);
+			
+		try {
+			response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class);
+		} catch(HttpClientErrorException e) {
+			
+			return new ResponseEntity<>(e.getStatusCode());
+			
+		} catch (RestClientException re) {
+			// No DB Connection
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			
+		}
+		
+		return response;
+	}
+	
+	
 
 	public String getDATABASEAPI_URL() {
 		return DATABASEAPI_URL;

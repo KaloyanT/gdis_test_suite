@@ -14,7 +14,7 @@ import com.gdis.exporter.util.DBClient;
 
 @RestController
 @RequestMapping("/exporter/e")
-public class ExportObjectRequestController {
+public class ExportTestObjectRequestController {
 	
 	@Autowired
 	private DBClient dbClient;
@@ -22,7 +22,7 @@ public class ExportObjectRequestController {
 	@RequestMapping(value = "/objects", method = RequestMethod.GET)
 	public ResponseEntity<?> getObjects() {
 		
-		List<ObjectNode> objectsList = dbClient.exportAllObjectsFromDB();
+		List<ObjectNode> objectsList = dbClient.exportAllTestObjectsFromDB();
 		
 		if(objectsList == null) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -39,7 +39,7 @@ public class ExportObjectRequestController {
 			return new ResponseEntity<>(new CustomErrorType("Invalid Entity Type"), HttpStatus.NOT_FOUND);
 		}
 		
-		List<ObjectNode> objectsList = dbClient.exportObjectsFromDBByEntityType(entityType);
+		List<ObjectNode> objectsList = dbClient.exportTestObjectsFromDBByEntityType(entityType);
 		
 		if(objectsList == null) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

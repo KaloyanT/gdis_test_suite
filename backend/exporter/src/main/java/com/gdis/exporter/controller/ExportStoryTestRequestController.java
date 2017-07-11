@@ -20,38 +20,30 @@ import com.gdis.exporter.util.DBClient;
 @RequestMapping("/exporter/e")
 public class ExportStoryTestRequestController {
 	
-	
 	private List<ObjectNode> elementsToExport;
 	
 	@Autowired
 	private DBClient dbClient;
 	
-	@RequestMapping(value = "/{storyType}/all", method = RequestMethod.GET)
-	public ResponseEntity<?> getAllTestsByStoryType(@PathVariable("storyType") String storyType) {
-	
-		if( (storyType == null) || (storyType.isEmpty()) || (storyType.trim().length() == 0) ) {
-			return new ResponseEntity<>(new CustomErrorType("Invalid Story Type"), HttpStatus.NOT_FOUND);
-		}
+	@RequestMapping(value = "/storyTests/all", method = RequestMethod.GET)
+	public ResponseEntity<?> getAllTestsByStoryType() {
 		
-		List<StoryTestExportModel> response = dbClient.exportAllTestsFromDB(storyType);
+		List<StoryTestExportModel> response = dbClient.exportAllStoryTestsFromDB();
 		
 		if(response == null) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		
-		buildJsonElementsToExport(response, storyType);
+		buildJsonElementsToExport(response);
 		
 		return new ResponseEntity<>(getElementsToExport(), HttpStatus.OK);
 	}
 	
-	@RequestMapping(value = "/{storyType}/all/export", method = RequestMethod.GET)
-	public ResponseEntity<?> getAllTestsByStoryTypeForExport(@PathVariable("storyType") String storyType) {
 	
-		if( (storyType == null) || (storyType.isEmpty()) || (storyType.trim().length() == 0) ) {
-			return new ResponseEntity<>(new CustomErrorType("Invalid Story Type"), HttpStatus.NOT_FOUND);
-		}
-		
-		List<ObjectNode> response = dbClient.exportAllTestsFromDBForExport(storyType);
+	@RequestMapping(value = "/storyTests/all/export", method = RequestMethod.GET)
+	public ResponseEntity<?> getAllTestsByStoryTypeForExport() {
+	
+		List<ObjectNode> response = dbClient.exportAllStoryTestsFromDBForExport();
 		
 		if(response == null) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -61,43 +53,33 @@ public class ExportStoryTestRequestController {
 	}
 	
 	
-	@RequestMapping(value = "/{storyType}/by-story-name/{storyName}", method = RequestMethod.GET)
-	public ResponseEntity<?> getTestsByStoryName(@PathVariable("storyType") String storyType, 
-			@PathVariable("storyName") String storyName) {
-		
-		if( (storyType == null) || (storyType.isEmpty()) || (storyType.trim().length() == 0) ) {
-			return new ResponseEntity<>(new CustomErrorType("Invalid Story Type"), HttpStatus.NOT_FOUND);
-		}
+	@RequestMapping(value = "/storyTests/by-story-name/{storyName}", method = RequestMethod.GET)
+	public ResponseEntity<?> getTestsByStoryName(@PathVariable("storyName") String storyName) {
 		
 		if( (storyName == null) || (storyName.isEmpty()) || (storyName.trim().length() == 0) ) {
 			return new ResponseEntity<>(new CustomErrorType("Invalid Story Name"), HttpStatus.NOT_FOUND);
 		}
 		
-		List<StoryTestExportModel> response = dbClient.exportTestsFromDBByStoryName(storyType, storyName);
+		List<StoryTestExportModel> response = dbClient.exportStoryTestsFromDBByStoryName(storyName);
 		
 		if(response == null) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		
-		buildJsonElementsToExport(response, storyType);
+		buildJsonElementsToExport(response);
 				
 		return new ResponseEntity<>(getElementsToExport(), HttpStatus.OK);
 	}
 	
 	
-	@RequestMapping(value = "/{storyType}/by-story-name/{storyName}/export", method = RequestMethod.GET)
-	public ResponseEntity<?> getTestsByStoryNameForExport(@PathVariable("storyType") String storyType, 
-			@PathVariable("storyName") String storyName) {
-		
-		if( (storyType == null) || (storyType.isEmpty()) || (storyType.trim().length() == 0) ) {
-			return new ResponseEntity<>(new CustomErrorType("Invalid Story Type"), HttpStatus.NOT_FOUND);
-		}
-		
+	@RequestMapping(value = "/storyTests/by-story-name/{storyName}/export", method = RequestMethod.GET)
+	public ResponseEntity<?> getTestsByStoryNameForExport(@PathVariable("storyName") String storyName) {
+				
 		if( (storyName == null) || (storyName.isEmpty()) || (storyName.trim().length() == 0) ) {
 			return new ResponseEntity<>(new CustomErrorType("Invalid Story Name"), HttpStatus.NOT_FOUND);
 		}
 		
-		List<ObjectNode> response = dbClient.exportTestsFromDBByStoryNameForExport(storyType, storyName);
+		List<ObjectNode> response = dbClient.exportStoryTestsFromDBByStoryNameForExport(storyName);
 		
 		if(response == null) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -107,44 +89,34 @@ public class ExportStoryTestRequestController {
 	}
 	
 	
-	@RequestMapping(value = "/{storyType}/by-test-name/{testName}", method = RequestMethod.GET)
-	public ResponseEntity<?> getTestsByTestName(@PathVariable("storyType") String storyType, 
-			@PathVariable("testName") String testName) {
-		
-		if( (storyType == null) || (storyType.isEmpty()) || (storyType.trim().length() == 0) ) {
-			return new ResponseEntity<>(new CustomErrorType("Invalid Story Type"), HttpStatus.NOT_FOUND);
-		}
+	@RequestMapping(value = "/storyTests/by-test-name/{testName}", method = RequestMethod.GET)
+	public ResponseEntity<?> getTestsByTestName(@PathVariable("testName") String testName) {
 		
 		if( (testName == null) || (testName.isEmpty()) || (testName.trim().length() == 0) ) {
 			return new ResponseEntity<>(new CustomErrorType("Invalid Story Name"), HttpStatus.NOT_FOUND);
 		}
 		
-		List<StoryTestExportModel> response = dbClient.exportTestFromDBByTestName(storyType, testName);
+		List<StoryTestExportModel> response = dbClient.exportStoryTestFromDBByTestName(testName);
 		
 		if(response == null) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		
-		buildJsonElementsToExport(response, storyType);
+		buildJsonElementsToExport(response);
 		
 		
 		return new ResponseEntity<>(getElementsToExport(), HttpStatus.OK);
 	}
 	
 	
-	@RequestMapping(value = "/{storyType}/by-test-name/{testName}/export", method = RequestMethod.GET)
-	public ResponseEntity<?> getTestsByTestNameForExport(@PathVariable("storyType") String storyType, 
-			@PathVariable("testName") String testName) {
-		
-		if( (storyType == null) || (storyType.isEmpty()) || (storyType.trim().length() == 0) ) {
-			return new ResponseEntity<>(new CustomErrorType("Invalid Story Type"), HttpStatus.NOT_FOUND);
-		}
+	@RequestMapping(value = "/storyTests/by-test-name/{testName}/export", method = RequestMethod.GET)
+	public ResponseEntity<?> getTestsByTestNameForExport(@PathVariable("testName") String testName) {
 		
 		if( (testName == null) || (testName.isEmpty()) || (testName.trim().length() == 0) ) {
 			return new ResponseEntity<>(new CustomErrorType("Invalid Story Name"), HttpStatus.NOT_FOUND);
 		}
 		
-		List<ObjectNode> response = dbClient.exportTestFromDBByTestNameForExport(storyType, testName);
+		List<ObjectNode> response = dbClient.exportStoryTestFromDBByTestNameForExport(testName);
 		
 		if(response == null) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -155,7 +127,20 @@ public class ExportStoryTestRequestController {
 	}
 	
 	
-	private void buildJsonElementsToExport(List<StoryTestExportModel> dbEntries, String storyType) {
+	@RequestMapping(value = "/storyTests/by-test-name/{entityName}", method = RequestMethod.GET)
+	public ResponseEntity<?> getTestsByEntityName(@PathVariable("entityName") String entityName) {
+		
+		List<ObjectNode> response = dbClient.exportStoryTestFromDBByEntityName(entityName);
+		
+		if(response == null) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+				
+		
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+	
+	private void buildJsonElementsToExport(List<StoryTestExportModel> dbEntries) {
 		
 		ObjectMapper mapper = new ObjectMapper();
 		List<ObjectNode> res = new ArrayList<ObjectNode>();
@@ -165,7 +150,6 @@ public class ExportStoryTestRequestController {
 			ObjectNode currentNode = mapper.createObjectNode();
 			
 			currentNode.put("storyTestID", jResponse.getStoryTestID());
-			currentNode.put("storyType", storyType);
 			currentNode.put("storyName", jResponse.getStoryName());
 			currentNode.put("testName", jResponse.getTestName());
 			

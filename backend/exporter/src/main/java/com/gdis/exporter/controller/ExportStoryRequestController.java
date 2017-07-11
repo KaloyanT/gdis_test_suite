@@ -19,6 +19,10 @@ public class ExportStoryRequestController {
 	@Autowired
 	private DBClient dbClient;
 	
+	/**
+	 * Returns all the stories with all of their details 
+	 * @return A List which contains all stories
+	 */
 	@RequestMapping(value = "/stories", method = RequestMethod.GET)
 	public ResponseEntity<?> getStories() {
 		
@@ -28,13 +32,14 @@ public class ExportStoryRequestController {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		
-		// Make the Story looks the same as it looks in a .story file by 
-		// simply appending every to one String
-		
 		return new ResponseEntity<>(storiesList, HttpStatus.OK);
 	}
 	
 	
+	/**
+	 * Returns a simple list with the names of all Stories
+	 * @return A list with the names of all Stories
+	 */
 	@RequestMapping(value = "/stories/list", method = RequestMethod.GET)
 	public ResponseEntity<?> getStoriesList() {
 		
@@ -44,10 +49,14 @@ public class ExportStoryRequestController {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		
-		
 		return new ResponseEntity<>(storiesList, HttpStatus.OK);
 	}
 	
+	/**
+	 * 
+	 * @param storyName The name of the Story which has to be returned
+	 * @return Returns all the information about the Story with the name storyName
+	 */
 	@RequestMapping(value = "/stories/by-story-name/{storyName}", method = RequestMethod.GET)
 	public ResponseEntity<?> getStoryByStoryName(@PathVariable("storyName") String storyName) {
 		
@@ -60,7 +69,6 @@ public class ExportStoryRequestController {
 		if(storiesList == null) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		
 		
 		return new ResponseEntity<>(storiesList, HttpStatus.OK);
 	}

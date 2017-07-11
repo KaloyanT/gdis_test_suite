@@ -10,8 +10,6 @@ public class StoryTestImportModel {
 	
 	private String testName;
 	
-	private String storyType;
-	
 	private String storyName;
 	
 	private Map<String, String> mappings = new HashMap<String, String>();
@@ -24,15 +22,6 @@ public class StoryTestImportModel {
 
 	public void setTestName(String testName) {
 		this.testName = testName;
-	}
-	
-
-	public String getStoryType() {
-		return storyType;
-	}
-
-	public void setStoryType(String storyType) {
-		this.storyType = storyType;
 	}
 	
 	public List<ObjectNode> getData() {

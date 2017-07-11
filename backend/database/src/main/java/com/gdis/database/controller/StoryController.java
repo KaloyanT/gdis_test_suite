@@ -240,7 +240,7 @@ public class StoryController {
 	}
 	
 	
-	@RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
+	@RequestMapping(value = "/delete/by-id/{id}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> deleteStory(@PathVariable("id") long id) {
 		
 		PreCondition.require(id >= 0, "Story ID can't be negative!");
@@ -277,7 +277,7 @@ public class StoryController {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/update/{id}", method = RequestMethod.PUT)
+	@RequestMapping(value = "/update/by-id/{id}", method = RequestMethod.PUT)
 	public ResponseEntity<?> updateStoryByID(@PathVariable("id") long id, 
 			@RequestBody Story updatedStory) {
 		
@@ -292,6 +292,44 @@ public class StoryController {
 		if (currentStory == null) {
 			return new ResponseEntity<>(new CustomErrorType("Unable to update. StoryTest with ID "
 					+ id + " not found."), HttpStatus.NOT_FOUND);
+		}
+		
+		Story storyWithSameName = storyRepository.findByStoryName(updatedStory.getStoryName());
+		
+		if(storyWithSameName != null) {
+			
+			if(currentStory.getStoryID() != storyWithSameName.getStoryID()) {
+				return new ResponseEntity<>(new CustomErrorType("Unable to update. There is another Story "
+						+ "with this storyName."), HttpStatus.CONFLICT);
+			}
+		}
+		
+		currentStory.getScenarios().clear();
+		currentStory.setStoryName(updatedStory.getStoryName());
+		currentStory.setDescription(updatedStory.getDescription());
+		currentStory.setScenarios(updatedStory.getScenarios());
+		
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+	
+	
+	@RequestMapping(value = "/update/by-story-name/{storyName}", method = RequestMethod.PUT)
+	public ResponseEntity<?> updateStoryByID(@PathVariable("storyName") String storyName, 
+			@RequestBody Story updatedStory) {
+		
+		if(updatedStory == null) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+		
+		if( (storyName == null) || (storyName.isEmpty()) || (storyName.trim().length() == 0) ) {
+			return new ResponseEntity<>(new CustomErrorType("Invalid Story Name"), HttpStatus.NOT_FOUND);
+		}
+		
+		Story currentStory = storyRepository.findByStoryName(storyName);
+		
+		if (currentStory == null) {
+			return new ResponseEntity<>(new CustomErrorType("Unable to update. Story with storyName "
+					+ storyName + " not found."), HttpStatus.NOT_FOUND);
 		}
 		
 		Story storyWithSameName = storyRepository.findByStoryName(updatedStory.getStoryName());

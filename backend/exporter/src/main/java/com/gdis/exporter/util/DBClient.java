@@ -37,7 +37,7 @@ public class DBClient {
 	}
 	
 	
-	public List<StoryTestExportModel> exportAllTestsFromDB(final String storyType) {
+	public List<StoryTestExportModel> exportAllStoryTestsFromDB() {
 
 		if(getDATABASEAPI_URL() == null) {
 			return null;
@@ -49,7 +49,7 @@ public class DBClient {
 		RestTemplate restTemplate = new RestTemplate();
 		List<StoryTestExportModel> res = null;
 		
-		final String url = getDATABASEAPI_URL() + "/" + storyType;
+		final String url = getDATABASEAPI_URL() + "/storyTest";
 		
 		ResponseEntity<StoryTestExportModel[]> response = null; 
 		
@@ -70,7 +70,8 @@ public class DBClient {
 		return res;
 	}
 	
-	public List<ObjectNode> exportAllTestsFromDBForExport(final String storyType) {
+	
+	public List<ObjectNode> exportAllStoryTestsFromDBForExport() {
 
 		if(getDATABASEAPI_URL() == null) {
 			return null;
@@ -82,7 +83,7 @@ public class DBClient {
 		RestTemplate restTemplate = new RestTemplate();
 		List<ObjectNode> res = null;
 		
-		final String url = getDATABASEAPI_URL() + "/" + storyType + "/export";
+		final String url = getDATABASEAPI_URL() + "/storyTest/export";
 		
 		ResponseEntity<ObjectNode[]> response = null; 
 		
@@ -104,7 +105,7 @@ public class DBClient {
 	}
 	
 	
-	public List<StoryTestExportModel> exportTestsFromDBByStoryName(final String storyType, final String storyName) {
+	public List<StoryTestExportModel> exportStoryTestsFromDBByStoryName(final String storyName) {
 		
 		if(getDATABASEAPI_URL() == null) {
 			return null;
@@ -116,7 +117,7 @@ public class DBClient {
 		RestTemplate restTemplate = new RestTemplate();
 		List<StoryTestExportModel> res = null;
 		
-		final String url = getDATABASEAPI_URL() + "/" + storyType + "/get/by-story-name/" + storyName;
+		final String url = getDATABASEAPI_URL() + "/storyTest/get/by-story-name/" + storyName;
 		
 		ResponseEntity<StoryTestExportModel[]> response = null; 
 		
@@ -137,7 +138,7 @@ public class DBClient {
 	} 
 	
 	
-	public List<ObjectNode> exportTestsFromDBByStoryNameForExport(final String storyType, final String storyName) {
+	public List<ObjectNode> exportStoryTestsFromDBByStoryNameForExport(final String storyName) {
 		
 		if(getDATABASEAPI_URL() == null) {
 			return null;
@@ -149,7 +150,7 @@ public class DBClient {
 		RestTemplate restTemplate = new RestTemplate();
 		List<ObjectNode> res = null;
 		
-		final String url = getDATABASEAPI_URL() + "/" + storyType + "/get/by-story-name/" + storyName + "/export";
+		final String url = getDATABASEAPI_URL() + "/storyTest/get/by-story-name/" + storyName + "/export";
 		
 		ResponseEntity<ObjectNode[]> response = null; 
 		
@@ -170,7 +171,7 @@ public class DBClient {
 	} 
 	
 	
-	public List<StoryTestExportModel> exportTestFromDBByTestName(final String storyType, final String testName) {
+	public List<StoryTestExportModel> exportStoryTestFromDBByTestName(final String testName) {
 		
 		if(getDATABASEAPI_URL() == null) {
 			return null;
@@ -182,7 +183,7 @@ public class DBClient {
 		RestTemplate restTemplate = new RestTemplate();
 		List<StoryTestExportModel> res = null;
 		
-		final String url = getDATABASEAPI_URL() + "/" + storyType + "/get/by-test-name/" + testName;
+		final String url = getDATABASEAPI_URL() + "/storyTest/get/by-test-name/" + testName;
 		
 		ResponseEntity<StoryTestExportModel[]> response = null; 
 		
@@ -204,7 +205,7 @@ public class DBClient {
 	} 
 	
 	
-	public List<ObjectNode> exportTestFromDBByTestNameForExport(final String storyType, final String testName) {
+	public List<ObjectNode> exportStoryTestFromDBByTestNameForExport(final String testName) {
 		
 		if(getDATABASEAPI_URL() == null) {
 			return null;
@@ -216,7 +217,7 @@ public class DBClient {
 		RestTemplate restTemplate = new RestTemplate();
 		List<ObjectNode> res = null;
 		
-		final String url = getDATABASEAPI_URL() + "/" + storyType + "/get/by-test-name/" + testName + "/export";
+		final String url = getDATABASEAPI_URL() + "/storyTest/get/by-test-name/" + testName + "/export";
 		
 		ResponseEntity<ObjectNode[]> response = null; 
 		
@@ -237,7 +238,42 @@ public class DBClient {
 		return res;
 	} 
 	
-	public List<EntityExportModel> exportAllEntitiesFromDB() {
+	
+	public List<ObjectNode> exportStoryTestFromDBByEntityName(final String entityName) {
+		
+		if(getDATABASEAPI_URL() == null) {
+			return null;
+		}
+		
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+
+		RestTemplate restTemplate = new RestTemplate();
+		List<ObjectNode> res = null;
+		
+		final String url = getDATABASEAPI_URL() + "/testEntity/get/story-tests-containing-entity/" + entityName;
+		
+		ResponseEntity<ObjectNode[]> response = null; 
+		
+		try {
+			response = restTemplate.getForEntity(url, ObjectNode[].class);
+		} catch(HttpClientErrorException e) {
+			return new ArrayList<ObjectNode>();
+		} catch (RestClientException re) {
+			// No DB Connection
+			return null;
+		}
+		
+		if(response != null) {
+			res = new ArrayList<>(Arrays.asList(response.getBody()));
+		
+		} 
+		
+		return res;
+	} 
+	
+	
+	public List<EntityExportModel> exportAllTestEntitiesFromDB() {
 		
 		if(getDATABASEAPI_URL() == null) {
 			return null;
@@ -250,7 +286,7 @@ public class DBClient {
 	
 		List<EntityExportModel> res = null;
 	
-		final String url = getDATABASEAPI_URL() + "/" + "testEntity";
+		final String url = getDATABASEAPI_URL() + "/testEntity";
 	
 		ResponseEntity<EntityExportModel[]> response = null; 
 		
@@ -270,7 +306,43 @@ public class DBClient {
 		return res;		
 	}
 	
-	public List<ObjectNode> exportAllObjectsFromDB() {
+	
+	public List<EntityExportModel> exportTestEntityByNameFromDB(final String entityName) {
+		
+		if(getDATABASEAPI_URL() == null) {
+			return null;
+		}
+		
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+
+		RestTemplate restTemplate = new RestTemplate();
+	
+		List<EntityExportModel> res = null;
+	
+		final String url = getDATABASEAPI_URL() + "/testEntity/get/by-entity-name/" + entityName;
+	
+		ResponseEntity<EntityExportModel[]> response = null; 
+		
+		try {
+			response = restTemplate.getForEntity(url, EntityExportModel[].class);
+		} catch(HttpClientErrorException e) {
+			return new ArrayList<EntityExportModel>();
+		} catch (RestClientException re) {
+			// No DB Connection
+			return null;
+		}
+		
+		if(response != null) {
+			res = new ArrayList<>(Arrays.asList(response.getBody()));
+		} 
+		
+		return res;		
+	}
+	
+	
+	
+	public List<ObjectNode> exportAllTestObjectsFromDB() {
 		
 		if(getDATABASEAPI_URL() == null) {
 			return null;
@@ -304,7 +376,8 @@ public class DBClient {
 		return res;		
 	}
 	
-	public List<ObjectNode> exportObjectsFromDBByEntityType(final String entityType) {
+	
+	public List<ObjectNode> exportTestObjectsFromDBByEntityType(final String entityType) {
 		
 		if(getDATABASEAPI_URL() == null) {
 			return null;
