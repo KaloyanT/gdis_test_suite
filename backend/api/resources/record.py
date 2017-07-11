@@ -39,9 +39,9 @@ class Record(Resource):
             unixtime = calendar.timegm(d.utctimetuple())
 
             ret_arr = {
-                "storyType": "basicStoryTest",
+                "storyType": "storyTest",
                 "storyName": "newContract.T{}.{}".format(unixtime, random.randint(0, 100)),
-                "testData": dict_from_data
+                "data": dict_from_data
             }
 
             s = json.dumps(ret_arr)
