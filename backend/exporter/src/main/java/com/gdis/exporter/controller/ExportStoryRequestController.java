@@ -35,6 +35,19 @@ public class ExportStoryRequestController {
 	}
 	
 	
+	@RequestMapping(value = "/stories/list", method = RequestMethod.GET)
+	public ResponseEntity<?> getStoriesList() {
+		
+		List<String> storiesList = dbClient.exportListOfStoryNamesFromDB();
+		
+		if(storiesList == null) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+		
+		return new ResponseEntity<>(storiesList, HttpStatus.OK);
+	}
+	
 	@RequestMapping(value = "/stories/by-story-name/{storyName}", method = RequestMethod.GET)
 	public ResponseEntity<?> getStoryByStoryName(@PathVariable("storyName") String storyName) {
 		

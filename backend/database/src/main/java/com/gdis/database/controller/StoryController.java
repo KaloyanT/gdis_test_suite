@@ -85,6 +85,34 @@ public class StoryController {
 	}
 	
 	
+	/*
+	 * Get all the stories as a list of storyNames
+	 */
+	@RequestMapping(value = "/story-name-list", method = RequestMethod.GET)
+	public ResponseEntity<?> getStoryNameOfAllStories() {
+		
+		Iterable<Story> storyIterable = storyRepository.findAll();
+		
+		if(storyIterable == null) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+		
+		List<Story> storyList = new ArrayList<Story>();
+		
+		// Java 8 Method Reference is used here
+		storyIterable.forEach(storyList::add);
+		
+		List<String> storyObjectsWithoutStoryTests = new ArrayList<String>();
+		
+		for(Story s : storyList) {
+			
+			storyObjectsWithoutStoryTests.add(s.getStoryName());
+		}
+		
+		return new ResponseEntity<>(storyObjectsWithoutStoryTests, HttpStatus.OK);
+	}
+	
+	
 	@RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
 	public ResponseEntity<?> getStoryByID(@PathVariable("id") long id) {
 		

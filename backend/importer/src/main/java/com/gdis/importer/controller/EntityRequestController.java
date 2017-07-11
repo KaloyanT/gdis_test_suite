@@ -56,7 +56,7 @@ public class EntityRequestController {
 		return dbClientResponse;
 	}
 	
-	@RequestMapping(value = "/i/entity/attribute", method = RequestMethod.POST, consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE})		
+	@RequestMapping(value = "/u/entity/attributes", method = RequestMethod.PUT, consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE})		
 	public ResponseEntity<?> handleEntityAttributeImportRequest(@RequestBody EntityImportModel newEntity) {	
 		
 		if(newEntity == null) {

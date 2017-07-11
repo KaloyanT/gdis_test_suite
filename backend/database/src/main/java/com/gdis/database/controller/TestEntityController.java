@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import com.gdis.database.model.TestEntity;
+import com.gdis.database.service.StoryTestElementRepository;
 import com.gdis.database.service.TestEntityRepository;
+import com.gdis.database.service.TestObjectRepository;
 import com.gdis.database.util.CustomErrorType;
 import com.gdis.database.util.PreCondition;
 
@@ -21,6 +23,12 @@ public class TestEntityController {
 	
 	@Autowired
 	private TestEntityRepository testEntityRepository;
+	
+	@Autowired
+	private StoryTestElementRepository storyTestElementRepository;
+	
+	@Autowired
+	private TestObjectRepository testObjectRepository;
 	
 	private TestEntity entityToSave;
 	
@@ -128,16 +136,16 @@ public class TestEntityController {
 	}
 	
 	
-	@RequestMapping(value = "/insert/attribute/{entityName}/{newAttribute}", method = RequestMethod.POST)
+	@RequestMapping(value = "/insert/attributes/{entityName}", method = RequestMethod.POST)
 	public ResponseEntity<?> addAttributeForEntity(@PathVariable("entityName") String entityName, 
-			@PathVariable("newAttribute") String newAttribute) {
+			@RequestBody TestEntity updatedTestEntity) {
 	    
 		if( (entityName == null) || (entityName.isEmpty()) || (entityName.trim().length() == 0) ) {
 			return new ResponseEntity<>(new CustomErrorType("Invalid Entity Name"), HttpStatus.NOT_FOUND);
 		}
 		
-		if( (newAttribute == null) || (newAttribute.isEmpty()) || (newAttribute.trim().length() == 0) ) {
-			return new ResponseEntity<>(new CustomErrorType("Invalid Attribute Name"), HttpStatus.NOT_FOUND);
+		if(updatedTestEntity == null) {
+			return new ResponseEntity<>(new CustomErrorType("Invalid Entity"), HttpStatus.BAD_REQUEST);
 		}
 		
 		TestEntity testEntity = testEntityRepository.findByEntityName(entityName);
@@ -147,22 +155,44 @@ public class TestEntityController {
 					+ " not found"), HttpStatus.NOT_FOUND);
 		}
 		
-		if( (newAttribute == null) || (newAttribute.isEmpty()) || (newAttribute.trim().length() == 0) ) {
-			return new ResponseEntity<>(new CustomErrorType("Invalid attribute for entity"), HttpStatus.NOT_FOUND);
+		if(!updatedTestEntity.getEntityName().equals(entityName)) {
+			return new ResponseEntity<>(new CustomErrorType("Can't insert attributes for different Entity"), HttpStatus.BAD_REQUEST);
 		}
 		
-		if(testEntity.getTestEntityAttributes().contains(newAttribute)) {
-			return new ResponseEntity<>(new CustomErrorType("The attribute already exists for this entity"), HttpStatus.CONFLICT);
+		for(String s : updatedTestEntity.getTestEntityAttributes()) {
+			
+			if(!testEntity.getTestEntityAttributes().contains(s)) {
+				testEntity.addTestEntityAttribute(s);
+			}
 		}
-		
-		testEntity.addTestEntityAttribute(newAttribute);
 		
 		testEntityRepository.save(testEntity);
 			
 		return new ResponseEntity<>(HttpStatus.CREATED);
-		
 	}
 	
+	
+	@RequestMapping(value = "/update/{entityName}", method = RequestMethod.POST)
+	public ResponseEntity<?> updateTestEntity(@PathVariable("entityName") String entityName, 
+			@RequestBody TestEntity updatedTestEntity) {
+		
+		if( (entityName == null) || (entityName.isEmpty()) || (entityName.trim().length() == 0) ) {
+			return new ResponseEntity<>(new CustomErrorType("Invalid Entity Name"), HttpStatus.NOT_FOUND);
+		}
+		
+		if(updatedTestEntity == null) {
+			return new ResponseEntity<>(new CustomErrorType("Invalid Entity"), HttpStatus.BAD_REQUEST);
+		}
+		
+		TestEntity testEntity = testEntityRepository.findByEntityName(entityName);
+		
+		if (testEntity == null) {
+			return new ResponseEntity<>(new CustomErrorType("TestEntity with name " + entityName
+					+ " not found"), HttpStatus.NOT_FOUND);
+		}
+		
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
 	
 	@RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> deleteTestEntityByID(@PathVariable("id") long id) {

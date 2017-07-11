@@ -373,6 +373,40 @@ public class DBClient {
 		return res;		
 	}
 	
+	public List<String> exportListOfStoryNamesFromDB() {
+		
+		if(getDATABASEAPI_URL() == null) {
+			return null;
+		}
+		
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+
+		RestTemplate restTemplate = new RestTemplate();
+	
+		List<String> res = null;
+	
+		final String url = getDATABASEAPI_URL() + "/story/story-name-list";
+	
+		ResponseEntity<String[]> response = null; 
+		
+		try {
+			response = restTemplate.getForEntity(url, String[].class);
+		} catch(HttpClientErrorException e) {
+			return new ArrayList<String>();
+		} catch (RestClientException re) {
+			// No DB Connection
+			return null;
+		}
+		
+		if(response != null) {
+			res = new ArrayList<>(Arrays.asList(response.getBody()));
+		
+		} 
+		
+		return res;		
+	}
+	
 	public List<StoryExportModel> exportStoryFromDBByStoryName(final String storyName) {
 		
 		if(getDATABASEAPI_URL() == null) {
