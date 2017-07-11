@@ -1,4 +1,4 @@
-var gdisApp = angular.module('gdisApp', ['ngRoute']);
+var gdisApp = angular.module('gdisApp', ['ngRoute', 'ngMaterial']);
 
 // routing
 gdisApp.config(function($routeProvider) {
@@ -20,6 +20,16 @@ gdisApp.config(function($routeProvider) {
             controller  : 'exportController'
         })
 
+        .when('/entitycreation', {
+            templateUrl : 'pages/entitycreation.html',
+            controller  : 'entitycreationController'
+        })
+
+        .when('/entitymapping', {
+            templateUrl : 'pages/entitymapping.html',
+            controller  : 'entitymappingController'
+        })
+
 });
 
 gdisApp.controller('navBarController', function($scope) {     
@@ -35,6 +45,45 @@ gdisApp.controller('navBarController', function($scope) {
 
 gdisApp.controller('mainController', function($scope) {
     $scope.message = 'Bitte wählen Sie einen Menüpunkt aus der Leiste aus!';
+    $scope.imagePath = 'imgs/generali.jpg';
+    $scope.actionsFirstRow = ['Import', 'Export'];
+    $scope.actionsSecondRow = ['Entity Creation']
+
+})
+
+gdisApp.controller('entitycreationController', function($scope) {
+    $scope.message = 'Hier können neue Entities erstells werden.';
+    $scope.entity = {
+        Name: '',
+        Attributes: []
+    }
+
+    $scope.updateAttributeInputs = function(idx) {
+        var value = $('input[id="' + idx + '"]').val();
+
+        $('label[for="' + idx + '"]').text('Attribut (schon hinzugefügt!)');
+
+        if (value && value != '' && $scope.entity.Attributes.indexOf(value) < 0){
+            $scope.entity.Attributes.push(value);
+        } else {
+            alert('Entity Attribut existiert bereits oder anderer Fehler!');
+        }
+    }
+
+    $scope.getSize = function() {
+        var items = []; 
+
+        for (var i = 0; i < $scope.entity.Attributes.length + 1; i++) { 
+            items.push(i); 
+        } 
+        console.log(items);
+        return items;
+    }
+
+});
+
+gdisApp.controller('entitymappingController', function($scope) {
+    $scope.message = 'Hier können bereits importierte Daten auf bereits erstellte Entities gemappt werden.';
 });
 
 gdisApp.controller('importController', function($scope, $http) {
