@@ -130,4 +130,21 @@ public class EntityRequestController {
 				
 		return dbClientResponse;
 	}
+	
+	
+	@RequestMapping(value = "/d/entity/{entityName}", method = RequestMethod.DELETE, consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE})		
+	public ResponseEntity<?> handleEntityDeleteRequest(@PathVariable("entityName") String entityName) {
+			
+		if( (entityName == null) || (entityName.isEmpty()) || (entityName.trim().length() == 0) ) {
+			return new ResponseEntity<>(new CustomErrorType("Invalid entityName to Update"), HttpStatus.BAD_REQUEST);
+		}
+		
+		ResponseEntity<String> dbClientResponse = dbClient.deleteTestEntityFromDB(entityName);
+		
+		if(dbClientResponse == null) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+		return dbClientResponse;
+	}
 }

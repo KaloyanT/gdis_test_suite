@@ -224,7 +224,7 @@ public class StoryTestRequestController {
 				 String mappedColumn = storyTest.getMappings().get(objN.get("columnName").asText());
 				 
 				 //System.out.println(mappedColumn);
-				// System.out.println(objN.get("columnName"));
+				 //System.out.println(objN.get("columnName"));
 				 //System.out.println(storyTest.getMappings().get("Name"));
 				 
 				 String[] splittedMapping = mappedColumn.split("\\.");

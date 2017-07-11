@@ -112,7 +112,7 @@ public class DBClient {
 		
 		RestTemplate restTemplate = new RestTemplate();
 		
-		final String url = getDATABASEAPI_URL() + "/storyTest/delete/by-test-name" + testName;
+		final String url = getDATABASEAPI_URL() + "/storyTest/delete/by-test-name/" + testName;
 		
 		HttpEntity<String> entity = new HttpEntity<String>(headers);
 				
@@ -318,6 +318,39 @@ public class DBClient {
 			
 		try {
 			response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class);
+		} catch(HttpClientErrorException e) {
+			
+			return new ResponseEntity<>(e.getStatusCode());
+			
+		} catch (RestClientException re) {
+			// No DB Connection
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			
+		}
+		
+		return response;
+	}
+	
+	
+	public ResponseEntity<String> deleteTestEntityFromDB(final String entityName) {
+		
+		if(getDATABASEAPI_URL() == null) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+		ResponseEntity<String> response = null;
+		
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+
+		RestTemplate restTemplate = new RestTemplate();
+				
+		final String url = getDATABASEAPI_URL() + "/testEntity/delete/by-entity-name/" + entityName;
+		
+		HttpEntity<String> entity = new HttpEntity<String>(headers);
+			
+		try {
+			response = restTemplate.exchange(url, HttpMethod.DELETE, entity, String.class);
 		} catch(HttpClientErrorException e) {
 			
 			return new ResponseEntity<>(e.getStatusCode());

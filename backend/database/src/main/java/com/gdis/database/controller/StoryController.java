@@ -309,6 +309,8 @@ public class StoryController {
 		currentStory.setDescription(updatedStory.getDescription());
 		currentStory.setScenarios(updatedStory.getScenarios());
 		
+		storyRepository.save(currentStory);
+		
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 	
@@ -346,6 +348,8 @@ public class StoryController {
 		currentStory.setStoryName(updatedStory.getStoryName());
 		currentStory.setDescription(updatedStory.getDescription());
 		currentStory.setScenarios(updatedStory.getScenarios());
+		
+		storyRepository.save(currentStory);
 		
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
