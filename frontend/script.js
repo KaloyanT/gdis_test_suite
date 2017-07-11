@@ -1,4 +1,4 @@
-var gdisApp = angular.module('gdisApp', ['ngRoute', 'ngMaterial']);
+var gdisApp = angular.module('gdisApp', ['ngRoute', 'ngMaterial', 'ngAnimate']);
 
 // routing
 gdisApp.config(function($routeProvider) {
@@ -51,22 +51,35 @@ gdisApp.controller('mainController', function($scope) {
 
 })
 
-gdisApp.controller('entitycreationController', function($scope) {
+gdisApp.controller('entitycreationController', function($scope, $mdDialog) {
     $scope.message = 'Hier können neue Entities erstells werden.';
     $scope.entity = {
         Name: '',
         Attributes: []
     }
 
+    function showAlert(ev, title, text, aria) {
+        $mdDialog.show(
+            $mdDialog.alert()
+            .parent(angular.element(document.querySelector('#popupContainer')))
+            .clickOutsideToClose(true)
+            .title(title)
+            .textContent(text)
+            .ariaLabel(aria)
+            .ok('Okidoki!')
+            .targetEvent(ev)
+        );
+    };
+
     $scope.updateAttributeInputs = function(idx) {
         var value = $('input[id="' + idx + '"]').val();
 
         $('label[for="' + idx + '"]').text('Attribut (schon hinzugefügt!)');
 
-        if (value && value != '' && $scope.entity.Attributes.indexOf(value) < 0){
-            $scope.entity.Attributes.push(value);
+        if (value && value != '' && $scope.entity.Attributes.indexOf(value.toLowerCase()) < 0){
+            $scope.entity.Attributes.push(value.toLowerCase());
         } else {
-            alert('Entity Attribut existiert bereits oder anderer Fehler!');
+            showAlert(1, 'Attribut Fehler', 'Eine Entität muss unique Attribute haben. Case Insensitive.', 'Attribut Fehler');
         }
     }
 
@@ -86,8 +99,23 @@ gdisApp.controller('entitymappingController', function($scope) {
     $scope.message = 'Hier können bereits importierte Daten auf bereits erstellte Entities gemappt werden.';
 });
 
-gdisApp.controller('importController', function($scope, $http) {
-    $scope.message = 'Hier können Daten importiert werden.';
+gdisApp.controller('importController', function($scope, $http, $mdDialog) {
+    $scope.message = 'Hier können .csv und .story Dateien importiert werden.';
+    $scope.importCsv = false;
+    $scope.importStory = false;
+
+    function showAlert(ev, title, text, aria) {
+        $mdDialog.show(
+            $mdDialog.alert()
+            .parent(angular.element(document.querySelector('#popupContainer')))
+            .clickOutsideToClose(true)
+            .title(title)
+            .textContent(text)
+            .ariaLabel(aria)
+            .ok('Okidoki!')
+            .targetEvent(ev)
+        );
+    };
 
     $scope.removeRow = function(idx) { 
         $scope.uploads.splice(idx, 1);
@@ -99,7 +127,7 @@ gdisApp.controller('importController', function($scope, $http) {
         if (numFiles != 0) {
             input.trigger('fileselect', [numFiles, label]);    
         } else {
-            input.parents('.input-group').find(':text').val('No files selected!');
+            input.parents('.input-group').find(':text').val('No file selected!');
         }
         
     }
@@ -113,6 +141,14 @@ gdisApp.controller('importController', function($scope, $http) {
         var j = 0, k = f.length;
 
         if(f) {
+/*            if($scope.importCsv){
+
+            } else if ($scope.importStory) {
+
+            } else {
+                showAlert(1, 'Upload Error', 'Sie haben weder story noch csv ausgewählt!', 'Upload Fehler');
+            }*/
+
             for (var i = 0; i < k; i++) {
                 (function(cntr) {
 
@@ -120,11 +156,23 @@ gdisApp.controller('importController', function($scope, $http) {
 
                     r.onloadend = function(e) {
                         var data = e.target.result;
-                        $http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
-                        $http.defaults.headers.post['dataType'] = 'text/csv'
+                        var custom_headers = {};
+                        var req_url = 'http://localhost:40042';
 
-                        $http.post('http://localhost:40042/record', data).
+                        $http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
+                        $http.defaults.headers.post['dataType'] = 'text/*';
+
+                        console.log($scope.importStory);
+                        console.log($scope.importCsv);
+                        if($scope.importStory){
+                            req_url = req_url + '/story?scenarios=["default"]&story_name=' + $scope.storyName;
+                        } else if ($scope.importCsv){
+                            req_url = req_url + '/record';
+                        }
+                        console.log(req_url);
+                        $http.post(req_url, data).
                             success(function(data, status, headers, config) {
+                                console.log(data);
                                 $scope.uploads[cntr]['curUpStatus'] = 'Uploaded (' + status + ')'; 
                                 console.log(status);
                               }).
@@ -137,12 +185,80 @@ gdisApp.controller('importController', function($scope, $http) {
                     r.readAsText(f[cntr]); 
 
                 })(i);
-            }         
+            }
 
         } else {
             alert('Keine Dateien zum Upload ausgewählt!');
         }
     }
+
+/*    $scope.openStoryToEntityMapping = (function (ev) {
+        $http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
+
+        $http.get('http://localhost:40042/entities/object').then(function successCallback(response) {
+            ent_data = response.data; 
+            var entNames = [];
+
+            for (var i = 0; i < ent_data.length; i++) {
+
+                entNames.push({'Name': ent_data[i].entityName, 'Id': i});
+            }
+
+            $scope.availEntities = entNames;
+            console.log(entNames);
+            $mdDialog.show({
+                templateUrl: 'dialog-template.html',
+                scope: $scope,
+                preserveScope: true,
+                targetEvent: ev
+            });
+
+            }, function errorCallback(response) {
+                console.log(response);
+                alert('Fehler beim Datenholen aufgetreten.');
+                return [];
+        });
+    });*/
+
+    $scope.showPrompt = function(ev) {
+    // Appending dialog to document.body to cover sidenav in docs app
+        var confirm = $mdDialog.prompt()
+            .title('Wie soll die Story heißen?')
+            .textContent('Storynamen müssen unique sein.')
+            .placeholder('Story Name')
+            .ariaLabel('Story Name')
+            .targetEvent(ev)
+            .ok('Speichern')
+            .cancel('bla');
+
+        $mdDialog.show(confirm).then(function(result) {
+            console.log(result);
+            $scope.storyName = result;    
+            console.log($scope.storyName);
+        }, function(result) {
+            console.log(result);
+            $scope.storyName = 'You didn\'t name your dog.';
+        });
+    };
+
+  $scope.showStoryNamingPrompt = function(ev) {
+    // Appending dialog to document.body to cover sidenav in docs app
+    var confirm = $mdDialog.prompt()
+      .title('What would you name your dog?')
+      .textContent('Bowser is a common name.')
+      .placeholder('Dog name')
+      .ariaLabel('Dog name')
+      .initialValue('Buddy')
+      .ok('Okay!')
+      .cancel('I\'m a cat person');
+
+    $mdDialog.show(confirm).then(function(result) {
+      $scope.status = 'You decided to name your dog ' + result + '.';
+      $scope.storyName = 'You decided to name your dog ' + result + '.';
+    }, function() {
+      $scope.status = 'You didn\'t name your dog.';
+    });
+  };
 
     $scope.add = $(function() {
 
@@ -150,20 +266,33 @@ gdisApp.controller('importController', function($scope, $http) {
             var input = $(this),
                 numFiles = input.get(0).files ? input.get(0).files.length : 1,
                 label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+                fileExtension = input.get(0).files[0].name.split('.').pop();
+                indexOfExtension = ['csv', 'story'].indexOf(fileExtension.toLowerCase());
 
-                setTimeout(function () {
-                    $scope.$apply(function () {
-                        var files = input.get(0).files;
-                        var fileBuffer=[];
-                        Array.prototype.push.apply( fileBuffer, files );
+                if (indexOfExtension == 0){
+                    $scope.importCsv = true;
+                    $scope.importStory = false;
+                } else {
+                    $scope.importCsv = false;
+                    $scope.importStory = true;
+                    $scope.showStoryNamingPrompt(1);
+                }
+                
 
-                        var j = 0, k = fileBuffer.length;
-                        for (var i = 0; i < k; i++) {
-                            fileBuffer[i]['curUpStatus'] = 'Queued';
-                        }
+            setTimeout(function () {
+                $scope.$apply(function () {
+                    var files = input.get(0).files;
+                    var fileBuffer=[];
+                    Array.prototype.push.apply( fileBuffer, files );
 
-                        $scope.uploads = fileBuffer
-                    }), 10});
+                    var j = 0, k = fileBuffer.length;
+                    for (var i = 0; i < k; i++) {
+                        fileBuffer[i]['curUpStatus'] = 'Queued';
+                    }
+
+                    $scope.uploads = fileBuffer
+                }), 
+            10});
 
             input.trigger('fileselect', [numFiles, label]);
 
@@ -185,7 +314,7 @@ gdisApp.controller('importController', function($scope, $http) {
         $("#reset").on("click",function() {
             var input = $(':file').parents('.input-group').find(':text');
                 if( input.length ) {
-                    input.val('No files selected!');
+                    input.val('No file selected!');
                 }
         });
           

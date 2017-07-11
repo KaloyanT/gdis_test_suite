@@ -13,10 +13,10 @@
         <div class="input-group col-sm-6">
             <label class="input-group-btn">
                 <span class="btn btn-primary">
-                    Select <input ng-model="search" type="file" style="display: none;" id="file" accept='text/csv' name="file" ng-model="file" multiple>
+                    Select <input ng-model="search" type="file" style="display: none;" id="file" accept='.csv,.story' name="file" ng-model="file">
                 </span>
             </label>
-            	<input type="text" class="form-control" value="No files selected!" readonly>
+            	<input type="text" class="form-control" value="No file selected!" readonly>
         </div>
         <div class="col-sm-3">
             <p style="float: left"><b>Auswahl</b></p>
@@ -55,8 +55,20 @@
             <button class="btn btn-primary btn-space" id="reset" ng-click="clear()" style="float: left;">Clear All</button>
         </div>
     </div>
-    <div class="row">
-    </div>
+        <div class="row" ng-show="importCsv">
+            CSV
+        </div>
+        <div class="row" ng-show="importStory">
+            <span ng-show="false">
+            <md-button class="md-primary md-raised" ng-click="showPrompt($event)"  >
+              Prompt Dialog
+            </md-button>
+            </span>
+        </div>
     </span>
-
+    <span ng-show="false">
+        <md-button class="md-primary md-raised" ng-click="showAlert($event)">
+            Alert
+        </md-button>
+    </span>
 </div>
