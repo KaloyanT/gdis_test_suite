@@ -17,7 +17,6 @@ import org.hibernate.annotations.GenericGenerator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-
 @Entity(name = "StoryTestElement")
 @Table(name = "storyTestElement")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
@@ -35,28 +34,26 @@ public class StoryTestElement {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "story_test_storyTestID")
 	private StoryTest storyTest;
-	
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "test_entity_testEntityID")
+
 	//@JsonProperty(value = "testEntity")
 	//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "entityName", scope = TestEntity.class)
 	//@JsonIdentityReference(alwaysAsId = true) 
 	//@JsonUnwrapped
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "test_entity_testEntityID")
 	@JsonIgnore
 	private TestEntity testEntity;
-	
 	
 	// Use this only to make the Incoming JSON simpler. Just Find the TestEntity with the given name here during import
 	@Basic(optional = false)
 	private String entityName;
 	
-	
 	@ElementCollection
-	@CollectionTable(name = "storyTestElement_attributes", joinColumns = @JoinColumn(name = "story_test_element_storyTestElementID"))
+	@CollectionTable(name = "storyTestElement_rows", joinColumns = @JoinColumn(name = "story_test_element_storyTestElementID"))
 	@Column(name = "rows")
-	private List<String> attributes = new ArrayList<String>();	
+	private List<String> rows = new ArrayList<String>();	
 	
-	@JsonIgnore
+	//@JsonIgnore
 	public long getStoryTestElementID() {
 		return storyTestElementID;
 	}
@@ -64,16 +61,6 @@ public class StoryTestElement {
 	public void setStoryTestElementID(long storyTestElementID) {
 		this.storyTestElementID = storyTestElementID;
 	}
-	
-	/*
-	public Map<String, String> getAttributes() {
-		return attributes;
-	}
-
-	public void setAttributes(Map<String, String> attributes) {
-		this.attributes = attributes;
-	}
-	 */
 	
 	@JsonIgnore
 	public StoryTest getStoryTest() {
@@ -84,37 +71,12 @@ public class StoryTestElement {
 		this.storyTest = storyTest;
 	}
 	
-	/**
-	 * Override the default equals method for consistency
-	 */
-	@Override
-	public boolean equals(Object o) {
-		
-		if(this == o) {
-			return true;
-		}
-		if(! (o instanceof StoryTestElement) ) {
-			return false;
-		}
-		
-		return (this.storyTestElementID != 0) && 
-				(this.storyTestElementID == ((StoryTestElement) o).storyTestElementID);
-	}
-	
-	/**
-	 * Use this hashCode for consistency
-	 */
-	@Override
-	public int hashCode() {
-		return 1;
+	public List<String> getRows() {
+		return rows;
 	}
 
-	public List<String> getAttributes() {
-		return attributes;
-	}
-
-	public void setAttributes(List<String> attributes) {
-		this.attributes = attributes;
+	public void setRows(List<String> rows) {
+		this.rows = rows;
 	}
 
 	public String getColumnName() {
@@ -167,5 +129,30 @@ public class StoryTestElement {
 
 	public void setEntity(String entityName) {
 		this.entityName = entityName;
+	}
+	
+	/**
+	 * Override the default equals method for consistency
+	 */
+	@Override
+	public boolean equals(Object o) {
+		
+		if(this == o) {
+			return true;
+		}
+		if(! (o instanceof StoryTestElement) ) {
+			return false;
+		}
+		
+		return (this.storyTestElementID != 0) && 
+				(this.storyTestElementID == ((StoryTestElement) o).storyTestElementID);
+	}
+	
+	/**
+	 * Use this hashCode for consistency
+	 */
+	@Override
+	public int hashCode() {
+		return 1;
 	}
 }

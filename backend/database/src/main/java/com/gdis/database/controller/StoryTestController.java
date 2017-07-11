@@ -1,7 +1,9 @@
 package com.gdis.database.controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,60 +12,172 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.gdis.database.model.Story;
 import com.gdis.database.model.StoryTest;
 import com.gdis.database.model.StoryTestElement;
 import com.gdis.database.model.TestEntity;
-import com.gdis.database.service.StoryTestElementRepository;
+import com.gdis.database.model.TestObject;
+import com.gdis.database.service.StoryRepository;
 import com.gdis.database.service.StoryTestRepository;
 import com.gdis.database.service.TestEntityRepository;
+import com.gdis.database.service.TestObjectRepository;
 import com.gdis.database.util.CustomErrorType;
 import com.gdis.database.util.PreCondition;
 
 @RestController
-@RequestMapping("/db/basicStoryTest")
+@RequestMapping("/db/storyTest")
 public class StoryTestController {
 
 	@Autowired
 	private StoryTestRepository storyTestRepository;
-	
-	@Autowired
-	private StoryTestElementRepository storyTestElementRepository;
-	
+		
 	@Autowired
 	private TestEntityRepository testEntityRepository;
 	
-	private StoryTest storyToSave;
+	@Autowired
+	private TestObjectRepository testObjectRepository;
 	
+	@Autowired
+	private StoryRepository storyRepository;
+	
+	private StoryTest storyTestToSave;
 	
 	@RequestMapping(method = RequestMethod.GET)
 	public ResponseEntity<?> getAllStoryTests() {
 		
-		Iterable<StoryTest> storyIterable = storyTestRepository.findAll();
+		Iterable<StoryTest> storyTestIterable = storyTestRepository.findAll();
 		
-		if(storyIterable == null) {
+		if(storyTestIterable == null) {
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}
 		
-		List<StoryTest> storyList = new ArrayList<StoryTest>();
+		List<StoryTest> storyTestList = new ArrayList<StoryTest>();
 		
 		// Java 8 Method Reference is used here
-		storyIterable.forEach(storyList::add);
+		storyTestIterable.forEach(storyTestList::add);
 		
-		return new ResponseEntity<>(storyList, HttpStatus.OK);
+		return new ResponseEntity<>(storyTestList, HttpStatus.OK);
+	}
+	
+	
+	@RequestMapping(value = "/export", method = RequestMethod.GET)
+	public ResponseEntity<?> getAllStoryTestsForExport() {
+		
+		Iterable<StoryTest> storyTestIterable = storyTestRepository.findAll();
+		
+		if(storyTestIterable == null) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+		
+		List<StoryTest> storyTestList = new ArrayList<StoryTest>();
+		
+		// Java 8 Method Reference is used here
+		storyTestIterable.forEach(storyTestList::add);
+		
+		ObjectMapper objectMapper = new ObjectMapper();
+		ObjectNode storyTestObjectNode = objectMapper.createObjectNode();
+		ArrayNode storyTestDataArray = objectMapper.createArrayNode();
+		List<ObjectNode> storyTestExportList = new ArrayList<ObjectNode>();
+		
+		for(StoryTest st : storyTestList) {
+			
+			storyTestObjectNode.put("testName", st.getTestName());
+			
+			for(StoryTestElement ste : st.getData()) {
+				
+				ObjectNode temp = objectMapper.createObjectNode();
+				
+				temp.put("columnName", ste.getColumnName());
+				
+				// Add the data to the ArrayNode and add the array node to the
+				// temp ObjectNode
+				ArrayNode storyTestElementRows = objectMapper.createArrayNode();	
+				ste.getRows().forEach(storyTestElementRows::add);
+				
+				temp.putArray("rows").addAll(storyTestElementRows);
+				
+				// Now add this ObjectNode to the array with Columns
+				storyTestDataArray.add(temp);	
+			}
+			
+			// Finally, add the array with columns to the ObjectNode that has to be returned
+			storyTestObjectNode.putArray("data").addAll(storyTestDataArray);
+			
+			storyTestExportList.add(storyTestObjectNode);
+			
+		}
+		
+		return new ResponseEntity<>(storyTestExportList, HttpStatus.OK);
 	}
 	
 	@RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
 	public ResponseEntity<?> getStoryTestByID(@PathVariable("id") long id) {
 		
-		PreCondition.require(id >= 0, "Story ID can't be negative!");
+		PreCondition.require(id >= 0, "StoryTest ID can't be negative!");
 		
-		StoryTest story = storyTestRepository.findByStoryTestID(id);
+		StoryTest storyTest = storyTestRepository.findByStoryTestID(id);
 		
-		if (story == null) {
-			return new ResponseEntity<>(new CustomErrorType("Story with id " + id
+		if (storyTest == null) {
+			return new ResponseEntity<>(new CustomErrorType("StoryTest with ID " + id
 					+ " not found"), HttpStatus.NOT_FOUND);
 		}
-		return new ResponseEntity<>(story, HttpStatus.OK);
+		
+		List<StoryTest> storyTestAsList = new ArrayList<StoryTest>();
+		storyTestAsList.add(storyTest);
+		
+		return new ResponseEntity<>(storyTestAsList, HttpStatus.OK);
+	}
+	
+	
+	/*
+	 * The /get/.../export REST APIs are used only if the test data has to be exported
+	 * to CSV File
+	 */
+	@RequestMapping(value = "/get/{id}/export", method = RequestMethod.GET)
+	public ResponseEntity<?> getStoryTestByIDForExport(@PathVariable("id") long id) {
+		
+		PreCondition.require(id >= 0, "StoryTest ID can't be negative!");
+		
+		StoryTest storyTest = storyTestRepository.findByStoryTestID(id);
+		
+		if (storyTest == null) {
+			return new ResponseEntity<>(new CustomErrorType("Story with ID " + id
+					+ " not found"), HttpStatus.NOT_FOUND);
+		}
+		
+		ObjectMapper objectMapper = new ObjectMapper();
+		ObjectNode storyTestObjectNode = objectMapper.createObjectNode();
+		ArrayNode storyTestDataArray = objectMapper.createArrayNode();
+				
+		storyTestObjectNode.put("testName", storyTest.getTestName());
+		
+		for(StoryTestElement ste : storyTest.getData()) {
+			
+			ObjectNode temp = objectMapper.createObjectNode();
+			
+			temp.put("columnName", ste.getColumnName());
+			
+			// Add the data to the ArrayNode and add the array node to the
+			// temp ObjectNode
+			ArrayNode storyTestElementRows = objectMapper.createArrayNode();	
+			ste.getRows().forEach(storyTestElementRows::add);
+			
+			temp.putArray("rows").addAll(storyTestElementRows);
+			
+			// Now add this ObjectNode to the array with Columns
+			storyTestDataArray.add(temp);	
+		}
+		
+		// Finally, add the array with columns to the ObjectNode that has to be returned
+		storyTestObjectNode.putArray("data").addAll(storyTestDataArray);
+		
+		List<ObjectNode> storyTestAsList = new ArrayList<ObjectNode>();
+		storyTestAsList.add(storyTestObjectNode);
+		
+		return new ResponseEntity<>(storyTestAsList, HttpStatus.OK);
 	}
 	
 	
@@ -74,14 +188,65 @@ public class StoryTestController {
 			return new ResponseEntity<>(new CustomErrorType("Invalid Story Name"), HttpStatus.NOT_FOUND);
 		}
 		
-		List<StoryTest> storyList = storyTestRepository.findByStoryName(storyName);
+		List<StoryTest> storyTestList = storyTestRepository.findByStoryName(storyName);
 		
-		if (storyList == null) {
-			return new ResponseEntity<>(new CustomErrorType("Story with name " + storyName
+		if (storyTestList == null) {
+			return new ResponseEntity<>(new CustomErrorType("StoryTest with name " + storyName
 					+ " not found"), HttpStatus.NOT_FOUND);
 		}
 		
-		return new ResponseEntity<>(storyList, HttpStatus.OK);
+		return new ResponseEntity<>(storyTestList, HttpStatus.OK);
+	}
+	
+	
+	@RequestMapping(value = "/get/by-story-name/{storyName}/export", method = RequestMethod.GET)
+	public ResponseEntity<?> getStoryTestByStoryNameForExport(@PathVariable("storyName") String storyName) {
+		
+		if( (storyName == null) || (storyName.isEmpty()) || (storyName.trim().length() == 0) ) {
+			return new ResponseEntity<>(new CustomErrorType("Invalid Story Name"), HttpStatus.NOT_FOUND);
+		}
+		
+		List<StoryTest> storyTestList = storyTestRepository.findByStoryName(storyName);
+		
+		if (storyTestList == null) {
+			return new ResponseEntity<>(new CustomErrorType("StoryTest with name " + storyName
+					+ " not found"), HttpStatus.NOT_FOUND);
+		}
+		
+		ObjectMapper objectMapper = new ObjectMapper();
+		ObjectNode storyTestObjectNode = objectMapper.createObjectNode();
+		ArrayNode storyTestDataArray = objectMapper.createArrayNode();
+		List<ObjectNode> storyTestExportList = new ArrayList<ObjectNode>();
+		
+		for(StoryTest st : storyTestList) {
+			
+			storyTestObjectNode.put("testName", st.getTestName());
+			
+			for(StoryTestElement ste : st.getData()) {
+				
+				ObjectNode temp = objectMapper.createObjectNode();
+				
+				temp.put("columnName", ste.getColumnName());
+				
+				// Add the data to the ArrayNode and add the array node to the
+				// temp ObjectNode
+				ArrayNode storyTestElementRows = objectMapper.createArrayNode();	
+				ste.getRows().forEach(storyTestElementRows::add);
+				
+				temp.putArray("rows").addAll(storyTestElementRows);
+				
+				// Now add this ObjectNode to the array with Columns
+				storyTestDataArray.add(temp);	
+			}
+			
+			// Finally, add the array with columns to the ObjectNode that has to be returned
+			storyTestObjectNode.putArray("data").addAll(storyTestDataArray);
+			
+			storyTestExportList.add(storyTestObjectNode);
+			
+		}
+		
+		return new ResponseEntity<>(storyTestExportList, HttpStatus.OK);
 	}
 	
 	
@@ -92,43 +257,96 @@ public class StoryTestController {
 			return new ResponseEntity<>(new CustomErrorType("Invalid Test Name"), HttpStatus.NOT_FOUND);
 		}
 		
-		StoryTest story = storyTestRepository.findByTestName(testName);
+		StoryTest storyTest = storyTestRepository.findByTestName(testName);
 		
-		if (story == null) {
+		if (storyTest == null) {
 			return new ResponseEntity<>(new CustomErrorType("Test with name " + testName
 					+ " not found"), HttpStatus.NOT_FOUND);
 		}
 		
-		List<StoryTest> storyList = new ArrayList<StoryTest>();
-		storyList.add(story);
+		List<StoryTest> storyTestAsList = new ArrayList<StoryTest>();
+		storyTestAsList.add(storyTest);
 		
-		return new ResponseEntity<>(storyList, HttpStatus.OK);
+		return new ResponseEntity<>(storyTestAsList, HttpStatus.OK);
 	}
 	
+	
+	@RequestMapping(value = "/get/by-test-name/{testName}/export", method = RequestMethod.GET)
+	public ResponseEntity<?> getStoryTestByTestNameForExport(@PathVariable("testName") String testName) {
+		
+		if( (testName == null) || (testName.isEmpty()) || (testName.trim().length() == 0) ) {
+			return new ResponseEntity<>(new CustomErrorType("Invalid Test Name"), HttpStatus.NOT_FOUND);
+		}
+		
+		StoryTest storyTest = storyTestRepository.findByTestName(testName);
+		
+		if (storyTest == null) {
+			return new ResponseEntity<>(new CustomErrorType("Test with name " + testName
+					+ " not found"), HttpStatus.NOT_FOUND);
+		}
+		
+		ObjectMapper objectMapper = new ObjectMapper();
+		ObjectNode storyTestObjectNode = objectMapper.createObjectNode();
+		ArrayNode storyTestDataArray = objectMapper.createArrayNode();
+				
+		storyTestObjectNode.put("testName", storyTest.getTestName());
+		
+		for(StoryTestElement ste : storyTest.getData()) {
+			
+			ObjectNode temp = objectMapper.createObjectNode();
+			
+			temp.put("columnName", ste.getColumnName());
+			
+			// Add the data to the ArrayNode and add the array node to the
+			// temp ObjectNode
+			ArrayNode storyTestElementRows = objectMapper.createArrayNode();	
+			ste.getRows().forEach(storyTestElementRows::add);
+			
+			temp.putArray("rows").addAll(storyTestElementRows);
+			
+			// Now add this ObjectNode to the array with Columns
+			storyTestDataArray.add(temp);	
+		}
+		
+		// Finally, add the array with columns to the ObjectNode that has to be returned
+		storyTestObjectNode.putArray("data").addAll(storyTestDataArray);
+		
+		List<ObjectNode> storyTestAsList = new ArrayList<ObjectNode>();
+		storyTestAsList.add(storyTestObjectNode);
+		
+		return new ResponseEntity<>(storyTestAsList, HttpStatus.OK);
+	}
 	
 	
 	@RequestMapping(value = "/insert", method = RequestMethod.POST)
 	public ResponseEntity<?> createStoryTest(@RequestBody StoryTest newStoryTest) {
-	    
 		
 		if(newStoryTest == null) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 		
-		setStoryToSave(newStoryTest);
+		setStoryTestToSave(newStoryTest);
 		
-		long testExists = testExists(getStoryToSave());
+		long storyTestExists = storyTestExist(getStoryTestToSave());
 	
-		if(testExists == -1) {			
-			return new ResponseEntity<>(new CustomErrorType("A Test with the same name already exists"),  
-					HttpStatus.CONFLICT);
-		} else if (testExists == -2) {
-			
-			return new ResponseEntity<>(new CustomErrorType("This test already exists"),  
+		if(storyTestExists == -1) {			
+			return new ResponseEntity<>(new CustomErrorType("A StoryTest with the same name already exists"),  
 					HttpStatus.CONFLICT);
 		}
-				
-		int randomIndex = 0;
+		
+		/*
+		 * Turn the storyName to a storyObject
+		 * Add StoryTest to the testsForStory List in Story
+		 */
+		Story story = storyRepository.findByStoryName(newStoryTest.getStoryName());
+		
+		if (story == null) {
+				return new ResponseEntity<>(new CustomErrorType("Story with name " + newStoryTest.getStoryName()
+						+ " not found"), HttpStatus.NOT_FOUND);
+		}
+		
+		newStoryTest.setStory(story);
+		story.addTestForStory(newStoryTest);
 		
 		for(StoryTestElement ste : newStoryTest.getData()) {
 			
@@ -149,62 +367,38 @@ public class StoryTestController {
 						HttpStatus.NOT_FOUND);
 			}
 			
-			
-			// Check if Columns exist
-			
-			
-			
-			List<StoryTestElement> columnsWithThisEntityType = entity.getColumnsContainingEntity();
-			
-			System.out.println(randomIndex);
-			///System.out.println(columnsWithThisEntityType.isEmpty());
-			
-			if(columnsWithThisEntityType.size() > 0) {
-				for(StoryTestElement duplicateColumn : columnsWithThisEntityType) {
-				
-					/*
-					if(duplicateColumn.getAttributes() == null) {
-						System.out.println("null");
-					} else {
-						//entity.addColumnsContainingEntity(ste); NULL POINTER HERE
-						ste.setStoryTest(newStoryTest);
-					}*/
-					
-					
-					if(duplicateColumn.getAttributes().containsAll(ste.getAttributes())) {
-						System.out.println("duplicate column");
-						ste = storyTestElementRepository.findByStoryTestElementID(duplicateColumn.getStoryTestElementID());
-					} else {
-						//entity.addColumnsContainingEntity(ste);
-						ste.setStoryTest(newStoryTest);
-					}
-				}				
-			} else { 
-				entity.addColumnsContainingEntity(ste);
-				ste.setStoryTest(newStoryTest);
-				randomIndex++;
-			}
+			entity.addColumnsContainingEntity(ste);
+			ste.setStoryTest(newStoryTest);
 		}
 		
+		// First persist the current data and then build objects from it
 		storyTestRepository.save(newStoryTest);
-			
+		
+		
+		// Get the already persisted test and create objects from the data
+		StoryTest insertedStoryTest = storyTestRepository.findByTestName(newStoryTest.getTestName());
+		
+		// Build TestObjects
+		buildObjectsForStoryTest(insertedStoryTest);
+		
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
+	
 	
 	@RequestMapping(value = "/update/{id}", method = RequestMethod.PUT)
 	public ResponseEntity<?> updateStoryTestByID(@PathVariable("id") long id, 
 			@RequestBody StoryTest updatedStoryTest) {
 		
-		PreCondition.require(id >= 0, "BasicStoryTestID can't be negative!");
+		PreCondition.require(id >= 0, "StoryTestID can't be negative!");
 		
 		if(updatedStoryTest == null) {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 		
-		StoryTest currentTest = storyTestRepository.findByStoryTestID(id);
+		StoryTest currentStoryTest = storyTestRepository.findByStoryTestID(id);
 
-		if (currentTest == null) {
-			return new ResponseEntity<>(new CustomErrorType("Unable to update. BasicStoryTest with ID "
+		if (currentStoryTest == null) {
+			return new ResponseEntity<>(new CustomErrorType("Unable to update. StoryTest with ID "
 					+ id + " not found."), HttpStatus.NOT_FOUND);
 		}
 		
@@ -212,33 +406,51 @@ public class StoryTestController {
 		
 		if(testWithSameName != null) {
 			
-			if(currentTest.getStoryTestID() != testWithSameName.getStoryTestID()) {
-				return new ResponseEntity<>(new CustomErrorType("Unable to update. There is another test"
+			if(currentStoryTest.getStoryTestID() != testWithSameName.getStoryTestID()) {
+				return new ResponseEntity<>(new CustomErrorType("Unable to update. There is another StoryTest "
 						+ "with this testName."), HttpStatus.CONFLICT);
 			}
 		}
 		
-		currentTest.clearData();
-	
-		currentTest.setStoryName(updatedStoryTest.getStoryName());
-		currentTest.setTestName(updatedStoryTest.getTestName());
-		//currentTest.setData(updatedBasicStoryTest.getData());
-		//currentTest.setAttributes(updatedBasicStoryTest.getAttributes());
-		
-		for(StoryTestElement bste : updatedStoryTest.getData()) {
-			currentTest.addData(bste);
+		// Old Story shouldn't be null, but check anyways
+		Story oldStory = storyRepository.findByStoryName(currentStoryTest.getStoryName());
+		if (oldStory == null) {
+			return new ResponseEntity<>(new CustomErrorType("Story with name " + updatedStoryTest.getStoryName()
+					+ " not found"), HttpStatus.NOT_FOUND);
 		}
 		
-		storyTestRepository.save(currentTest);
+		oldStory.removeTestForStory(currentStoryTest);
+		
+		currentStoryTest.clearData();
+		
+		currentStoryTest.setStoryName(updatedStoryTest.getStoryName());
+		
+		Story newStory = storyRepository.findByStoryName(updatedStoryTest.getStoryName());
+				
+		if (newStory == null) {
+			return new ResponseEntity<>(new CustomErrorType("Story with name " + updatedStoryTest.getStoryName()
+					+ " not found"), HttpStatus.NOT_FOUND);
+		}
+		
+		currentStoryTest.setStory(newStory);
+		newStory.addTestForStory(currentStoryTest);
+		
+		currentStoryTest.setTestName(updatedStoryTest.getTestName());
+		
+		for(StoryTestElement bste : updatedStoryTest.getData()) {
+			currentStoryTest.addData(bste);
+		}
+		
+		storyTestRepository.save(currentStoryTest);
 		
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 	
 
 	@RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
-	public ResponseEntity<?> deleteStoryTest(@PathVariable("id") long id) {
+	public ResponseEntity<?> deleteStoryTestByID(@PathVariable("id") long id) {
 		
-		PreCondition.require(id >= 0, "Story ID can't be negative!");
+		PreCondition.require(id >= 0, "StoryTest ID can't be negative!");
 		
 		StoryTest currentStory = storyTestRepository.findByStoryTestID(id);
 		
@@ -252,13 +464,32 @@ public class StoryTestController {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 	
+	@RequestMapping(value = "/delete/by-test-name/{testName}", method = RequestMethod.DELETE)
+	public ResponseEntity<?> deleteStoryTestByTestName(@PathVariable("testName") String testName) {
+		
+		if( (testName == null) || (testName.isEmpty()) || (testName.trim().length() == 0) ) {
+			return new ResponseEntity<>(new CustomErrorType("Invalid Test Name"), HttpStatus.NOT_FOUND);
+		}
+		
+		StoryTest currentStory = storyTestRepository.findByTestName(testName);
+		
+		if (currentStory == null) {
+			return new ResponseEntity<>(new CustomErrorType("Unable to delete. StoryTest with testName "
+					+ testName + " not found."), HttpStatus.NOT_FOUND);
+		}
+		
+		storyTestRepository.delete(currentStory);
+		
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
 	
-	public StoryTest getStoryToSave() {
-		return storyToSave;
+	
+	public StoryTest getStoryTestToSave() {
+		return storyTestToSave;
 	}
 
-	public void setStoryToSave(StoryTest storyToSave) {
-		this.storyToSave = storyToSave;
+	public void setStoryTestToSave(StoryTest storyToSave) {
+		this.storyTestToSave = storyToSave;
 	}
 	
 	/**
@@ -266,35 +497,77 @@ public class StoryTestController {
 	 * @param newBasicStoryTest
 	 * @return
 	 */
-	private long testExists(StoryTest newStoryTest) {
+	private long storyTestExist(StoryTest newStoryTest) {
 		
-		
-		StoryTest testWithSameName = storyTestRepository.findByTestName(newStoryTest.getTestName());
+		StoryTest storyTestWithSameName = storyTestRepository.findByTestName(newStoryTest.getTestName());
 		
 		// Return 1 if there is a test with the same testNamee
-		if(testWithSameName != null) {
+		if(storyTestWithSameName != null) {
 			return -1L;
 			//return testWithSameName.getBasicStoryTestID();
 		}
 		
-		
-		List<StoryTest> similarTests = storyTestRepository.findByStoryNameAndTestName(
-				newStoryTest.getStoryName(), newStoryTest.getTestName());
-		
-		long basicStoryTestID = newStoryTest.storyExistsInDB(similarTests);
-		
-		
-		// Return 2 if there is a test with the same storyName, testName, and attributes
-		if(basicStoryTestID > 0) {
-			return -2L;
-		}
-		
-		
-		//setStoryToSave(newBasicStoryTest);
-
 		// Return 0 if the Test for this Story doesn't already exist
 		return 0;
 	} 
 	
+	private void buildObjectsForStoryTest(StoryTest insertedStoryTest) {
+				
+		Map<String, List<StoryTestElement>> groupedColumns = new HashMap<String, List<StoryTestElement>>();
+		
+		for(StoryTestElement ste : insertedStoryTest.getData()) {
+			
+			// If the a column with this entityName is already in the Map, just add
+			// the current column to the List with columns for this Entity
+			if(groupedColumns.containsKey(ste.getEntityName())) {
+				List<StoryTestElement> currentList = groupedColumns.get(ste.getEntityName());
+				currentList.add(ste);
+				groupedColumns.put(ste.getEntityName(), currentList);
+			} else {
+				List<StoryTestElement> newList = new ArrayList<StoryTestElement>();
+				newList.add(ste);
+				groupedColumns.put(ste.getEntityName(), newList);
+				
+			}
+		}
+				
+		 /* Now, when the columns are grouped according to entityName, iterate through all the columns
+		 * for a given Entity and create objects for it by getting the j-row of each column for every
+		 * column that has been mapped to this TestEntity 
+		 */
+		
+		for(Map.Entry<String, List<StoryTestElement>> entry : groupedColumns.entrySet()) {
+			
+			// Get the number of rows of a column. Checking just one column is enough
+			// since all columns will have equal number of rows
+			int numberOfRows = entry.getValue().get(0).getRows().size();
+			
+			for(int j = 0; j < numberOfRows; j++) {
+				
+				Map<String, String> attributesForCurrentObject = new HashMap<String, String>();
+				TestObject currentObject = new TestObject();
+				TestEntity entityOfObject = testEntityRepository.findByEntityName(entry.getValue().get(0).getTestEntity().getEntityName());
+				currentObject.setEntityType(entityOfObject);
+				
+				for(StoryTestElement ste : entry.getValue()) {
+					attributesForCurrentObject.put(ste.getColumnName(), ste.getRows().get(j));
+				}
+				
+				currentObject.setObjectAttributes(attributesForCurrentObject);
+				
+				// After the attributes and the TestEntity are set, compute the hashCode
+				currentObject.setHashCodeNoID(currentObject.hashCodeNoID());
+				
+				TestObject existingObject = testObjectRepository.findByHashCodeNoID(currentObject.getHashCodeNoID());
+				
+				// If the object doesn't exist, create it
+				if(existingObject == null) {
+					entityOfObject.addObjectContainingEntity(currentObject);
+					testObjectRepository.save(currentObject);
+				}
+			}
+		}
+		
+	}
 	
 }
