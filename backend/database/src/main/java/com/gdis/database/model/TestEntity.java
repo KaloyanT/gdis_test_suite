@@ -131,7 +131,7 @@ public class TestEntity {
 		testEntityAttributes.remove(testEntityAttribute);
 	}
 	
-	public void clearTestEntityAttribute() {
+	public void clearTestEntityAttributes() {
 		testEntityAttributes.clear();
 	}
 

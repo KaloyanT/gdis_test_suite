@@ -56,7 +56,7 @@ public class EntityRequestController {
 		return dbClientResponse;
 	}
 	
-	@RequestMapping(value = "/u/entity/attributes", method = RequestMethod.PUT, consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE})		
+	@RequestMapping(value = "/i/entity/attributes", method = RequestMethod.PUT, consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE})		
 	public ResponseEntity<?> handleEntityAttributeImportRequest(@RequestBody EntityImportModel newEntity) {	
 		
 		if(newEntity == null) {
@@ -71,12 +71,17 @@ public class EntityRequestController {
 			return new ResponseEntity<>(new CustomErrorType("Invalid Scenarios for Story"), HttpStatus.BAD_REQUEST);
 		}
 		
-		// Take only the first element from the list and insert it as a new attribute for the entity. 
-		// Other models or use of ObjectNode is not needed here. The attribute insertion will be 
-		// the same as entity insertion with the difference that the list will contain only 1
-		// element when inserting an entity attribute
+		ObjectMapper objectMapper = new ObjectMapper();
+		ObjectNode json = objectMapper.createObjectNode();
+		ArrayNode testEntityAttributes = objectMapper.createArrayNode();
+		
+		newEntity.getTestEntityAttributes().forEach(testEntityAttributes::add);
+		
+		json.put("entityName", newEntity.getEntityName());
+		json.putArray("testEntityAttributes").addAll(testEntityAttributes);
+		
 		ResponseEntity<String> dbClientResponse = 
-				dbClient.importEntityAttributeInDB(newEntity.getEntityName(), newEntity.getTestEntityAttributes().get(0));
+				dbClient.importEntityAttributeInDB(newEntity.getEntityName(), json);
 		
 		if(dbClientResponse == null) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

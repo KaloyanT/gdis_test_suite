@@ -127,7 +127,7 @@ public class StoryTestElement {
 		return entityName;
 	}
 
-	public void setEntity(String entityName) {
+	public void setEntityName(String entityName) {
 		this.entityName = entityName;
 	}
 	
