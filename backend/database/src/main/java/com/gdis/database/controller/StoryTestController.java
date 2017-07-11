@@ -385,7 +385,7 @@ public class StoryTestController {
 	}
 	
 	
-	@RequestMapping(value = "/update/{id}", method = RequestMethod.PUT)
+	@RequestMapping(value = "/update/by-id/{id}", method = RequestMethod.PUT)
 	public ResponseEntity<?> updateStoryTestByID(@PathVariable("id") long id, 
 			@RequestBody StoryTest updatedStoryTest) {
 		
@@ -443,11 +443,77 @@ public class StoryTestController {
 		
 		storyTestRepository.save(currentStoryTest);
 		
+		// Build objects for the updated StoryTest
+		buildObjectsForStoryTest(currentStoryTest);
+		
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+	
+	
+	@RequestMapping(value = "/update/by-test-name/{testName}", method = RequestMethod.PUT)
+	public ResponseEntity<?> updateStoryTestByTestName(@PathVariable("testName") String testName, 
+			@RequestBody StoryTest updatedStoryTest) {
+		
+		if(updatedStoryTest == null) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
+		
+		StoryTest currentStoryTest = storyTestRepository.findByTestName(testName);
+
+		if (currentStoryTest == null) {
+			return new ResponseEntity<>(new CustomErrorType("Unable to delete. StoryTest with testName "
+					+ testName + " not found."), HttpStatus.NOT_FOUND);
+		}
+		
+		StoryTest testWithSameName = storyTestRepository.findByTestName(updatedStoryTest.getTestName());
+		
+		if(testWithSameName != null) {
+			
+			if(currentStoryTest.getStoryTestID() != testWithSameName.getStoryTestID()) {
+				return new ResponseEntity<>(new CustomErrorType("Unable to update. There is another StoryTest "
+						+ "with this testName."), HttpStatus.CONFLICT);
+			}
+		}
+		
+		// Old Story shouldn't be null, but check anyways
+		Story oldStory = storyRepository.findByStoryName(currentStoryTest.getStoryName());
+		if (oldStory == null) {
+			return new ResponseEntity<>(new CustomErrorType("Story with name " + updatedStoryTest.getStoryName()
+					+ " not found"), HttpStatus.NOT_FOUND);
+		}
+		
+		oldStory.removeTestForStory(currentStoryTest);
+		
+		currentStoryTest.clearData();
+		
+		currentStoryTest.setStoryName(updatedStoryTest.getStoryName());
+		
+		Story newStory = storyRepository.findByStoryName(updatedStoryTest.getStoryName());
+				
+		if (newStory == null) {
+			return new ResponseEntity<>(new CustomErrorType("Story with name " + updatedStoryTest.getStoryName()
+					+ " not found"), HttpStatus.NOT_FOUND);
+		}
+		
+		currentStoryTest.setStory(newStory);
+		newStory.addTestForStory(currentStoryTest);
+		
+		currentStoryTest.setTestName(updatedStoryTest.getTestName());
+		
+		for(StoryTestElement bste : updatedStoryTest.getData()) {
+			currentStoryTest.addData(bste);
+		}
+		
+		storyTestRepository.save(currentStoryTest);
+		
+		// Build objects for the updated StoryTest
+		buildObjectsForStoryTest(currentStoryTest);
+		
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 	
 
-	@RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
+	@RequestMapping(value = "/delete/by-id/{id}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> deleteStoryTestByID(@PathVariable("id") long id) {
 		
 		PreCondition.require(id >= 0, "StoryTest ID can't be negative!");
@@ -567,7 +633,6 @@ public class StoryTestController {
 				}
 			}
 		}
-		
 	}
 	
 }

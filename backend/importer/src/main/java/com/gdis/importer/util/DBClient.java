@@ -62,7 +62,7 @@ public class DBClient {
 		return response;
 	}
 	
-	public ResponseEntity<String> updateStoryTestInDB(ObjectNode json, final String storyType, final long id) {
+	public ResponseEntity<String> updateStoryTestInDB(ObjectNode json, final String storyType, final long id, final String testName, boolean byID) {
 		
 		if(getDATABASEAPI_URL() == null) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -75,7 +75,24 @@ public class DBClient {
 		
 		RestTemplate restTemplate = new RestTemplate();
 		
-		final String url = getDATABASEAPI_URL() + "/" + storyType + "/update/" + id;
+		final String url;
+		
+		if(byID == true) {
+			
+			if(id <= 0) {
+				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			}
+			
+			url = getDATABASEAPI_URL() + "/" + storyType + "/update/by-id/" + id;
+			
+		} else {
+
+			if( (testName == null) || (testName.isEmpty()) || (testName.trim().length() == 0) ) {
+				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			}
+			
+			url = getDATABASEAPI_URL() + "/" + storyType + "/update/by-test-name/" + testName;
+		}
 		
 		HttpEntity<String> entity = new HttpEntity<String>(json.toString(), headers);
 				
@@ -198,7 +215,7 @@ public class DBClient {
 	}
 	
 	
-	public ResponseEntity<String> importEntityAttributeInDB(final String entityName, final String newAttribute) {
+	public ResponseEntity<String> importEntityAttributeInDB(final String entityName, ObjectNode json) {
 		
 		if(getDATABASEAPI_URL() == null) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -211,9 +228,9 @@ public class DBClient {
 
 		RestTemplate restTemplate = new RestTemplate();
 				
-		final String url = getDATABASEAPI_URL() + "/testEntity/insert/attribute/" + entityName + "/" + newAttribute;
+		final String url = getDATABASEAPI_URL() + "/testEntity/insert/attributes/" + entityName;
 		
-		HttpEntity<String> entity = new HttpEntity<String>("{ }", headers);
+		HttpEntity<String> entity = new HttpEntity<String>(json.toString(), headers);
 			
 		try {
 			response = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);

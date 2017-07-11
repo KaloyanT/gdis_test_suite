@@ -120,6 +120,12 @@ public class StoryTestRequestController {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 		
+		if(missingMappings(getStoryTestToImport()) == true) {
+			setStoryTestToImport(null);
+			return new ResponseEntity<>(new CustomErrorType("Invalid Mappings"), HttpStatus.BAD_REQUEST);
+		}
+		
+		
 		checkTestName(getStoryTestToImport());
 		
 		/*
@@ -136,7 +142,7 @@ public class StoryTestRequestController {
 		
 		//DBClient dbClient = new DBClient();
 		
-		ResponseEntity<String> dbClientResponse = dbClient.updateStoryTestInDB(getJsonToImport(), getStoryTypeImport(), id);
+		ResponseEntity<String> dbClientResponse = dbClient.updateStoryTestInDB(getJsonToImport(), getStoryTypeImport(), id, null, true);
 				
 		if(dbClientResponse.getStatusCodeValue() != HttpStatus.OK.value()) {
 			return dbClientResponse;
