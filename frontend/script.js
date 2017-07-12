@@ -31,14 +31,10 @@ gdisApp.config(function($routeProvider) {
 gdisApp.controller('mainController', function($scope, $mdSidenav, $location) {
     $scope.message = 'Bitte wählen Sie einen Menüpunkt aus der Leiste aus!';
     $scope.imagePath = 'imgs/generali.jpg';
+    $scope.smallNav = true;
 
     //init
-
-    function sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
     $(document).ready(function() { $mdSidenav('small').toggle(); });
-    $scope.smallNav = true;
     $('#navbar_container').animate({'width':$('#md_sidebar_small').width() + 'px'}, 0);
 
     $scope.toggle = function() {
