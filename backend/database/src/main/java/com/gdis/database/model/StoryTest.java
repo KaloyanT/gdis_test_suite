@@ -32,11 +32,11 @@ public class StoryTest {
 	@Basic(optional = false)
 	private String storyName;
 	
-	 @ManyToOne(fetch = FetchType.LAZY)
-	 @JoinColumn(name = "story_storyID")
-	 @Basic(optional = false)
-	 @JsonIgnore // It's not need to return the StoryObject with the storyTest
-	 private Story story;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "story_storyID")
+	@Basic(optional = false)
+	@JsonIgnore // It's not need to return the StoryObject with the storyTest
+	private Story story;
 	
 	@Basic(optional = false)
 	@Column(unique = true)

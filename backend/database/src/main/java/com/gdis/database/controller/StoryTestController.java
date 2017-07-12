@@ -113,6 +113,7 @@ public class StoryTestController {
 		return new ResponseEntity<>(storyTestExportList, HttpStatus.OK);
 	}
 	
+	
 	@RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
 	public ResponseEntity<?> getStoryTestByID(@PathVariable("id") long id) {
 		
@@ -484,8 +485,6 @@ public class StoryTestController {
 		
 		oldStory.removeTestForStory(currentStoryTest);
 		
-		currentStoryTest.clearData();
-		
 		currentStoryTest.setStoryName(updatedStoryTest.getStoryName());
 		
 		Story newStory = storyRepository.findByStoryName(updatedStoryTest.getStoryName());
@@ -500,8 +499,30 @@ public class StoryTestController {
 		
 		currentStoryTest.setTestName(updatedStoryTest.getTestName());
 		
-		for(StoryTestElement bste : updatedStoryTest.getData()) {
-			currentStoryTest.addData(bste);
+		
+		for(StoryTestElement ste : currentStoryTest.getData()) {
+			TestEntity oldEntity = testEntityRepository.findByEntityName(ste.getEntityName());
+			oldEntity.removeColumnsContainingEntity(ste);
+			//currentStoryTest.removeData(ste);
+		}
+		
+		currentStoryTest.clearData();
+		
+		for(StoryTestElement ste : updatedStoryTest.getData()) {
+			
+			TestEntity newEntity = testEntityRepository.findByEntityName(ste.getEntityName());
+			
+			if(newEntity != null) {
+				ste.setTestEntity(newEntity);
+			} else {
+				return new ResponseEntity<>(new CustomErrorType("Such TestEntity doesn't exist!"),  
+						HttpStatus.NOT_FOUND);
+			}
+			
+			newEntity.addColumnsContainingEntity(ste);
+			currentStoryTest.addData(ste);
+			ste.setStoryTest(currentStoryTest);
+			
 		}
 		
 		storyTestRepository.save(currentStoryTest);
@@ -529,6 +550,7 @@ public class StoryTestController {
 		
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
+	
 	
 	@RequestMapping(value = "/delete/by-test-name/{testName}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> deleteStoryTestByTestName(@PathVariable("testName") String testName) {
@@ -596,7 +618,8 @@ public class StoryTestController {
 				
 			}
 		}
-				
+		
+		
 		 /* Now, when the columns are grouped according to entityName, iterate through all the columns
 		 * for a given Entity and create objects for it by getting the j-row of each column for every
 		 * column that has been mapped to this TestEntity 
@@ -612,6 +635,7 @@ public class StoryTestController {
 				
 				Map<String, String> attributesForCurrentObject = new HashMap<String, String>();
 				TestObject currentObject = new TestObject();
+								
 				TestEntity entityOfObject = testEntityRepository.findByEntityName(entry.getValue().get(0).getTestEntity().getEntityName());
 				currentObject.setEntityType(entityOfObject);
 				
