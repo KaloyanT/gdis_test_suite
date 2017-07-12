@@ -1,6 +1,27 @@
 <div ng-controller="mainController" class="jumbotron text-center">
-    <h1>GDIS Test Daten Verwaltung</h1>
-
-    <p>{{ message }}</p>
-
+<md-content layout="row" layout-fill layout>
+  <md-card flex="50" layout-fill>
+  	<br />
+  	<br />
+    <md-card-title-text>
+        <span class="md-headline">GDIS Test Daten Verwaltung</span>
+    </md-card-title-text>
+    <md-card-content>
+      <p>
+        Diese Single Page App soll die effiziente Verwaltung von Testdaten ermöglichen.
+      </p>
+      <p>
+        Links am Rand können Sie verschiedene Aktionen auswählen. Es ist unter anderem möglich Storys sowie Testdaten zu importieren, und zu Storys passende Entitys zu erstellen.
+      </p>
+      <p>
+        Testdaten werden beim Import direkt mit einer Entity, die dann entweder erstellt werden muss oder aus vorhandenen ausgewählt werden kann, und einer Story verknüpft. Dies ermöglicht später beim Export die Suche von Daten entweder nach Story oder nach Entity.
+      </p>
+    </md-card-content>
+  </md-card>
+  <md-card flex="50" layout-fill>
+    <img ng-src="{{imagePath}}" class="md-card-image" alt="Washed Out">
+    <md-card-content>
+    </md-card-content>
+  </md-card>
+</md-content>
 </div>

@@ -9,10 +9,9 @@
 
     </div>
 </div> -->
-<div flex-gt-sm="50" flex>
+<md-content layout="row" layout-fill layout>
 
-    <md-content>
-      <md-card flex>
+    <md-card  flex="50" layout-fill>
         <img ng-src="{{imagePath}}" class="md-card-image" alt="Washed Out">
         <md-card-title>
           <md-card-title-text>
@@ -34,20 +33,15 @@
           <md-button>Neue Entity erstellen</md-button>
         </md-card-actions>
       </md-card>
-    </md-content>
-</div>
 
 <md-divider></md-divider>
 
-<div flex-gt-sm="50" flex>
-
+  <md-card flex="50" layout-fill>
     <md-toolbar layout="row" style="background:#C11E0D;">
       <div class="md-toolbar-tools">
         <span>Vorhandene Entities</span>
       </div>
     </md-toolbar>
-
-    <md-content>
       <md-list class="md-dense" flex>
         <md-subheader class="md-no-sticky">Vorhandene Entities</md-subheader>
         <md-list-item class="md-2-line" ng-repeat="ent in availEntities" ng-click="null">
@@ -58,10 +52,10 @@
           </div>
         </md-list-item>
       </md-list>
-    </md-content>
+    </md-card>
+</md-content>
 </div>
 
-</div>
 <!-- 
 <!-- Entity Management
 <div class="jumbotron" id="management">
