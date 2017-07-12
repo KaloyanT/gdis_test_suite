@@ -40,25 +40,24 @@ class ExportStories(Resource):
 class ImportStory(Resource):
 
     def post(self):
-        return Response(response=json.dumps(str(request.args)), status=200)
-        # try:
-        #     sent_data = request.data.decode('utf-8')
+        try:
+            sent_data = request.data.decode('utf-8')
 
-        #     ret_arr = {
-        #         'storyName': 'default story',
-        #         'description': request.headers.decode('utf-8'),
-        #         'scenarios': ['default']
-        #     }
+            ret_arr = {
+                'storyName': request.args.get('story_name'),
+                'description': sent_data[:100],
+                'scenarios': [request.args.get('scenarios')]
+            }
 
-        #     s = json.dumps(ret_arr)
-        #     headers = {'Accept-Encoding': 'UTF-8', 'Content-Type': 'application/json', 'Accept': '*/*'}
+            s = json.dumps(ret_arr)
+            headers = {'Accept-Encoding': 'UTF-8', 'Content-Type': 'application/json', 'Accept': '*/*'}
 
-        #     # r = requests.post('http://importer:8083/importer/i/story', headers=headers, data=s)
+            r = requests.post('http://importer:8083/importer/i/story', headers=headers, data=s)
 
-        #     resp = Response(response=s, status=200)
-        #     resp.headers['Access-Control-Allow-Origin'] = '*'
-        #     return resp
-        # except Exception as e:
-        #     resp = Response(response=e, status=200)
-        #     resp.headers['Access-Control-Allow-Origin'] = '*'
-        #     return resp
+            resp = Response(response=s, status=r.status_code)
+            resp.headers['Access-Control-Allow-Origin'] = '*'
+            return resp
+        except Exception as e:
+            resp = Response(response=e, status=200)
+            resp.headers['Access-Control-Allow-Origin'] = '*'
+            return resp

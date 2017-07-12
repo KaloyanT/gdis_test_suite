@@ -25,11 +25,6 @@ gdisApp.config(function($routeProvider) {
             controller  : 'entitycreationController'
         })
 
-        .when('/entitymapping', {
-            templateUrl : 'pages/entitymapping.html',
-            controller  : 'entitymappingController'
-        })
-
 });
 
 gdisApp.controller('navBarController', function($scope) {     
@@ -93,10 +88,6 @@ gdisApp.controller('entitycreationController', function($scope, $mdDialog) {
         return items;
     }
 
-});
-
-gdisApp.controller('entitymappingController', function($scope) {
-    $scope.message = 'Hier können bereits importierte Daten auf bereits erstellte Entities gemappt werden.';
 });
 
 gdisApp.controller('importController', function($scope, $http, $mdDialog) {
@@ -165,7 +156,7 @@ gdisApp.controller('importController', function($scope, $http, $mdDialog) {
                         console.log($scope.importStory);
                         console.log($scope.importCsv);
                         if($scope.importStory){
-                            req_url = req_url + '/story?scenarios=["default"]&story_name=' + $scope.storyName;
+                            req_url = req_url + '/story?scenarios=default&story_name=' + $scope.storyName;
                         } else if ($scope.importCsv){
                             req_url = req_url + '/record';
                         }
@@ -220,14 +211,12 @@ gdisApp.controller('importController', function($scope, $http, $mdDialog) {
         });
     });*/
 
-    $scope.showPrompt = function(ev) {
-    // Appending dialog to document.body to cover sidenav in docs app
+    $scope.showStoryNamingPrompt = function(ev) {
         var confirm = $mdDialog.prompt()
             .title('Wie soll die Story heißen?')
             .textContent('Storynamen müssen unique sein.')
             .placeholder('Story Name')
             .ariaLabel('Story Name')
-            .targetEvent(ev)
             .ok('Speichern')
             .cancel('bla');
 
@@ -235,30 +224,10 @@ gdisApp.controller('importController', function($scope, $http, $mdDialog) {
             console.log(result);
             $scope.storyName = result;    
             console.log($scope.storyName);
-        }, function(result) {
-            console.log(result);
-            $scope.storyName = 'You didn\'t name your dog.';
+        }, function(reason) {
+            console.log(reason);
         });
     };
-
-  $scope.showStoryNamingPrompt = function(ev) {
-    // Appending dialog to document.body to cover sidenav in docs app
-    var confirm = $mdDialog.prompt()
-      .title('What would you name your dog?')
-      .textContent('Bowser is a common name.')
-      .placeholder('Dog name')
-      .ariaLabel('Dog name')
-      .initialValue('Buddy')
-      .ok('Okay!')
-      .cancel('I\'m a cat person');
-
-    $mdDialog.show(confirm).then(function(result) {
-      $scope.status = 'You decided to name your dog ' + result + '.';
-      $scope.storyName = 'You decided to name your dog ' + result + '.';
-    }, function() {
-      $scope.status = 'You didn\'t name your dog.';
-    });
-  };
 
     $scope.add = $(function() {
 
