@@ -1,0 +1,107 @@
+<div ng-controller="entitymanagementController" ng-cloak layout-gt-sm="row" layout="column">
+
+<!-- <div class="col-sm-6 jumbotron text-center" flex-gt-sm="50" flex>
+    <h1>GDIS Entity Creation</h1>
+
+    <p>{{ message }}</p>
+    <div class="row">
+    <pre ng-hide="availEntities">(Loading...)</pre>
+
+    </div>
+</div> -->
+<div flex-gt-sm="50" flex>
+
+    <md-content>
+      <md-card flex>
+        <img ng-src="{{imagePath}}" class="md-card-image" alt="Washed Out">
+        <md-card-title>
+          <md-card-title-text>
+            <span class="md-headline">GDIS Entity Creation</span>
+          </md-card-title-text>
+        </md-card-title>
+        <md-card-content>
+          <p>
+            Hier können bereits vorhandene Entities verwaltet werden.
+          </p>
+          <p>
+            Vorhandene Entities sehen Sie rechts, wählen Sie durch klicken eine aus, um ihren Namen zu ändern, ihre Attribute umzubenennen oder neue Attribute hinzuzufügen.
+          </p>
+          <p>
+            Klicken Sie auf neue Entity erstellen, um eine neue Entity zu erstellen.
+          </p>
+        </md-card-content>
+        <md-card-actions layout="row" layout-align="end center">
+          <md-button>Neue Entity erstellen</md-button>
+        </md-card-actions>
+      </md-card>
+    </md-content>
+</div>
+
+<md-divider></md-divider>
+
+<div flex-gt-sm="50" flex>
+
+    <md-toolbar layout="row" style="background:#C11E0D;">
+      <div class="md-toolbar-tools">
+        <span>Vorhandene Entities</span>
+      </div>
+    </md-toolbar>
+
+    <md-content>
+      <md-list class="md-dense" flex>
+        <md-subheader class="md-no-sticky">Vorhandene Entities</md-subheader>
+        <md-list-item class="md-2-line" ng-repeat="ent in availEntities" ng-click="null">
+          <img ng-src="/favicon.ico" class="md-avatar" alt="{{ent.name}}" />
+          <div class="md-list-item-text" layout="column">
+            <h3>{{ ent.Name }}</h3>
+            <p>{{ ent.Attributes }}</p>
+          </div>
+        </md-list-item>
+      </md-list>
+    </md-content>
+</div>
+
+</div>
+<!-- 
+<!-- Entity Management
+<div class="jumbotron" id="management">
+    Entity Management
+</div>
+
+<!-- Entity Creation
+<div class="jumbotron" id="creation">
+<div class="row">
+    <div class="col-sm-3">
+        <p>Bitte bennen Sie die Entity und fügen Sie dann Attribute hinzu.</p>
+    </div>
+    <div layout-gt-sm="row" class="col-sm-6">
+      <md-input-container class="md-block" flex-gt-sm>
+        <label>Entity Name</label>
+        <input ng-model="entity.Name">
+      </md-input-container>
+
+        <div>
+           <div ng-repeat="i in getSize()">
+              <div>
+              <md-input-container class="md-block attribute" flex-gt-sm>
+                <label for={{$index}}>Attribut (Enter zum bestätigen)</label>
+                <input id={{$index}} ng-keyup="$event.keyCode == 13 ? updateAttributeInputs($index) : null">
+              </md-input-container>
+              </div>
+           </div>
+        </div>
+
+    </div>
+    <div class="col-sm-3">
+        <button class="btn btn-primary btn-space" ng-click="createEntity();" style="float: left;">Create</button>
+        <button class="btn btn-primary btn-space" id="reset" ng-click="clearAll()" style="float: left;">Clear All</button>
+    </div>
+</div>
+</div>
+
+    <span ng-show="false">
+        <md-button class="md-primary md-raised" ng-click="showAlert($event)">
+            Alert
+        </md-button>
+    </span>
+ -->

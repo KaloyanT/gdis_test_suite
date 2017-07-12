@@ -28,16 +28,17 @@ li a {
 }
 
 li a:hover:not(.active) {
-    background-color: #111;
+    background-color: #C11E0D;
 }
 
 li.active {
-    background: green;
+    background: #C11E0D;
 }
 
 a:link, a:active
 {
     text-decoration: none;
+    color: white;
 }
 
 a:hover {
@@ -46,6 +47,10 @@ a:hover {
 
 a:visited {
     color: white;
+}
+
+md-toolbar {
+    background-color: #C11E0D;
 }
 
 .gridListdemoBasicUsage md-grid-list {

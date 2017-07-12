@@ -38,6 +38,7 @@ class Record(Resource):
 
             ret_arr = {
                 "storyType": "storyTest",
+                "testName": "TODO",
                 "storyName": "default",
                 "data": dict_from_data
             }

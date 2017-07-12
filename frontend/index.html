@@ -4,6 +4,7 @@
   <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.0/css/font-awesome.css" />
   <link rel="stylesheet" href="gdisStyles.css">
   <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.6.5/angular-sanitize.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
@@ -28,18 +29,46 @@
 
 <body ng-controller="mainController"> 
 
-  <ul ng-controller="navBarController">
-      <li data-ng-click="sortCategory('home')" ng-class="{'active' : isActive('home')}"><a href="#/">Home</a></li>
-      <li data-ng-click="sortCategory('import')" ng-class="{'active' : isActive('import')}"><a href="#import">Import</a></li>
-      <li data-ng-click="sortCategory('export')" ng-class="{'active' : isActive('export')}"><a href="#export">Export</a></li>
-      <li data-ng-click="sortCategory('entitycreation')" ng-class="{'active' : isActive('entitycreation')}"><a href="#entitycreation">Entity Creation</a></li>
-      <li data-ng-click="sortCategory('entitymapping')" ng-class="{'active' : isActive('entitymapping')}"><a href="#entitymapping">Entity Mapping</a></li>
-  </ul>
 
-  <div style="padding:20px;margin-top:30px;background-color:#CCCCCC;height:1500px;" id="main">
+<md-content layout="row" flex layout layout-fill style="height: 100%">
+  <md-content layout="column" id="navbar_container" layout layout-fill>
+
+      <md-sidenav class="md-sidenav-left" id="md_sidebar_big" md-component-id="big" md-whiteframe="4" md-disable-backdrop>
+
+      <md-toolbar class="md-theme-indigo" ng-click="toggle()">
+        <h1 class="md-toolbar-tools">GDIS Testverwaltung</h1>
+      </md-toolbar>
+      <md-list class="md-dense" flex>
+        <md-list-item class="md-2-line" ng-repeat="nav in navs" ng-click="openUrl(nav.url, true)" ng-class="{ 'nav-active': item == activeItem }">
+          <md-icon md-font-icon="material-icons">{{nav.icon}}</md-icon>
+          <div class="md-list-item-text" layout="column">
+            <h3>{{ nav.name }}</h3>
+            <p>{{ nav.descr }}</p>
+          </div>
+        </md-list-item>
+      </md-list>
+    </md-sidenav>
+
+    <md-sidenav class="md-sidenav-left md-closed" id="md_sidebar_small" md-component-id="small" md-disable-backdrop md-whiteframe="4" style="max-width: 50px !important;">
+
+      <md-toolbar class="md-theme-indigo" ng-click="toggle()">
+        <md-icon md-font-icon="material-icons">menu</md-icon>
+      </md-toolbar>
+      <md-list flex>
+        <md-list-item class="md-1-line" ng-repeat="nav in navs" ng-click="openUrl(nav.url, false)" ng-class="{ 'nav-active': item == activeItem }">
+          <md-icon md-font-icon="material-icons">{{nav.icon}}</md-icon>
+        </md-list-item>
+      </md-list>
+    </md-sidenav>
+
+  </md-content>
+  <md-divider></md-divider>
+  <md-content layout="column" flex layout-fill style="height: 100%">
+    <md-card flex>
       <div ng-view></div>
-
-  </div>
+    </md-card>
+  </md-content>
+</md-content>
 
 </body>
 </html>

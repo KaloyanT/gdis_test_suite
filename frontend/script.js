@@ -20,40 +20,85 @@ gdisApp.config(function($routeProvider) {
             controller  : 'exportController'
         })
 
-        .when('/entitycreation', {
-            templateUrl : 'pages/entitycreation.html',
-            controller  : 'entitycreationController'
+        .when('/entitymanagement', {
+            templateUrl : 'pages/entitymanagement.html',
+            controller  : 'entitymanagementController'
         })
 
 });
 
-gdisApp.controller('navBarController', function($scope) {     
-    $scope.category = 'home';
-    $scope.sortCategory = function (category) {
-        $scope.category = category;
-    }
-  
-    $scope.isActive = function (category) {
-        return $scope.category === category;
-    }
-});
 
-gdisApp.controller('mainController', function($scope) {
+gdisApp.controller('mainController', function($scope, $mdSidenav, $location) {
     $scope.message = 'Bitte wählen Sie einen Menüpunkt aus der Leiste aus!';
     $scope.imagePath = 'imgs/generali.jpg';
-    $scope.actionsFirstRow = ['Import', 'Export'];
-    $scope.actionsSecondRow = ['Entity Creation']
+
+    //init
+
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+    $(document).ready(function() { $mdSidenav('small').toggle(); });
+    $scope.smallNav = true;
+    $('#navbar_container').animate({'width':$('#md_sidebar_small').width() + 'px'}, 0);
+
+    $scope.toggle = function() {
+        $mdSidenav('small').toggle();
+        $mdSidenav('big').toggle();
+        $scope.smallNav = !$scope.smallNav;
+        setNavSize();
+    }
+
+    $( window ).resize(function() {
+        setNavSize();
+    });
+
+    function setNavSize(){
+        let curNav = $scope.smallNav ? '#md_sidebar_small' : '#md_sidebar_big';
+        $('#navbar_container').animate({'width':$(curNav).width() + 'px'}, 200);
+    }
+
+    $scope.getCurrentNavSize = function() {
+
+        return 
+
+    }
+
+    $scope.openUrl = function(url, toggle) {
+        if(toggle){
+            $scope.toggle()
+        }
+        $location.path(url);
+    }
+
+    $scope.navs = [{
+        'name': 'Home',
+        'descr': 'Langingpage, Startpunkt in die Anwendung.',
+        'icon': 'home',
+        'url': '/'
+    }, {
+        'name': 'Import', 
+        'descr': 'Importieren von Daten und Storys.',
+        'icon': 'note_add',
+        'url': '/import'
+    }, {
+        'name': 'Export', 
+        'descr': 'Exportieren von fertigen Testcases.',
+        'icon': 'import_export',
+        'url': '/export'
+    }, {
+        'name': 'Manage Entities',
+        'descr': 'Anlegen und verändern von Entities.',
+        'icon': 'assignment',
+        'url': '/entitymanagement'
+    }];
 
 })
 
-gdisApp.controller('entitycreationController', function($scope, $mdDialog) {
-    $scope.message = 'Hier können neue Entities erstells werden.';
-    $scope.entity = {
-        Name: '',
-        Attributes: []
-    }
+gdisApp.controller('entitymanagementController', function($scope, $mdDialog, $http) {
+    $scope.message = 'Hier können Entities verwaltet werden.';
 
-    function showAlert(ev, title, text, aria) {
+    //Utils
+    function showAlert(title, text, aria) {
         $mdDialog.show(
             $mdDialog.alert()
             .parent(angular.element(document.querySelector('#popupContainer')))
@@ -62,9 +107,42 @@ gdisApp.controller('entitycreationController', function($scope, $mdDialog) {
             .textContent(text)
             .ariaLabel(aria)
             .ok('Okidoki!')
-            .targetEvent(ev)
         );
     };
+
+    //Auflisten
+    $scope.getAllEntities = (function (ev) {
+        $http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
+
+        $http.get('http://localhost:40042/entities/object').then(function successCallback(response) {
+            ent_data = response.data; 
+            $scope.availEntities = [];
+            let entNames = [];
+
+            for (let i = 0; i < ent_data.length; i++) {
+                console.log(entNames.indexOf({'Name': ent_data[i].entityName, 'Id': i}) < 0);
+                if(entNames.indexOf({'Name': ent_data[i].entityName, 'Id': i}) < 0){
+                    entNames.push({'Name': ent_data[i].entityName, 'Id': i, 'Attributes': ent_data[i].testEntityAttributes});   
+                }
+            }
+            $scope.availEntities = entNames;
+
+            }, function errorCallback(response) {
+                console.log(response);
+                showAlert('Entity Fehler', 'Konnte Entitäten nicht aus Backend laden', 'Entity Fehler');
+
+                return [];
+        });
+
+        console.log($scope.availEntities);
+    });
+    $scope.getAllEntities();
+
+    //Hinzufügen
+    $scope.entity = {
+        Name: '',
+        Attributes: []
+    }
 
     $scope.updateAttributeInputs = function(idx) {
         var value = $('input[id="' + idx + '"]').val();
@@ -74,7 +152,7 @@ gdisApp.controller('entitycreationController', function($scope, $mdDialog) {
         if (value && value != '' && $scope.entity.Attributes.indexOf(value.toLowerCase()) < 0){
             $scope.entity.Attributes.push(value.toLowerCase());
         } else {
-            showAlert(1, 'Attribut Fehler', 'Eine Entität muss unique Attribute haben. Case Insensitive.', 'Attribut Fehler');
+            showAlert('Attribut Fehler', 'Eine Entität muss unique Attribute haben. Case Insensitive.', 'Attribut Fehler');
         }
     }
 
@@ -84,8 +162,56 @@ gdisApp.controller('entitycreationController', function($scope, $mdDialog) {
         for (var i = 0; i < $scope.entity.Attributes.length + 1; i++) { 
             items.push(i); 
         } 
-        console.log(items);
         return items;
+    }
+
+    $scope.clearAll = function() {
+        $scope.entity = {
+            Name: '',
+            Attributes: []
+        }
+
+        $('input')
+            .val('')  
+            .blur()
+
+        $('md-input-container').removeClass('md-input-has-value')
+
+        $('.attribute')
+            .children('label').text('Attribut (Enter zum bestätigen)')
+            .children('input').blur();
+    }
+
+    $scope.createEntity = function() {
+        if(!$scope.entity.Name) {
+            return showAlert('Creation Fehler', 'Bitte geben sie der Entity einen Namen!', 'Bitte geben sie der Entity einen Namen!');
+        }
+
+        if($scope.entity.Attributes.length < 1) {
+            return showAlert('Creation Fehler', 'Bitte geben sie der Entity mind. ein Attribut und bestätigen Sie mit Enter!', 'Bitte geben sie der Entity mind. ein Attribut und bestätigen Sie mit Enter!');
+    }
+
+    let data_attr = $scope.entity.Attributes.toString();
+    let data = null;
+    let req_url = `http://localhost:40042/entity?entity_name=${$scope.entity.Name}&attributes=${data_attr}`;
+
+    $http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
+    $http.defaults.headers.post['dataType'] = 'text/*';
+
+    $http.post(req_url, data).
+        success(function(data, status, headers, config) {
+            showAlert('Creation Erfolgreich', 'Entität erfolgreich erstellt!', 'Entität erfolgreich erstellt!');
+            $scope.getAllEntities();
+            return $scope.clearAll();
+          }).
+          error(function(data, status, headers, config) {
+            console.log(status);
+            return showAlert('Creation Fehler', 'Fehler beim Upload! (' + status + ')', 'Fehler beim Upload!');
+        });
+    
+
+
+
     }
 
 });
@@ -132,13 +258,6 @@ gdisApp.controller('importController', function($scope, $http, $mdDialog) {
         var j = 0, k = f.length;
 
         if(f) {
-/*            if($scope.importCsv){
-
-            } else if ($scope.importStory) {
-
-            } else {
-                showAlert(1, 'Upload Error', 'Sie haben weder story noch csv ausgewählt!', 'Upload Fehler');
-            }*/
 
             for (var i = 0; i < k; i++) {
                 (function(cntr) {
@@ -153,19 +272,15 @@ gdisApp.controller('importController', function($scope, $http, $mdDialog) {
                         $http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
                         $http.defaults.headers.post['dataType'] = 'text/*';
 
-                        console.log($scope.importStory);
-                        console.log($scope.importCsv);
                         if($scope.importStory){
                             req_url = req_url + '/story?scenarios=default&story_name=' + $scope.storyName;
                         } else if ($scope.importCsv){
                             req_url = req_url + '/record';
                         }
-                        console.log(req_url);
+
                         $http.post(req_url, data).
                             success(function(data, status, headers, config) {
-                                console.log(data);
                                 $scope.uploads[cntr]['curUpStatus'] = 'Uploaded (' + status + ')'; 
-                                console.log(status);
                               }).
                               error(function(data, status, headers, config) {
                                 $scope.uploads[cntr]['curUpStatus'] = 'Failed to Upload (' + status + ')'; 
@@ -183,34 +298,6 @@ gdisApp.controller('importController', function($scope, $http, $mdDialog) {
         }
     }
 
-/*    $scope.openStoryToEntityMapping = (function (ev) {
-        $http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
-
-        $http.get('http://localhost:40042/entities/object').then(function successCallback(response) {
-            ent_data = response.data; 
-            var entNames = [];
-
-            for (var i = 0; i < ent_data.length; i++) {
-
-                entNames.push({'Name': ent_data[i].entityName, 'Id': i});
-            }
-
-            $scope.availEntities = entNames;
-            console.log(entNames);
-            $mdDialog.show({
-                templateUrl: 'dialog-template.html',
-                scope: $scope,
-                preserveScope: true,
-                targetEvent: ev
-            });
-
-            }, function errorCallback(response) {
-                console.log(response);
-                alert('Fehler beim Datenholen aufgetreten.');
-                return [];
-        });
-    });*/
-
     $scope.showStoryNamingPrompt = function(ev) {
         var confirm = $mdDialog.prompt()
             .title('Wie soll die Story heißen?')
@@ -221,9 +308,7 @@ gdisApp.controller('importController', function($scope, $http, $mdDialog) {
             .cancel('bla');
 
         $mdDialog.show(confirm).then(function(result) {
-            console.log(result);
-            $scope.storyName = result;    
-            console.log($scope.storyName);
+            $scope.storyName = result;
         }, function(reason) {
             console.log(reason);
         });
