@@ -23,16 +23,26 @@ class EntityCreation(Resource):
     def post(self):
         try:
             sent_data = request.data.decode('utf-8')
-
-            ret_arr = {
-                "entityName": request.args.get('entity_name'),
-                "testEntityAttributes": request.args.get('attributes').split(',')
-            }
+            if request.args.get('update') == 'true':
+                ret_arr = {
+                    "oldEntityName": request.args.get('old_entity_name'),
+                    "newEntitiyName": request.args.get('new_entity_name'),
+                    "oldTestEntityAttributes": request.args.get('old_attributes').split(','),
+                    "newTestEntityAttributes": request.args.get('new_attributes').split(',')
+                }
+            else:
+                ret_arr = {
+                    "entityName": request.args.get('entity_name'),
+                    "testEntityAttributes": request.args.get('attributes').split(',')
+                }
 
             s = json.dumps(ret_arr)
             headers = {'Accept-Encoding': 'UTF-8', 'Content-Type': 'application/json', 'Accept': '*/*'}
 
-            r = requests.post('http://importer:8083/importer/i/entity', headers=headers, data=s)
+            if request.args.get('update') == 'true':
+                r = requests.put('http://importer:8083/importer/u/entity', headers=headers, data=s)
+            else:
+                r = requests.post('http://importer:8083/importer/i/entity', headers=headers, data=s)
 
             resp = Response(response=s, status=r.status_code)
             resp.headers['Access-Control-Allow-Origin'] = '*'

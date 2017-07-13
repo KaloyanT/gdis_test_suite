@@ -1,4 +1,4 @@
-var gdisApp = angular.module('gdisApp', ['ngRoute', 'ngMaterial', 'ngAnimate']);
+var gdisApp = angular.module('gdisApp', ['ngRoute', 'ngMaterial', 'ngAnimate', 'ngMessages']);
 
 // routing
 gdisApp.config(function($routeProvider) {
@@ -53,12 +53,6 @@ gdisApp.controller('mainController', function($scope, $mdSidenav, $location) {
         $('#navbar_container').animate({'width':$(curNav).width() + 'px'}, 200);
     }
 
-    $scope.getCurrentNavSize = function() {
-
-        return 
-
-    }
-
     $scope.openUrl = function(url, toggle) {
         if(toggle){
             $scope.toggle()
@@ -92,7 +86,7 @@ gdisApp.controller('mainController', function($scope, $mdSidenav, $location) {
 
 gdisApp.controller('entitymanagementController', function($scope, $mdDialog, $http) {
     $scope.message = 'Hier können Entities verwaltet werden.';
-
+    $scope.entities = ['bla', 'blub'];
     //Utils
     function showAlert(title, text, aria) {
         $mdDialog.show(
@@ -114,101 +108,128 @@ gdisApp.controller('entitymanagementController', function($scope, $mdDialog, $ht
             ent_data = response.data; 
             $scope.availEntities = [];
             let entNames = [];
+            let realEnts = [];
 
             for (let i = 0; i < ent_data.length; i++) {
-                console.log(entNames.indexOf({'Name': ent_data[i].entityName, 'Id': i}) < 0);
                 if(entNames.indexOf({'Name': ent_data[i].entityName, 'Id': i}) < 0){
-                    entNames.push({'Name': ent_data[i].entityName, 'Id': i, 'Attributes': ent_data[i].testEntityAttributes});   
+                    realEnts.push({'Name': ent_data[i].entityName, 'Id': i, 'Attributes': ent_data[i].testEntityAttributes});
+                    entNames.push({'Name': ent_data[i].entityName, 'Id': i, 'Attributes': ent_data[i].testEntityAttributes.join(', '), 'Instances': 0});  
                 }
             }
+
             $scope.availEntities = entNames;
+            $scope.realEntities = realEnts;
 
             }, function errorCallback(response) {
-                console.log(response);
                 showAlert('Entity Fehler', 'Konnte Entitäten nicht aus Backend laden', 'Entity Fehler');
 
                 return [];
         });
 
-        console.log($scope.availEntities);
     });
     $scope.getAllEntities();
 
     //Hinzufügen
-    $scope.entity = {
-        Name: '',
-        Attributes: []
+    function DialogController($scope, $mdDialog, ex_entity) {
+        $scope.update = ex_entity.Name != '' ? true : false; 
+
+        $scope.getAttrSize = function(ev) {
+            var items = [];
+
+            for (var i = 0; i < $scope.entity.attributes.length + 1; i++) { 
+                let value = $scope.entity.attributes[i];
+                if(value && value != ''){
+                    items.push($scope.entity.attributes[i]);
+                } else if (value == '') {
+                    $scope.entity.attributes.splice(i, 1);
+                }
+            } 
+            $scope.entity.attributes = items;
+            items.push('');
+
+            return items;
+        }        
+
+        $scope.cancel = function() {
+            $mdDialog.cancel();
+        };
+
+        $scope.submit = function() {
+            let name = $scope.entity.name;
+            let attributes = $scope.entity.attributes.filter(function(attr){return (attr && attr != '');});
+            $mdDialog.hide($scope.update, ex_entity, {'name': name, 'attributes': attributes}, );
+        };
+
+
     }
 
-    $scope.updateAttributeInputs = function(idx) {
-        var value = $('input[id="' + idx + '"]').val();
-
-        $('label[for="' + idx + '"]').text('Attribut (schon hinzugefügt!)');
-
-        if (value && value != '' && $scope.entity.Attributes.indexOf(value.toLowerCase()) < 0){
-            $scope.entity.Attributes.push(value.toLowerCase());
+    $scope.entityCreation = function (entity) {
+        let data = null;
+        if(entity){
+            data = entity;
         } else {
-            showAlert('Attribut Fehler', 'Eine Entität muss unique Attribute haben. Case Insensitive.', 'Attribut Fehler');
-        }
-    }
-
-    $scope.getSize = function() {
-        var items = []; 
-
-        for (var i = 0; i < $scope.entity.Attributes.length + 1; i++) { 
-            items.push(i); 
-        } 
-        return items;
-    }
-
-    $scope.clearAll = function() {
-        $scope.entity = {
-            Name: '',
-            Attributes: []
+            data = {
+                Name: '',
+                Attributes: []
+            };
         }
 
-        $('input')
-            .val('')  
-            .blur()
-
-        $('md-input-container').removeClass('md-input-has-value')
-
-        $('.attribute')
-            .children('label').text('Attribut (Enter zum bestätigen)')
-            .children('input').blur();
-    }
-
-    $scope.createEntity = function() {
-        if(!$scope.entity.Name) {
-            return showAlert('Creation Fehler', 'Bitte geben sie der Entity einen Namen!', 'Bitte geben sie der Entity einen Namen!');
-        }
-
-        if($scope.entity.Attributes.length < 1) {
-            return showAlert('Creation Fehler', 'Bitte geben sie der Entity mind. ein Attribut und bestätigen Sie mit Enter!', 'Bitte geben sie der Entity mind. ein Attribut und bestätigen Sie mit Enter!');
-    }
-
-    let data_attr = $scope.entity.Attributes.toString();
-    let data = null;
-    let req_url = `http://localhost:40042/entity?entity_name=${$scope.entity.Name}&attributes=${data_attr}`;
-
-    $http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
-    $http.defaults.headers.post['dataType'] = 'text/*';
-
-    $http.post(req_url, data).
-        success(function(data, status, headers, config) {
-            showAlert('Creation Erfolgreich', 'Entität erfolgreich erstellt!', 'Entität erfolgreich erstellt!');
-            $scope.getAllEntities();
-            return $scope.clearAll();
-          }).
-          error(function(data, status, headers, config) {
-            console.log(status);
-            return showAlert('Creation Fehler', 'Fehler beim Upload! (' + status + ')', 'Fehler beim Upload!');
+        $mdDialog.show({
+            controller: DialogController,
+            templateUrl: 'entityCreationDialog.tmpl.html',
+            parent: angular.element(document.body),
+            locals: {
+                ex_entity: data
+            },
+            fullscreen: $scope.customFullscreen
+        })
+        .then(function(update, ex_entity, updated_entity) {
+            $scope.createEntity(update, ex_entity, updated_entity);
+        }, function() {
+            showAlert('Creation Fehler', 'Abgebrochen durch Nutzer.', 'Fehler beim Anlegen von Entity!');
         });
-    
+    };
 
 
+    $scope.createEntity = function(update, entity, updated_entity) {
+        let req_url = 'http://localhost:40042/entity';
+        if(update){
+            let old_data_attr = entity.attributes.toString();
+            let new_data_attr = updated_entity.attributes.toString();
+            req_url = req_url + `?old_entity_name=${entity.name}&old_attributes=${old_data_attr}&new_entity_name=${upadted_entity.name}&new_attributes=${new_data_attr}`;
+        } else {
+            let data_attr = entity.attributes.toString();
+            req_url = req_url + `?entity_name=${entity.name}&attributes=${data_attr}&update=${update}`;
+        }
+        
+        let data = null;
+
+        $http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
+        $http.defaults.headers.post['dataType'] = 'text/*';
+
+        $http.post(req_url, data).
+            success(function(data, status, headers, config) {
+                showAlert('Creation Erfolgreich', 'Entität erfolgreich erstellt!', 'Entität erfolgreich erstellt!');
+                $scope.getAllEntities();
+              }).
+              error(function(data, status, headers, config) {
+                console.log(status);
+                if(status == 409){
+                    return showAlert('Creation Fehler', 'Entity mit selben Namen existier bereits!', 'Fehler bei Erstellung!');
+                }
+                return showAlert('Creation Fehler', 'Fehler beim Upload! (' + status + ')', 'Fehler beim Upload!');
+                
+            });
 
     }
+
+    //Bearbeiten
+    $scope.edit = function(idx){
+        let to_edit = $scope.realEntities[idx];
+        console.log(to_edit);
+        $scope.entityCreation(to_edit);
+    }
+    
 
 });
 
@@ -217,7 +238,7 @@ gdisApp.controller('importController', function($scope, $http, $mdDialog) {
     $scope.importCsv = false;
     $scope.importStory = false;
 
-    function showAlert(ev, title, text, aria) {
+    function showAlert(title, text, aria) {
         $mdDialog.show(
             $mdDialog.alert()
             .parent(angular.element(document.querySelector('#popupContainer')))
@@ -226,7 +247,6 @@ gdisApp.controller('importController', function($scope, $http, $mdDialog) {
             .textContent(text)
             .ariaLabel(aria)
             .ok('Okidoki!')
-            .targetEvent(ev)
         );
     };
 
@@ -388,7 +408,6 @@ gdisApp.controller('exportController', function($scope, $http) {
 
             }
 
-            console.log(storyNames);
             $scope.storyNames = storyNames;
 
         }, function errorCallback(response) {

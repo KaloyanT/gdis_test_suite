@@ -30,7 +30,7 @@
           </p>
         </md-card-content>
         <md-card-actions layout="row" layout-align="end center">
-          <md-button>Neue Entity erstellen</md-button>
+          <md-button ng-click="entityCreation(false)">Neue Entity erstellen</md-button>
         </md-card-actions>
       </md-card>
 
@@ -43,12 +43,14 @@
       </div>
     </md-toolbar>
       <md-list class="md-dense" flex>
-        <md-subheader class="md-no-sticky">Vorhandene Entities</md-subheader>
-        <md-list-item class="md-2-line" ng-repeat="ent in availEntities" ng-click="null">
+        <md-subheader class="md-no-sticky">
+          <p>Vorhandene Entities</p>
+        </md-subheader>
+        <md-list-item class="md-2-line" ng-repeat="ent in availEntities" ng-click="edit($index)">
           <img ng-src="/favicon.ico" class="md-avatar" alt="{{ent.name}}" />
           <div class="md-list-item-text" layout="column">
             <h3>{{ ent.Name }}</h3>
-            <p>{{ ent.Attributes }}</p>
+            <p style="text-align:left;">{{ ent.Attributes }}<span style="float:right;">{{ent.Instances}} Instances</span></p>
           </div>
         </md-list-item>
       </md-list>
@@ -56,46 +58,8 @@
 </md-content>
 </div>
 
-<!-- 
-<!-- Entity Management
-<div class="jumbotron" id="management">
-    Entity Management
-</div>
-
-<!-- Entity Creation
-<div class="jumbotron" id="creation">
-<div class="row">
-    <div class="col-sm-3">
-        <p>Bitte bennen Sie die Entity und fügen Sie dann Attribute hinzu.</p>
-    </div>
-    <div layout-gt-sm="row" class="col-sm-6">
-      <md-input-container class="md-block" flex-gt-sm>
-        <label>Entity Name</label>
-        <input ng-model="entity.Name">
-      </md-input-container>
-
-        <div>
-           <div ng-repeat="i in getSize()">
-              <div>
-              <md-input-container class="md-block attribute" flex-gt-sm>
-                <label for={{$index}}>Attribut (Enter zum bestätigen)</label>
-                <input id={{$index}} ng-keyup="$event.keyCode == 13 ? updateAttributeInputs($index) : null">
-              </md-input-container>
-              </div>
-           </div>
-        </div>
-
-    </div>
-    <div class="col-sm-3">
-        <button class="btn btn-primary btn-space" ng-click="createEntity();" style="float: left;">Create</button>
-        <button class="btn btn-primary btn-space" id="reset" ng-click="clearAll()" style="float: left;">Clear All</button>
-    </div>
-</div>
-</div>
-
-    <span ng-show="false">
-        <md-button class="md-primary md-raised" ng-click="showAlert($event)">
-            Alert
-        </md-button>
-    </span>
- -->
+<span ng-show="false">
+    <md-button class="md-primary md-raised" ng-click="alert($event)">
+      Alert
+    </md-button>
+</span>
