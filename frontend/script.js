@@ -131,7 +131,15 @@ gdisApp.controller('entitymanagementController', function($scope, $mdDialog, $ht
 
     //Hinzufügen
     function DialogController($scope, $mdDialog, ex_entity) {
-        $scope.update = ex_entity.Name != '' ? true : false; 
+        $scope.update = ex_entity.Name != '' ? true : false;
+        $scope.pas_entity = {
+            'name': ex_entity.Name,
+            'attributes': ex_entity.Attributes           
+        } 
+        $scope.entity = {
+            'name': ex_entity.Name,
+            'attributes': ex_entity.Attributes
+        };
 
         $scope.getAttrSize = function(ev) {
             var items = [];
@@ -155,9 +163,12 @@ gdisApp.controller('entitymanagementController', function($scope, $mdDialog, $ht
         };
 
         $scope.submit = function() {
+            let old_name = $scope.pas_entity.name;
+            let old_attributes = $scope.pas_entity.attributes;
+
             let name = $scope.entity.name;
             let attributes = $scope.entity.attributes.filter(function(attr){return (attr && attr != '');});
-            $mdDialog.hide($scope.update, ex_entity, {'name': name, 'attributes': attributes}, );
+            $mdDialog.hide({'old_name': old_name, 'old_attributes': old_attributes, 'new_name': name, 'new_attributes': attributes, 'updated': $scope.update});
         };
 
 
@@ -183,25 +194,26 @@ gdisApp.controller('entitymanagementController', function($scope, $mdDialog, $ht
             },
             fullscreen: $scope.customFullscreen
         })
-        .then(function(update, ex_entity, updated_entity) {
-            $scope.createEntity(update, ex_entity, updated_entity);
+        .then(function(updated_ent) {
+            $scope.createEntity(updated_ent);
         }, function() {
             showAlert('Creation Fehler', 'Abgebrochen durch Nutzer.', 'Fehler beim Anlegen von Entity!');
         });
     };
 
 
-    $scope.createEntity = function(update, entity, updated_entity) {
+    $scope.createEntity = function(updated_ent) {
+        let update = updated_ent.old_name != '';
         let req_url = 'http://localhost:40042/entity';
         if(update){
-            let old_data_attr = entity.attributes.toString();
-            let new_data_attr = updated_entity.attributes.toString();
-            req_url = req_url + `?old_entity_name=${entity.name}&old_attributes=${old_data_attr}&new_entity_name=${upadted_entity.name}&new_attributes=${new_data_attr}`;
+            let old_data_attr = updated_ent.old_attributes.toString();
+            let new_data_attr = updated_ent.new_attributes.toString();
+            req_url = req_url + `?old_entity_name=${updated_ent.old_name}&old_attributes=${old_data_attr}&new_entity_name=${updated_ent.new_name}&new_attributes=${new_data_attr}&update=${update}`;
         } else {
-            let data_attr = entity.attributes.toString();
-            req_url = req_url + `?entity_name=${entity.name}&attributes=${data_attr}&update=${update}`;
+            let data_attr = updated_ent.new_attributes.toString();
+            req_url = req_url + `?entity_name=${updated_ent.new_name}&attributes=${data_attr}&update=${update}`;
         }
-        
+        console.log(req_url);
         let data = null;
 
         $http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
