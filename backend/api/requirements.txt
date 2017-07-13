@@ -4,3 +4,4 @@ werkzeug
 requests
 flask-cors
 pandas
+numpy

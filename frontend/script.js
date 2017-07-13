@@ -122,7 +122,6 @@ gdisApp.controller('entitymanagementController', function($scope, $mdDialog, $ht
 
             }, function errorCallback(response) {
                 showAlert('Entity Fehler', 'Konnte Entitäten nicht aus Backend laden', 'Entity Fehler');
-
                 return [];
         });
 
@@ -249,6 +248,8 @@ gdisApp.controller('importController', function($scope, $http, $mdDialog) {
     $scope.message = 'Hier können .csv und .story Dateien importiert werden.';
     $scope.importCsv = false;
     $scope.importStory = false;
+    $http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
+    $http.defaults.headers.post['dataType'] = 'text/*';
 
     function showAlert(title, text, aria) {
         $mdDialog.show(
@@ -281,11 +282,148 @@ gdisApp.controller('importController', function($scope, $http, $mdDialog) {
         $scope.uploads = [];
     }
 
+    function showStoryNamingPrompt(c) {
+        var confirm = $mdDialog.prompt()
+            .title('Wie soll die Story heißen?')
+            .textContent('Storynamen müssen unique sein. Bereits vorhanden: ' + $scope.storyNames.join(', '))
+            .placeholder('Story Name')
+            .ariaLabel('Story Name')
+            .ok('Speichern')
+        $mdDialog.show(confirm).then(function(result) {
+            c(result);
+        }, function(reason) {
+            c(false);
+        });
+    };
+
+    function DialogDataNamingController($scope, $mdDialog, story_names) {
+        $scope.storyNames = story_names;
+        $scope.test = {
+            name: '',
+            story: story_names[0]
+        }
+
+
+        $scope.cancel = function() {
+            $mdDialog.cancel();
+        };
+
+        $scope.submit = function() {
+            $mdDialog.hide({'testName': $scope.test.name, 'storyName': $scope.test.story});
+        };
+    }
+
+    function DialogMappingController($scope, $mdDialog, keys, result, availMappings) {
+        $scope.keys = keys;
+        $scope.mapping = [];
+        console.log(keys);
+        for (key of $scope.keys) {
+            console.log(key);
+            $scope.mapping.push({
+                'key': key,
+                'mapTo': null
+            });
+        }
+        console.log($scope.mapping);
+        $scope.availMappings = availMappings;
+        $scope.result = {
+            'testName': result.testName,
+            'storyName': result.storyName
+        }
+
+        $scope.cancel = function() {
+            $mdDialog.cancel();
+        };
+
+        $scope.submit = function() {
+            $mdDialog.hide({'result': $scope.result, 'mapping': $scope.mapping});
+        };
+    }
+
+    function showDataNamingPrompt(c) {
+        $mdDialog.show({
+            controller: DialogDataNamingController,
+            templateUrl: 'dataNamingDialog.tmpl.html',
+            parent: angular.element(document.body),
+            fullscreen: $scope.customFullscreen,
+            locals: {
+                story_names: $scope.storyNames
+            }
+        })
+        .then(function(result) {
+            doDataMappings(c, {'testName': result.testName, 'storyName': result.storyName});
+        }, function() {
+            c(false);
+        });
+    }
+
+    function showDataMappingPrompt(c, result, keys) {
+        $mdDialog.show({
+            controller: DialogMappingController,
+            templateUrl: 'dataMappingDialog.tmpl.html',
+            parent: angular.element(document.body),
+            fullscreen: $scope.customFullscreen,
+            locals: {
+                keys: keys,
+                availMappings: $scope.entityNames,
+                result: result
+            }
+        })
+        .then(function(result) {
+            c(result);
+        }, function() {
+            c(false);
+        });
+    }
+
+    function doDataMappings(c, result){
+
+        r = new FileReader();
+
+        r.onloadend = function(e) {
+            var data = e.target.result;
+            var custom_headers = {};
+            var naming = null;
+            let req_url = 'http://localhost:40042/record/discovery'
+            $http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
+            $http.defaults.headers.post['dataType'] = 'text/*';
+
+            $http.post(req_url, data).
+                success(function(data, status, headers, config) {
+                    showDataMappingPrompt(c, result, data);
+                }).
+                error(function(data, status, headers, config) {
+                    console.log(status);
+                });     
+            
+        }
+
+        r.readAsText($scope.uploads[0]); 
+
+    }
+
     $scope.upload = function() {
+        $scope.existingStories = $http.get('http://localhost:40042/stories/list').then(function successCallback(response) {
+            $scope.storyNames = response.data;
+            $http.get('http://localhost:40042/entities/mapping').then(function successCallback(response) {
+                $scope.entityNames = response.data;
+                $scope.uploadInit();
+            }, function errorCallback(response) {
+                alert('Fehler beim Entity holen aufgetreten.');
+            });
+            
+        }, function errorCallback(response) {
+            alert('Fehler beim Storynamen holen aufgetreten.');
+        });
+    }
+
+    $scope.uploadInit = function() {
+        var req_url = 'http://localhost:40042';
         var f = $scope.uploads;
         var j = 0, k = f.length;
 
         if(f) {
+
 
             for (var i = 0; i < k; i++) {
                 (function(cntr) {
@@ -295,25 +433,58 @@ gdisApp.controller('importController', function($scope, $http, $mdDialog) {
                     r.onloadend = function(e) {
                         var data = e.target.result;
                         var custom_headers = {};
-                        var req_url = 'http://localhost:40042';
+                        var naming = null;
 
                         $http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
                         $http.defaults.headers.post['dataType'] = 'text/*';
 
                         if($scope.importStory){
-                            req_url = req_url + '/story?scenarios=default&story_name=' + $scope.storyName;
+                            showStoryNamingPrompt(function(result){
+                                if(result){
+                                    req_url = req_url + '/story?scenarios=default&story_name=' + result;
+                                    $http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
+                                    $http.defaults.headers.post['dataType'] = 'text/*';
+                                    $http.post(req_url, data).
+                                        success(function(data, status, headers, config) {
+                                            $scope.uploads[cntr]['curUpStatus'] = 'Uploaded (' + status + ')'; 
+                                        }).
+                                        error(function(data, status, headers, config) {
+                                            if(status==409){
+                                                showAlert('Story Upload Fehler', 'Story mit selbem Namen existiert bereits!', 'Upload Fehler');
+                                            }
+                                            $scope.uploads[cntr]['curUpStatus'] = 'Failed to Upload (' + status + ')'; 
+                                            console.log(status);
+                                        });     
+                                } else {
+                                    showAlert('Story Upload Fehler', 'Falscher User Input', 'Upload Fehler');
+                                }
+                            });
+                            
                         } else if ($scope.importCsv){
-                            req_url = req_url + '/record';
+                            showDataNamingPrompt(function(result){
+                                console.log(result);
+                                var mapping_str = ''
+                                for (pair of result.mapping) {
+                                    console.log(pair);
+                                    mapping_str = mapping_str + pair.key + ',' + pair.mapTo + ';'
+                                }
+                                console.log(mapping_str);
+                                req_url = req_url + `/record?story_name=${result.result.storyName}&test_name=${result.result.testName}&mapping=${mapping_str}`; 
+                                $http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
+                                $http.defaults.headers.post['dataType'] = 'text/*';
+                                $http.post(req_url, data).
+                                    success(function(data, status, headers, config) {
+                                        $scope.uploads[cntr]['curUpStatus'] = 'Uploaded (' + status + ')'; 
+                                    }).
+                                    error(function(data, status, headers, config) {
+                                        $scope.uploads[cntr]['curUpStatus'] = 'Failed to Upload (' + status + ')'; 
+                                        console.log(status);
+                                    });     
+                            })
+                            
                         }
 
-                        $http.post(req_url, data).
-                            success(function(data, status, headers, config) {
-                                $scope.uploads[cntr]['curUpStatus'] = 'Uploaded (' + status + ')'; 
-                              }).
-                              error(function(data, status, headers, config) {
-                                $scope.uploads[cntr]['curUpStatus'] = 'Failed to Upload (' + status + ')'; 
-                                console.log(status);
-                              });
+                        
                     }
 
                     r.readAsText(f[cntr]); 
@@ -325,22 +496,6 @@ gdisApp.controller('importController', function($scope, $http, $mdDialog) {
             alert('Keine Dateien zum Upload ausgewählt!');
         }
     }
-
-    $scope.showStoryNamingPrompt = function(ev) {
-        var confirm = $mdDialog.prompt()
-            .title('Wie soll die Story heißen?')
-            .textContent('Storynamen müssen unique sein.')
-            .placeholder('Story Name')
-            .ariaLabel('Story Name')
-            .ok('Speichern')
-            .cancel('bla');
-
-        $mdDialog.show(confirm).then(function(result) {
-            $scope.storyName = result;
-        }, function(reason) {
-            console.log(reason);
-        });
-    };
 
     $scope.add = $(function() {
 
@@ -357,7 +512,6 @@ gdisApp.controller('importController', function($scope, $http, $mdDialog) {
                 } else {
                     $scope.importCsv = false;
                     $scope.importStory = true;
-                    $scope.showStoryNamingPrompt(1);
                 }
                 
 
@@ -405,6 +559,16 @@ gdisApp.controller('importController', function($scope, $http, $mdDialog) {
 
 gdisApp.controller('exportController', function($scope, $http) {
     $scope.message = 'Hier können Daten exportiert werden.';
+    $scope.exportWays = [{
+        'way': 'Alle Tests im ganzen System anzeigen.',
+        'url': 'http://localhost:8082/exporter/e/storyTest/all'
+    }, {
+        'way': 'Alle Tests mit <Storynamen> (hier "autoversicherungAbschliessen") anzeigen.',
+        'url': 'http://localhost:8082/exporter/e/storyTest/by-story-name/autoversicherungAbschliessen'
+    },{
+        'way': 'Alle Tests mit <Testnamen> (hier "autoTest") anzeigen.',
+        'url': 'http://localhost:8082/exporter/e/storyTest/by-test-name/autoTest'
+    }]
 
     var init = function () {
         $http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';

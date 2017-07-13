@@ -1,4 +1,4 @@
-Beitragslückenausgleich erfassen
+Autoversicherung abschließen
 
 Erzählung: 
 Um Versicherungsanträge in PSLife bearbeiten zu können

@@ -1,0 +1,29 @@
+<div ng-controller="importController" layout="column" ng-cloak class="md-inline-form">
+  <form name="storyForm">
+  <md-content layout-gt-sm="row" layout-padding layout-align='space-around center'>
+
+    <md-content layout="column" layout-align='space-around center'>
+      <div ng-repeat="key in mapping track by $index" layout-align >
+        <md-input-container>
+          <label>{{key.key}}</label>
+          <input name="mapping" ng-model="key.name" value="{{key.name}}" disabled>
+        </md-input-container>
+        <md-input-container>
+          <label>Zugehöriges Entität.Attribut</label>
+          <md-select ng-model="key.mapTo">
+            <md-option ng-repeat="ent_attr in availMappings" ng-value="ent_attr">
+              {{ent_attr}}
+            </md-option>
+          </md-select>
+      </md-input-container>
+      </div>
+    </md-content>
+    <md-content>
+    <div>
+      <md-button type="submit" ng-click="submit()"" ng-disabled="storyForm.$invalid">Mappen</md-button>
+    </div>
+    </md-content>
+  </md-content>
+  </form>
+
+</div>

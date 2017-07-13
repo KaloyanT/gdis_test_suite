@@ -17,6 +17,7 @@ app.config['ALLOWED_EXTENSIONS'] = ALLOWED_EXTENSIONS
 api = Api(app)
 
 api.add_resource(record.Record, '/record')
+api.add_resource(record.RecordDiscovery, '/record/discovery')
 api.add_resource(record_json.RecordJson, '/record/json')
 api.add_resource(record_csv.RecordCsv, '/record/csv')
 api.add_resource(entities.EntitiesObject, '/entities/object')

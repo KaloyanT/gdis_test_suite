@@ -1,0 +1,33 @@
+<div ng-controller="importController" layout="column" ng-cloak class="md-inline-form">
+
+  <form name="storyForm">
+  <md-content layout-gt-sm="row" layout-padding>
+
+    <md-content layout-padding>
+      <md-input-container>
+        <label>Test Name</label>
+        <input name="testName" ng-model="test.name" required>
+        <div ng-messages="storyForm.entityName.$error" ng-show="storyForm.test.$dirty">
+          <div ng-message="required">Muss eingeben werden!</div>
+        </div>
+      </md-input-container>
+    </md-content>
+    <md-content layout-padding>
+      <md-input-container>
+        <label>Zugehörige Story</label>
+        <md-select ng-model="test.story">
+          <md-option ng-repeat="name in storyNames" ng-value="name" ng-disabled>
+            {{name}}
+          </md-option>
+        </md-select>
+      </md-input-container>
+    </md-content>
+    <md-content>
+    <div>
+      <md-button type="submit" ng-click="submit()"" ng-disabled="storyForm.$invalid">Benennen</md-button>
+    </div>
+    </md-content>
+  </md-content>
+  </form>
+
+</div>

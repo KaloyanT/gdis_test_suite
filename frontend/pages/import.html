@@ -1,74 +1,103 @@
-<div class="jumbotron text-center  container-fluid">
-    <h1>GDIS Import</h1>
+<div ng-controller="importController" ng-cloak layout-gt-sm="row" layout="column">
 
-    <p>{{ message }}</p>
+<md-content layout="row" layout-fill layout>
 
-    <div class="row">
-        <br />
-    </div>
-    <div class="row">
-        <div class="col-sm-3">
-        	<p>Bitte Datei(en) auswählen.</p>
-        </div>
-        <div class="input-group col-sm-6">
-            <label class="input-group-btn">
-                <span class="btn btn-primary">
-                    Select <input ng-model="search" type="file" style="display: none;" id="file" accept='.csv,.story' name="file" ng-model="file">
-                </span>
-            </label>
-            	<input type="text" class="form-control" value="No file selected!" readonly>
-        </div>
-        <div class="col-sm-3">
-            <p style="float: left"><b>Auswahl</b></p>
-        </div>
-<!--         <div class="col-sm-3">
-            <button class="btn btn-primary" ng-click="upload()" style="float: left;">Import</button>
-        </div> -->
-    </div>
-    <div class="row">
-        <br />
-    </div>
-    <span ng-show='uploads.length > 0'>
-    <div class="row">
-        <div class="col-sm-9">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Filename</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tr ng-repeat="x in uploads">
-                        <td>{{$index + 1}}</td>
-                        <td>{{ x.name }}</td>
-                        <td>{{ x.curUpStatus }}</td>
-                        <td>
-                            <i class="fa fa-lg fa-trash-o fa-fw" aria-hidden="true" ng-click="removeRow($index)"></i>
-                        </td>
-                    </tr>
-                </table>
-        </div>
-        <div class="col-sm-3">
-            <button class="btn btn-primary btn-space" ng-click="upload();" style="float: left;">Upload</button>
-            <button class="btn btn-primary btn-space" id="reset" ng-click="clear()" style="float: left;">Clear All</button>
-        </div>
-    </div>
-        <div class="row" ng-show="importCsv">
-            CSV
-        </div>
-        <div class="row" ng-show="importStory">
-            <span ng-show="false">
-            <md-button class="md-primary md-raised" ng-click="showPrompt($event)"  >
-              Prompt Dialog
-            </md-button>
+    <md-card  flex="50" layout-fill>
+        <img ng-src="{{imagePath}}" class="md-card-image" alt="Washed Out" style="height: 50%;width: auto;">
+        <md-card-title>
+            <md-card-title-text>
+                <span class="md-headline">GDIS Import</span>
+            </md-card-title-text>
+        </md-card-title>
+        <md-card-content>
+          <p>
+            Hier können .csv und .story Dateien importiert werden.
+          </p>
+          <p>
+            Wenn Sie eine .story Datei importieren, so werden Sie bei Upload gebeten die Story zur späteren identifizierung zu benennen. Groß- und Kleinschreibung ist hier relevant.
+          </p>
+          <p>
+            Wenn Sie eine .csv Datei importieren, so werden Sie gebeten den Daten einer Story und einer Entity zuzuordnen. Die Storys können Sie aus den vorher importierten Storys auswählen, bei den Entitys können Sie analog eine vorher erstellte auswählen.
+            Anschließend müssen Sie noch das Mapping der Spalten der Daten auf die Attribute der ausgewählten Entität vornehmen.
+          </p>
+          <p>
+            Am Ende beider Imports können Sie sich nochmal überlegen ob Sie es wirklich tun wollen und dann mit dem "Upload" Button bestätigen oder mit dem "Clear All" Button verwerfen.
+          </p>
+        </md-card-content>
+      </md-card>
+
+<md-divider></md-divider>
+
+    <md-card flex="50" layout-fill>
+    <md-toolbar layout="row" style="background:#C11E0D;">
+      <div class="md-toolbar-tools">
+        <span>Import</span>
+      </div>
+    </md-toolbar>
+    <md-subheader class="md-no-sticky">
+          <p>Importieren von .csv und .story Dateien.</p>
+    </md-subheader>
+        <md-card-content>
+            <div class="row">
+                <div class="input-group">
+                    <label class="input-group-btn">
+                        <span class="btn btn-primary" style="background-color:#C11E0D;border-color:#C11E0D;">
+                            Select <input ng-model="search" type="file" style="display: none;" id="file" accept='.csv,.story' name="file" ng-model="file">
+                        </span>
+                    </label>
+                        <input type="text" class="form-control" value="No file selected!" readonly>
+                </div>
+            </div>
+            <div class="row">
+                <br />
+            </div>
+            <span ng-show='uploads.length > 0'>
+            <div class="row">
+                <div>
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Filename</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tr ng-repeat="x in uploads">
+                                <td>{{$index + 1}}</td>
+                                <td>{{ x.name }}</td>
+                                <td>{{ x.curUpStatus }}</td>
+                                <td>
+                                    <i class="fa fa-lg fa-trash-o fa-fw" aria-hidden="true" ng-click="removeRow($index)"></i>
+                                </td>
+                            </tr>
+                        </table>
+                </div>
+            </div>
             </span>
-        </div>
+        </md-card-content>
+        <md-card-actions layout="row" layout-align="end center">
+          <md-button ng-click="clear()">Clear All</md-button>
+          <md-button ng-click="upload()">Upload</md-button>
+        </md-card-actions>
+    </md-card>
+
+</md-content>
+
+<div class="row" ng-show="importCsv">
+    CSV
+</div>
+<div class="row" ng-show="importStory">
+    <span ng-show="false">
+    <md-button class="md-primary md-raised" ng-click="showPrompt($event)"  >
+      Prompt Dialog
+    </md-button>
     </span>
+</div>
+</div>
+
     <span ng-show="false">
         <md-button class="md-primary md-raised" ng-click="showAlert($event)">
             Alert
         </md-button>
     </span>
-</div>
