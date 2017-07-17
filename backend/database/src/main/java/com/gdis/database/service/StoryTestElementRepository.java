@@ -11,4 +11,6 @@ public interface StoryTestElementRepository extends CrudRepository<StoryTestElem
 	public StoryTestElement findByStoryTestElementID(long id);
 	
 	public List<StoryTestElement> getByTestEntity(TestEntity testEntity);
+	
+	public List<StoryTestElement> getByTestEntityAndColumnName(TestEntity testEntity, String columnName);
 }

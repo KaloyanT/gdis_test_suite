@@ -97,8 +97,7 @@ public class TestObject {
 		long mapHash = Long.MAX_VALUE;
 		
 		// Sort the Map by using a TreeMap
-		// This is done in order to insure that the hashCode for every object
-		// is the same
+		// This is done in order to insure that the hashCode for every object is the same
 		Map<String, String> sortedMap = new TreeMap<String, String>(getObjectAttributes());
 		
 		hashCode ^= getEntityType().getEntityName().hashCode();

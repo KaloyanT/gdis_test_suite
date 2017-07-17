@@ -42,7 +42,7 @@ public class StoryTestController {
 	
 	@Autowired
 	private StoryRepository storyRepository;
-	
+		
 	private StoryTest storyTestToSave;
 	
 	@RequestMapping(method = RequestMethod.GET)
@@ -403,56 +403,13 @@ public class StoryTestController {
 					+ id + " not found."), HttpStatus.NOT_FOUND);
 		}
 		
-		StoryTest testWithSameName = storyTestRepository.findByTestName(updatedStoryTest.getTestName());
 		
-		if(testWithSameName != null) {
-			
-			if(currentStoryTest.getStoryTestID() != testWithSameName.getStoryTestID()) {
-				return new ResponseEntity<>(new CustomErrorType("Unable to update. There is another StoryTest "
-						+ "with this testName."), HttpStatus.CONFLICT);
-			}
-		}
-		
-		// Old Story shouldn't be null, but check anyways
-		Story oldStory = storyRepository.findByStoryName(currentStoryTest.getStoryName());
-		if (oldStory == null) {
-			return new ResponseEntity<>(new CustomErrorType("Story with name " + updatedStoryTest.getStoryName()
-					+ " not found"), HttpStatus.NOT_FOUND);
-		}
-		
-		oldStory.removeTestForStory(currentStoryTest);
-		
-		currentStoryTest.clearData();
-		
-		currentStoryTest.setStoryName(updatedStoryTest.getStoryName());
-		
-		Story newStory = storyRepository.findByStoryName(updatedStoryTest.getStoryName());
-				
-		if (newStory == null) {
-			return new ResponseEntity<>(new CustomErrorType("Story with name " + updatedStoryTest.getStoryName()
-					+ " not found"), HttpStatus.NOT_FOUND);
-		}
-		
-		currentStoryTest.setStory(newStory);
-		newStory.addTestForStory(currentStoryTest);
-		
-		currentStoryTest.setTestName(updatedStoryTest.getTestName());
-		
-		for(StoryTestElement bste : updatedStoryTest.getData()) {
-			currentStoryTest.addData(bste);
-		}
-		
-		storyTestRepository.save(currentStoryTest);
-		
-		// Build objects for the updated StoryTest
-		buildObjectsForStoryTest(currentStoryTest);
-		
-		return new ResponseEntity<>(HttpStatus.OK);
+		return updateStoryTestByTestName(currentStoryTest.getTestName(), updatedStoryTest);
 	}
-	
+		
 	
 	@RequestMapping(value = "/update/by-test-name/{testName}", method = RequestMethod.PUT)
-	public ResponseEntity<?> updateStoryTestByTestName(@PathVariable("testName") String testName, 
+	public ResponseEntity<?> updateStoryTestByTestName(@PathVariable("testName") String testName,
 			@RequestBody StoryTest updatedStoryTest) {
 		
 		if(updatedStoryTest == null) {
@@ -462,7 +419,7 @@ public class StoryTestController {
 		StoryTest currentStoryTest = storyTestRepository.findByTestName(testName);
 
 		if (currentStoryTest == null) {
-			return new ResponseEntity<>(new CustomErrorType("Unable to delete. StoryTest with testName "
+			return new ResponseEntity<>(new CustomErrorType("Unable to update. StoryTest with testName "
 					+ testName + " not found."), HttpStatus.NOT_FOUND);
 		}
 		
@@ -476,6 +433,7 @@ public class StoryTestController {
 			}
 		}
 		
+
 		// Old Story shouldn't be null, but check anyways
 		Story oldStory = storyRepository.findByStoryName(currentStoryTest.getStoryName());
 		if (oldStory == null) {
@@ -499,36 +457,44 @@ public class StoryTestController {
 		
 		currentStoryTest.setTestName(updatedStoryTest.getTestName());
 		
-		
 		for(StoryTestElement ste : currentStoryTest.getData()) {
-			TestEntity oldEntity = testEntityRepository.findByEntityName(ste.getEntityName());
-			oldEntity.removeColumnsContainingEntity(ste);
-			//currentStoryTest.removeData(ste);
+			
+			ste.getTestEntity().removeColumnsContainingEntity(ste);
 		}
 		
+		/// remove the old columns and add the new ones
 		currentStoryTest.clearData();
 		
 		for(StoryTestElement ste : updatedStoryTest.getData()) {
 			
-			TestEntity newEntity = testEntityRepository.findByEntityName(ste.getEntityName());
+			// Register TestEntity for StoryTestElement manually since Jackson can't map it, although the right annotations are used
+			TestEntity entity = null;
 			
-			if(newEntity != null) {
-				ste.setTestEntity(newEntity);
+			if(ste.getTestEntity() == null) {
+				entity = testEntityRepository.findByEntityName(ste.getEntityName());
+			} 
+			
+			if(entity != null) {
+				ste.setTestEntity(entity);
 			} else {
 				return new ResponseEntity<>(new CustomErrorType("Such TestEntity doesn't exist!"),  
 						HttpStatus.NOT_FOUND);
 			}
 			
-			newEntity.addColumnsContainingEntity(ste);
 			currentStoryTest.addData(ste);
-			ste.setStoryTest(currentStoryTest);
-			
+			// The StoryTestElements are inserted twice in the currentStoryTest.data List 
+			// if the entity.addColumnsContainingEntity method is used, which shouldn't happen
+			// The StoryTestElements are added automatically by Hibernate to the entity.columnsContainingEntity list
+			//entity.addColumnsContainingEntity(ste);
 		}
-		
+				
 		storyTestRepository.save(currentStoryTest);
 		
-		// Build objects for the updated StoryTest
-		buildObjectsForStoryTest(currentStoryTest);
+		// Get the already persisted test and create objects from the data
+		StoryTest insertedStoryTest = storyTestRepository.findByTestName(currentStoryTest.getTestName());
+		
+		// Build TestObjects
+		buildObjectsForStoryTest(insertedStoryTest);
 		
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
@@ -618,7 +584,6 @@ public class StoryTestController {
 				
 			}
 		}
-		
 		
 		 /* Now, when the columns are grouped according to entityName, iterate through all the columns
 		 * for a given Entity and create objects for it by getting the j-row of each column for every

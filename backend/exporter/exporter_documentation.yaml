@@ -20,7 +20,7 @@ schemes:
 paths:
   /exporter/e/entities:
     get:
-      tags: 
+      tags:
         - exporter
       summary: Return all entities
       description: Exports all existing entities
@@ -33,11 +33,10 @@ paths:
           schema:
             $ref: '#/definitions/EntityExportModel'
         '500':
-          description: Internal server error. 
-  
+          description: Internal server error.
   '/exporter/e/entities/by-name/{entityName}':
     get:
-      tags: 
+      tags:
         - exporter
       summary: Return the entity with the given name.
       operationId: getEntityByName
@@ -57,14 +56,16 @@ paths:
         '400':
           description: The entity name is null or empty.
         '500':
-          description: Internal server error. 
-          
-  '/exporter/e/entities/entities/as-mappings':
+          description: Internal server error.
+  /exporter/e/entities/as-mappings:
     get:
-      tags: 
+      tags:
         - exporter
       summary: Return the entity with the given name.
-      description: After we have the entities like they are saved in the database, i.e. with entityName and a List of attributes, turn them into entityName.attribute form
+      description: >-
+        After we have the entities like they are saved in the database, i.e.
+        with entityName and a List of attributes, turn them into
+        entityName.attribute form
       operationId: getEntitiesAsMapping
       produces:
         - application/json
@@ -72,11 +73,10 @@ paths:
         '200':
           description: Export the entity as a maapping.
         '500':
-          description: Internal server error. 
-          
+          description: Internal server error.
   /exporter/e/stories:
     get:
-      tags: 
+      tags:
         - exporter
       summary: Return all the stories with all of their details
       description: Exports all existing stories
@@ -89,11 +89,10 @@ paths:
           schema:
             $ref: '#/definitions/StoryExportModel'
         '500':
-          description: Internal server error. 
-          
-  /exporter/e/stories/list:        
-     get:
-      tags: 
+          description: Internal server error.
+  /exporter/e/stories/list:
+    get:
+      tags:
         - exporter
       summary: Return a simple list with the names of all Stories
       description: Exports a simple list with the names of all Stories
@@ -104,11 +103,10 @@ paths:
         '200':
           description: Export a list with all stories
         '500':
-          description: Internal server error. 
-          
+          description: Internal server error.
   '/exporter/e/stories/by-story-name/{storyName}':
     get:
-      tags: 
+      tags:
         - exporter
       summary: Return the story with the given name.
       operationId: getStoryByStoryName
@@ -128,11 +126,10 @@ paths:
         '400':
           description: The story name is null or empty.
         '500':
-          description: Internal server error. 
-          
+          description: Internal server error.
   /exporter/e/storyTests/all:
     get:
-      tags: 
+      tags:
         - exporter
       summary: Return all tests by the story type
       operationId: getAllTestsByStoryType
@@ -144,11 +141,10 @@ paths:
           schema:
             $ref: '#/definitions/StoryTestExportModel'
         '500':
-          description: Internal server error. 
-          
+          description: Internal server error.
   /exporter/e/storyTests/all/export:
     get:
-      tags: 
+      tags:
         - exporter
       summary: Return all tests by the story type for export
       operationId: getAllTestsByStoryTypeForExport
@@ -158,14 +154,12 @@ paths:
         '200':
           description: Export all tests
         '500':
-          description: Internal server error. 
-  
+          description: Internal server error.
   '/exporter/e/storyTests/by-story-name/{storyName}':
     get:
       tags:
         - exporter
-      summary: >-
-        Return all tests with the given story name 
+      summary: 'Return all tests with the given story name '
       operationId: getTestsByStoryName
       produces:
         - application/json
@@ -177,21 +171,18 @@ paths:
           type: string
       responses:
         '200':
-          description: >-
-            Return the tests with this story name.
+          description: Return the tests with this story name.
         '404':
           description: StoryName is empty or null.
           schema:
             $ref: '#/definitions/StoryTestExportModel'
         '500':
           description: Internal server error. Can't connect to the database or similar
-          
   '/exporter/e/storyTests/by-story-name/{storyName}/export':
     get:
       tags:
         - exporter
-      summary: >-
-        Return all tests with the given story name to export
+      summary: Return all tests with the given story name to export
       operationId: getTestsByStoryNameForExport
       produces:
         - application/json
@@ -203,19 +194,16 @@ paths:
           type: string
       responses:
         '200':
-          description: >-
-            Export the tests with this name.
+          description: Export the tests with this name.
         '404':
           description: StoryName is empty or null.
         '500':
           description: Internal server error. Can't connect to the database or similar
-          
   '/exporter/e//storyTests/by-test-name/{testName}':
     get:
       tags:
         - exporter
-      summary: >-
-        Return the test with the given name 
+      summary: 'Return the test with the given name '
       operationId: getTestsByTestName
       produces:
         - application/json
@@ -227,21 +215,18 @@ paths:
           type: string
       responses:
         '200':
-          description: >-
-            Return the test with this name.
+          description: Return the test with this name.
         '404':
           description: TestName is empty or null.
           schema:
             $ref: '#/definitions/StoryTestExportModel'
         '500':
           description: Internal server error. Can't connect to the database or similar
-          
   '/exporter/e/storyTests/by-test-name/{testName}/export':
     get:
       tags:
         - exporter
-      summary: >-
-        Return the test with the given name to export
+      summary: Return the test with the given name to export
       operationId: getTestsByTestNameForExport
       produces:
         - application/json
@@ -253,19 +238,16 @@ paths:
           type: string
       responses:
         '200':
-          description: >-
-            Export the test with this name.
+          description: Export the test with this name.
         '404':
           description: EntityName is empty or null.
         '500':
           description: Internal server error. Can't connect to the database or similar
-
-  '/exporter/e/storyTests/by-test-name/{entityName}':
+  '/exporter/e/storyTests/by-entity-name/{entityName}':
     get:
       tags:
         - exporter
-      summary: >-
-        Return the test with the given entity name 
+      summary: 'Return the test which contain the given entity '
       operationId: getTestsByEntityName
       produces:
         - application/json
@@ -277,16 +259,14 @@ paths:
           type: string
       responses:
         '200':
-          description: >-
-            Export the test with this entity name.
+          description: Export the test with this entity name.
         '404':
           description: EntityName is empty or null.
         '500':
           description: Internal server error. Can't connect to the database or similar
-          
   /exporter/e/objects:
     get:
-      tags: 
+      tags:
         - exporter
       summary: Return all test objects
       operationId: getObjects
@@ -296,14 +276,12 @@ paths:
         '200':
           description: Export all test objects
         '500':
-          description: Internal server error. 
-         
+          description: Internal server error.
   '/exporter/e/objects/by-entity-type/{entityType}':
     get:
       tags:
         - exporter
-      summary: >-
-        Return the object with the given entity type
+      summary: Return the object with the given entity type
       operationId: getObjectsByEntityType
       produces:
         - application/json
@@ -315,13 +293,11 @@ paths:
           type: string
       responses:
         '200':
-          description: >-
-            Export the object with this entity type.
+          description: Export the object with this entity type.
         '404':
           description: EntityType is empty or null.
         '500':
           description: Internal server error. Can't connect to the database or similar
-
 definitions:
   EntityExportModel:
     type: object
@@ -339,8 +315,7 @@ definitions:
       ID:
         type: integer
         format: int64
-        description: >-
-          The ID under which the story is saved in the database. 
+        description: 'The ID under which the story is saved in the database. '
       storyName:
         type: string
         description: The name under which the story is saved in the database
@@ -362,5 +337,5 @@ definitions:
       storyName:
         type: string
         description: The name under which the story is saved in the database
-      data: 
+      data:
         type: array

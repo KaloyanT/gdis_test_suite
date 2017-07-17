@@ -280,16 +280,16 @@ public class TestEntityController {
 	 * 
 	 * Change only the name of the TestEntity for now
 	 */
-	@RequestMapping(value = "/update/{entityName}", method = RequestMethod.PUT)
-	public ResponseEntity<?> updateTestEntity(@PathVariable("entityName") String entityName, 
-			@RequestBody TestEntity updatedTestEntity) {
+	@RequestMapping(value = "/update/entity-name/{entityName}/{newEntityName}", method = RequestMethod.PUT)
+	public ResponseEntity<?> updateTestEntityName(@PathVariable("entityName") String entityName, 
+			@PathVariable("newEntityName") String newEntityName) {
 		
 		if( (entityName == null) || (entityName.isEmpty()) || (entityName.trim().length() == 0) ) {
 			return new ResponseEntity<>(new CustomErrorType("Invalid Entity Name"), HttpStatus.NOT_FOUND);
 		}
 		
-		if(updatedTestEntity == null) {
-			return new ResponseEntity<>(new CustomErrorType("Invalid Entity"), HttpStatus.BAD_REQUEST);
+		if( (newEntityName == null) || (newEntityName.isEmpty()) || (newEntityName.trim().length() == 0) ) {
+			return new ResponseEntity<>(new CustomErrorType("Invalid Entity New Name"), HttpStatus.NOT_FOUND);
 		}
 		
 		TestEntity testEntity = testEntityRepository.findByEntityName(entityName);
@@ -299,56 +299,58 @@ public class TestEntityController {
 					+ " not found"), HttpStatus.NOT_FOUND);
 		}
 		
-		/*
 		List<StoryTestElement> columnsContainingOldEntity = storyTestElementRepository.getByTestEntity(testEntity);
-		Map<String, List<StoryTestElement>> groupedColumns = new HashMap<String, List<StoryTestElement>>();
 		
 		for(StoryTestElement ste : columnsContainingOldEntity) {
-			ste.setEntityName(updatedTestEntity.getEntityName());
+			ste.setEntityName(newEntityName);
 			storyTestElementRepository.save(ste);
-			
-			// Update Objects by recreating them
-			// Group StoryTestElements to StoryTests and build objects for these story tests
-			// Objects have to be built only for the columns that contain this entity
-			// The rest of the columns in a StoryTest don't need a change
-			if(groupedColumns.containsKey(ste.getStoryTest().getTestName())) {
-				List<StoryTestElement> currentList = groupedColumns.get(ste.getStoryTest().getTestName());
-				currentList.add(ste);
-				groupedColumns.put(ste.getStoryTest().getTestName(), currentList);
-			} else {
-				List<StoryTestElement> newList = new ArrayList<StoryTestElement>();
-				newList.add(ste);
-				groupedColumns.put(ste.getStoryTest().getTestName(), newList);
-			}
 		}
 		
-		// Delete old TestObjects
-		testEntity.clearObjectsContainingEntity();
-		List<TestObject> oldObjectsForEntity = testObjectRepository.findByEntityType(testEntity);
-		for(TestObject to : oldObjectsForEntity) {
-			testObjectRepository.delete(to);
-		}
-				
-		*/
-		testEntity.setEntityName(updatedTestEntity.getEntityName());
-		//testEntity.clearTestEntityAttributes();
-		//updatedTestEntity.getTestEntityAttributes().forEach(testEntity.getTestEntityAttributes()::add);
+		testEntity.setEntityName(newEntityName);
 		
 		testEntityRepository.save(testEntity);
 		
-		// Create the new objects
-		/*
-		for(Map.Entry<String, List<StoryTestElement>> entry : groupedColumns.entrySet()) {
-			
-			StoryTest current = storyTestRepository.findByTestName(entry.getKey());
-			buildObjectsForStoryTest(current);
-		}
-		*/
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 	
 	
+	@RequestMapping(value = "/update/attribute/{entityName}/{oldAttributeName}/{updatedAttributeName}", method = RequestMethod.PUT)
+	public ResponseEntity<?> updateTestEntityAttribute(@PathVariable("entityName") String entityName, 
+			@PathVariable("oldAttributeName") String oldAttributeName, @PathVariable("updatedAttributeName") String updatedAttributeName) {
+		
+		if( (entityName == null) || (entityName.isEmpty()) || (entityName.trim().length() == 0) ) {
+			return new ResponseEntity<>(new CustomErrorType("Invalid Entity Name"), HttpStatus.NOT_FOUND);
+		}
+		
+		if( (oldAttributeName == null) || (oldAttributeName.isEmpty()) || (oldAttributeName.trim().length() == 0) ) {
+			return new ResponseEntity<>(new CustomErrorType("Invalid Attribute"), HttpStatus.NOT_FOUND);
+		}
+		
+		if( (updatedAttributeName == null) || (updatedAttributeName.isEmpty()) || (updatedAttributeName.trim().length() == 0) ) {
+			return new ResponseEntity<>(new CustomErrorType("Invalid Attribute"), HttpStatus.NOT_FOUND);
+		}
+		
+		TestEntity testEntity = testEntityRepository.findByEntityName(entityName);
+		
+		if (testEntity == null) {
+			return new ResponseEntity<>(new CustomErrorType("TestEntity with name " + entityName
+					+ " not found"), HttpStatus.NOT_FOUND);
+		}
+		
+		List<StoryTestElement> columnsContainingOldEntity = storyTestElementRepository.getByTestEntityAndColumnName(testEntity, oldAttributeName);
+		
+		for(StoryTestElement ste : columnsContainingOldEntity) {
+			ste.setColumnName(updatedAttributeName);
+			storyTestElementRepository.save(ste);
+		}
+		
+		testEntity.removeTestEntityAttribute(oldAttributeName);
+		testEntity.addTestEntityAttribute(updatedAttributeName);
+		
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
 
+	
 	@RequestMapping(value = "update/by-id/{id}", method = RequestMethod.PUT)
 	public ResponseEntity<?> updateTestEntity(@PathVariable("id") long id, @RequestBody TestEntity updatedTestEntity) {
 		
@@ -436,14 +438,14 @@ public class TestEntityController {
 					+ entityName + " doesn't have attribute " + attribute + "."), HttpStatus.NOT_FOUND);
 		}
 		
-		List<StoryTestElement> columnsContainingEntity = storyTestElementRepository.getByTestEntity(testEntity);
+		List<StoryTestElement> columnsContainingEntity = storyTestElementRepository.getByTestEntityAndColumnName(testEntity, attribute);
 		
 		for(StoryTestElement ste : columnsContainingEntity) {
 			
-			if(ste.getColumnName().equals(attribute)) {
+			//if(ste.getColumnName().equals(attribute)) {
 				testEntity.removeColumnsContainingEntity(ste);
-				//storyTestElementRepository.delete(ste);
-			}
+				storyTestElementRepository.delete(ste);
+			//}
 		}
 		
 		List<TestObject> objectsContainingEntity = testObjectRepository.findByEntityType(testEntity);
