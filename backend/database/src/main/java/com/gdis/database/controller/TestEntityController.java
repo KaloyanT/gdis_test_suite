@@ -338,14 +338,29 @@ public class TestEntityController {
 		}
 		
 		List<StoryTestElement> columnsContainingOldEntity = storyTestElementRepository.getByTestEntityAndColumnName(testEntity, oldAttributeName);
-		
+			
 		for(StoryTestElement ste : columnsContainingOldEntity) {
 			ste.setColumnName(updatedAttributeName);
 			storyTestElementRepository.save(ste);
 		}
 		
+		// Update Objects
+		List<TestObject> objectsForEntity = testObjectRepository.findByEntityType(testEntity);
+		for(TestObject to : objectsForEntity) {
+			
+			if(to.getObjectAttributes().containsKey(oldAttributeName)) {
+				String value = to.getObjectAttributes().get(oldAttributeName);
+				to.getObjectAttributes().remove(oldAttributeName);
+				to.getObjectAttributes().put(updatedAttributeName, value);
+				testObjectRepository.save(to);
+			}
+		}
+		
+		
 		testEntity.removeTestEntityAttribute(oldAttributeName);
 		testEntity.addTestEntityAttribute(updatedAttributeName);
+		
+		testEntityRepository.save(testEntity);
 		
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
