@@ -35,16 +35,12 @@ public class StoryTestElement {
 	@JoinColumn(name = "story_test_storyTestID")
 	private StoryTest storyTest;
 
-	//@JsonProperty(value = "testEntity")
-	//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "entityName", scope = TestEntity.class)
-	//@JsonIdentityReference(alwaysAsId = true) 
-	//@JsonUnwrapped
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "test_entity_testEntityID")
 	@JsonIgnore
 	private TestEntity testEntity;
 	
-	// Use this only to make the Incoming JSON simpler. Just Find the TestEntity with the given name here during import
+	// Use this only to make the Incoming JSON simpler. Just Find the TestEntity with the given name during import
 	@Basic(optional = false)
 	private String entityName;
 	
@@ -87,34 +83,6 @@ public class StoryTestElement {
 		this.columnName = columnName;
 	}
 
-	/*
-	 * Make the JSON Look like this: 
-	 * "testName": "...", 
-	 * "storyName": "...",
-	 * "data": [
-	 * 		{
-	 * 			"columnName": "...",
-	 * 			"testEntity": "...",
-	 * 			"attributes": ["..."]
-	 * 		}
-	 * ]
-	 * 
-	 * And not like this: 
-	 * "testName": "...", 
-	 * "storyName": "...",
-	 * "data": [
-	 * 		{
-	 * 			"columnName": "...",
-	 * 			"testEntity": {"entityName": "..."},
-	 * 			"attributes": ["..."]
-	 * 		}
-	 * ]
-	 * Note that the second version still works
-	 */
-	//@JsonProperty(value = "testEntity")
-	//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "entityName", scope = TestEntity.class)
-	//@JsonIdentityReference(alwaysAsId = true) 
-	// @JsonIgnore
 	public TestEntity getTestEntity() {
 		return testEntity;
 	}

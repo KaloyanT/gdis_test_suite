@@ -18,47 +18,175 @@ tags:
 schemes:
   - http
 paths:
-  '/exporter/e/{storyType}/all':
+  /exporter/e/entities:
     get:
       tags:
         - exporter
-      summary: Returns all tests for this storyType (only basicStoryTest currently)
-      description: Basically returns all existing tests for this storyType
-      operationId: getAllTestsByStoryType
+      summary: Return all entities
+      description: Exports all existing entities
+      operationId: getEntities
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Export a list with all entities
+          schema:
+            $ref: '#/definitions/EntityExportModel'
+        '500':
+          description: Internal server error.
+  '/exporter/e/entities/by-name/{entityName}':
+    get:
+      tags:
+        - exporter
+      summary: Return the entity with the given name.
+      operationId: getEntityByName
       produces:
         - application/json
       parameters:
-        - name: storyType
+        - name: entityName
           in: path
-          description: The storyType of the tests which have to be exported
+          description: The name of the entity which has to be exported
           required: true
           type: string
       responses:
         '200':
-          description: Returns a list with all the tests with this storyType. Can be empty.
+          description: Export the entity with the given name
           schema:
-            $ref: '#/definitions/JSONResponse'
+            $ref: '#/definitions/EntityExportModel'
+        '400':
+          description: The entity name is null or empty.
         '500':
-          description: Internal server error. Can't connect to the database or similar
-  '/exporter/e/{storyType}/by-story-name/{storyName}':
+          description: Internal server error.
+  /exporter/e/entities/as-mappings:
     get:
       tags:
         - exporter
-      summary: >-
-        Returns all tests for this storyType (only basicStoryTest currently) and
-        with this storyName
+      summary: Return the entity with the given name.
       description: >-
-        Basically returns all existing tests for this storyType with this
-        storyName
+        After we have the entities like they are saved in the database, i.e.
+        with entityName and a List of attributes, turn them into
+        entityName.attribute form
+      operationId: getEntitiesAsMapping
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Export the entity as a maapping.
+        '500':
+          description: Internal server error.
+  /exporter/e/stories:
+    get:
+      tags:
+        - exporter
+      summary: Return all the stories with all of their details
+      description: Exports all existing stories
+      operationId: getStories
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Export a list with all stories
+          schema:
+            $ref: '#/definitions/StoryExportModel'
+        '500':
+          description: Internal server error.
+  /exporter/e/stories/list:
+    get:
+      tags:
+        - exporter
+      summary: Return a simple list with the names of all Stories
+      description: Exports a simple list with the names of all Stories
+      operationId: getStoriesList
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Export a list with all stories
+        '500':
+          description: Internal server error.
+  '/exporter/e/stories/by-story-name/{storyName}':
+    get:
+      tags:
+        - exporter
+      summary: Return the story with the given name.
+      operationId: getStoryByStoryName
+      produces:
+        - application/json
+      parameters:
+        - name: storyName
+          in: path
+          description: The name of the story which has to be exported
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Export the stoty with the given name
+          schema:
+            $ref: '#/definitions/StoryExportModel'
+        '400':
+          description: The story name is null or empty.
+        '500':
+          description: Internal server error.
+  /exporter/e/storyTests/all:
+    get:
+      tags:
+        - exporter
+      summary: Return all tests by the story type
+      operationId: getAllTestsByStoryType
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Return all tests
+          schema:
+            $ref: '#/definitions/StoryTestExportModel'
+        '500':
+          description: Internal server error.
+  /exporter/e/storyTests/all/export:
+    get:
+      tags:
+        - exporter
+      summary: Return all tests by the story type for export
+      operationId: getAllTestsByStoryTypeForExport
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Export all tests
+        '500':
+          description: Internal server error.
+  '/exporter/e/storyTests/by-story-name/{storyName}':
+    get:
+      tags:
+        - exporter
+      summary: 'Return all tests with the given story name '
       operationId: getTestsByStoryName
       produces:
         - application/json
       parameters:
-        - name: storyType
+        - name: storyName
           in: path
-          description: The storyType of the tests which have to be exported
+          description: The storyName of the tests which have to be returned
           required: true
           type: string
+      responses:
+        '200':
+          description: Return the tests with this story name.
+        '404':
+          description: StoryName is empty or null.
+          schema:
+            $ref: '#/definitions/StoryTestExportModel'
+        '500':
+          description: Internal server error. Can't connect to the database or similar
+  '/exporter/e/storyTests/by-story-name/{storyName}/export':
+    get:
+      tags:
+        - exporter
+      summary: Return all tests with the given story name to export
+      operationId: getTestsByStoryNameForExport
+      produces:
+        - application/json
+      parameters:
         - name: storyName
           in: path
           description: The storyName of the tests which have to be exported
@@ -66,66 +194,148 @@ paths:
           type: string
       responses:
         '200':
-          description: >-
-            Returns a list with all the tests with this storyType and storyName.
-            Can be empty.
-          schema:
-            $ref: '#/definitions/JSONResponse'
+          description: Export the tests with this name.
+        '404':
+          description: StoryName is empty or null.
         '500':
           description: Internal server error. Can't connect to the database or similar
-  '/exporter/e/{storyType}/by-test-name/{testName}':
+  '/exporter/e//storyTests/by-test-name/{testName}':
     get:
       tags:
         - exporter
-      summary: >-
-        Returns the test for this storyType (only basicStoryTest currently) and
-        with this testName
-      description: Basically returns the test for this storyType with this testName
+      summary: 'Return the test with the given name '
       operationId: getTestsByTestName
       produces:
         - application/json
       parameters:
-        - name: storyType
-          in: path
-          description: The storyType of the tests which have to be exported
-          required: true
-          type: string
         - name: testName
           in: path
-          description: The testName of the test which has to be exported
+          description: The test mame of the test which have to be returned
           required: true
           type: string
       responses:
         '200':
-          description: >-
-            Returns a list which cointains a single element - the test with this
-            storyType and storyName. The list can also be empty.
+          description: Return the test with this name.
+        '404':
+          description: TestName is empty or null.
           schema:
-            $ref: '#/definitions/JSONResponse'
+            $ref: '#/definitions/StoryTestExportModel'
+        '500':
+          description: Internal server error. Can't connect to the database or similar
+  '/exporter/e/storyTests/by-test-name/{testName}/export':
+    get:
+      tags:
+        - exporter
+      summary: Return the test with the given name to export
+      operationId: getTestsByTestNameForExport
+      produces:
+        - application/json
+      parameters:
+        - name: testName
+          in: path
+          description: The test name of the test which have to be exported
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Export the test with this name.
+        '404':
+          description: EntityName is empty or null.
+        '500':
+          description: Internal server error. Can't connect to the database or similar
+  '/exporter/e/storyTests/by-entity-name/{entityName}':
+    get:
+      tags:
+        - exporter
+      summary: 'Return the test which contain the given entity '
+      operationId: getTestsByEntityName
+      produces:
+        - application/json
+      parameters:
+        - name: entityName
+          in: path
+          description: The entity name of the test which have to be exported
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Export the test with this entity name.
+        '404':
+          description: EntityName is empty or null.
+        '500':
+          description: Internal server error. Can't connect to the database or similar
+  /exporter/e/objects:
+    get:
+      tags:
+        - exporter
+      summary: Return all test objects
+      operationId: getObjects
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Export all test objects
+        '500':
+          description: Internal server error.
+  '/exporter/e/objects/by-entity-type/{entityType}':
+    get:
+      tags:
+        - exporter
+      summary: Return the object with the given entity type
+      operationId: getObjectsByEntityType
+      produces:
+        - application/json
+      parameters:
+        - name: entityType
+          in: path
+          description: The entity type of the object which have to be exported
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Export the object with this entity type.
+        '404':
+          description: EntityType is empty or null.
         '500':
           description: Internal server error. Can't connect to the database or similar
 definitions:
-  JSONResponse:
+  EntityExportModel:
     type: object
     properties:
-      basicStoryTestID:
+      entityName:
+        type: string
+        description: The name under which the entity is saved in the database
+      testEntityAttributes:
+        type: array
+        items:
+          type: string
+  StoryExportModel:
+    type: object
+    properties:
+      ID:
         type: integer
         format: int64
-        description: >-
-          The ID under which the test is saved in the database. The ID shouldn't
-          be presented to the user. It should be used only with the Importer for
-          update and delete request
+        description: 'The ID under which the story is saved in the database. '
+      storyName:
+        type: string
+        description: The name under which the story is saved in the database
+      description:
+        type: string
+      scenarios:
+        type: array
+        items:
+          type: string
+  StoryTestExportModel:
+    type: object
+    properties:
+      storyTestID:
+        type: integer
+        format: int64
       testName:
         type: string
         description: The name under which the test is saved in the database
-      storyType:
-        type: string
-        description: The storyType (only basicStoryType currenly) of the test
       storyName:
         type: string
-        description: The storyName of the test
-      testData:
+        description: The name under which the story is saved in the database
+      data:
         type: array
-        description: >-
-          The actual test data. The data actually represents the rows of the
-          tables from the Front End.

@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   description: >-
-    These APIs are used to interact with the Importer and to import, modify and
+    These APIs are used to interact with the Importer and to import, modify and 
     delete tests to/from the database.
   version: 1.0.0
   title: Importer
@@ -18,13 +18,165 @@ tags:
 schemes:
   - http
 paths:
+  /importer/i/entity:
+    post:
+      tags:
+        - importer
+      summary: Import a new entity to the database
+      description: Import a new entity to the database
+      operationId: handleEntityImportRequest
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: >-
+            The new entity with all of its data that has to be saved in the 
+            database
+          required: true
+          schema:
+            $ref: '#/definitions/EntityImportModel'
+      responses:
+        '400':
+          description: Entity is corrupted or incomplete
+        '500':
+          description: Internal server error. Can't connect to the database or similar
+  /importer/u/entity/attributes:
+    put:
+      tags:
+        - importer
+      summary: Update the entity in the database
+      operationId: handleEntityAttributeImportRequest
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: The updated entity
+          required: true
+          schema:
+            $ref: '#/definitions/EntityImportModel'
+      responses:
+        '400':
+          description: >-
+            Updated entity is null. Should not be returned, since the test data
+            is checked before it is send to the database
+        '500':
+          description: Internal server error. Can't connect to the database or similar
+  '/importer/u/entity/{entityName}':
+    put:
+      tags:
+        - importer
+      summary: Update the entity with the given name in the database
+      operationId: handleEntityUpdateRequest
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: The updated entity
+          required: true
+          schema:
+            $ref: '#/definitions/EntityImportModel'
+        - name: entityName
+          in: path
+          description: The name of the entity which has to be updated
+          required: true
+          type: string
+      responses:
+        '400':
+          description: Updated entity is null or entityName is null.
+        '500':
+          description: Internal server error. Can't connect to the database or similar
+  '/importer/d/entity/{entityName}':
+    delete:
+      tags:
+        - importer
+      summary: Delete the entity with the given name from the database
+      operationId: handleEntityDeleteRequest
+      parameters:
+        - name: entityName
+          in: path
+          description: The name of the entity which has to be deleted
+          required: true
+          type: string
+      responses:
+        '400':
+          description: EntityName is null or empty.
+        '500':
+          description: Internal server error. Can't connect to the database or similar
+  /importer/i/story:
+    post:
+      tags:
+        - importer
+      summary: Import a new story to the database
+      description: Import a new story to the database
+      operationId: handleStoryImportRequest
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: >-
+            The new story with all of its data that has to be saved in the 
+            database
+          required: true
+          schema:
+            $ref: '#/definitions/StoryImportModel'
+      responses:
+        '400':
+          description: Story is corrupted or incomplete
+        '500':
+          description: Internal server error. Can't connect to the database or similar
+  '/importer/u/story/{storyName}':
+    put:
+      tags:
+        - importer
+      summary: Update the story with the given name in the database
+      operationId: handleStoryUpdateRequest
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: The updated story
+          required: true
+          schema:
+            $ref: '#/definitions/StoryImportModel'
+        - name: storyName
+          in: path
+          description: The name of the story which has to be updated
+          required: true
+          type: string
+      responses:
+        '400':
+          description: Updated story is null or storyName is null.
+        '500':
+          description: Internal server error. Can't connect to the database or similar
+  '/importer/d/story/{storyName}':
+    delete:
+      tags:
+        - importer
+      summary: Delete the entity with the given name from the database
+      operationId: handleStoryDeleteRequest
+      parameters:
+        - name: storyName
+          in: path
+          description: The name of the story which has to be deleted
+          required: true
+          type: string
+      responses:
+        '400':
+          description: StoryName is null or empty.
+        '500':
+          description: Internal server error. Can't connect to the database or similar
   /importer/i/test-case:
     post:
       tags:
         - importer
       summary: Import a new test to the database
       description: Import a new test to the database
-      operationId: handleImportRequest
+      operationId: handleStoryTestImportRequest
       consumes:
         - application/json
       parameters:
@@ -35,22 +187,20 @@ paths:
             database
           required: true
           schema:
-            $ref: '#/definitions/JSONWrapper'
+            $ref: '#/definitions/StoryTestImportModel'
       responses:
-        '200':
-          description: Test successfully imported
         '400':
           description: Test data is corrupted or incomplete
-        '409':
-          description: A test with the same name already exists
+        '404':
+          description: The test is not found
         '500':
           description: Internal server error. Can't connect to the database or similar
-  '/importer/u/test-case/{id}':
+  '/importer/u/test-case/{testName}':
     put:
       tags:
         - importer
-      summary: Update a test case in the database
-      operationId: handleUpdateRequest
+      summary: Update a test with the given name in the database
+      operationId: handleStoryTestUpdateRequest
       consumes:
         - application/json
       parameters:
@@ -59,62 +209,78 @@ paths:
           description: The updated test with all of its updated test data
           required: true
           schema:
-            $ref: '#/definitions/JSONWrapper'
-        - name: id
+            $ref: '#/definitions/StoryTestImportModel'
+        - name: testName
           in: path
-          description: The ID of the test which has to be updated
+          description: The name of the test which has to be updated
           required: true
-          type: integer
-          format: int64
+          type: string
       responses:
-        '200':
-          description: Test successfully updated
         '400':
           description: >-
             Updated Test Data is null. Should not be returned, since the test
             data is checked before it is send to the database
         '404':
-          description: A Test with this id doesn't exist
-        '409':
-          description: A Test with this updated name already exists
-  '/importer/d/test-case/{storyType}/{id}':
+          description: A Test with this name doesn't exist
+        '500':
+          description: Internal server error. Can't connect to the database or similar
+  '/importer/d/test-case/{testName}':
     delete:
       tags:
         - importer
-      summary: Delete a the test case with the given ID from the database
+      summary: Delete a the test case with the given name from the database
       operationId: handleDeleteRequest
       parameters:
-        - name: storyType
+        - name: testName
           in: path
-          description: The storyType of the test which has to be delete
+          description: The name of the test which has to be delete
           required: true
           type: string
-        - name: id
-          in: path
-          description: The ID of the test which has to be delete
-          required: true
-          type: integer
-          format: int64
       responses:
-        '200':
-          description: Test successfully deleted
-        '404':
-          description: A Test with this id doesn't exist
+        '400':
+          description: TestyName is null or empty.
+        '500':
+          description: Internal server error. Can't connect to the database or similar
 definitions:
-  JSONWrapper:
+  EntityImportModel:
+    type: object
+    properties:
+      entityName:
+        type: string
+        description: The name under which the entity will be saved in the database
+      testEntityAttributes:
+        type: array
+        items:
+          type: string
+  StoryImportModel:
+    type: object
+    properties:
+      storyName:
+        type: string
+        description: The name under which the story will be saved in the database
+      description:
+        type: string
+      scenarios:
+        type: array
+        items:
+          type: string
+  StoryTestImportModel:
     type: object
     properties:
       testName:
         type: string
         description: The name under which the test will be saved in the database
-      storyType:
-        type: string
-        description: The storyType (only basicStoryType currenly) of the new test
       storyName:
         type: string
-        description: The storyName of the new test
-      testData:
+        description: The name under which the story will be saved in the database
+      mappings:
+        type: object
+        additionalProperties:
+          type: array
+          items:
+            type: string
+      data:
         type: array
-        description: >-
-          The actual test data. The data actually represents the rows of the
-          tables from the Front End.
+        items:
+          type: string
+

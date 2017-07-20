@@ -127,7 +127,7 @@ public class ExportStoryTestRequestController {
 	}
 	
 	
-	@RequestMapping(value = "/storyTests/by-test-name/{entityName}", method = RequestMethod.GET)
+	@RequestMapping(value = "/storyTests/by-entity-name/{entityName}", method = RequestMethod.GET)
 	public ResponseEntity<?> getTestsByEntityName(@PathVariable("entityName") String entityName) {
 		
 		List<ObjectNode> response = dbClient.exportStoryTestFromDBByEntityName(entityName);
