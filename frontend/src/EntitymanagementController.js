@@ -49,17 +49,18 @@ angular.module('gdisApp').controller('EntitymanagementController', function($sco
 
         let promises = [];
         $scope.availEntities.forEach(function(ent){
-            promises.push($http.get(`http://localhost:8082/exporter/e/objects/by-entity-type/${ent.Name}`)
+            promises.push($http.get(`http://localhost:40042/entity/count/${ent.Name}`)
                 .then(function(res) {
                     if(res){
+                        ent.Instances = res.data;
                         console.log(res);
                     }
             }))
         })
         
         Promise.all(promises).then(function() {
-
-          console.log('Done with promises!');
+            console.log($scope.availEntities);
+            console.log('Done with promises!');
 
         })
 

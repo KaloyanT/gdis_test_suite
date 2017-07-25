@@ -2,6 +2,7 @@ from flask_restful import Resource, request
 from flask import jsonify, Response
 import requests
 import json
+import ast
 
 
 class EntitiesObject(Resource):
@@ -51,3 +52,10 @@ class EntityCreation(Resource):
             resp = Response(response=e, status=200)
             resp.headers['Access-Control-Allow-Origin'] = '*'
             return resp
+
+
+class EntityCount(Resource):
+
+    def get(self, entity):
+        data = ast.literal_eval(requests.get('http://exporter:8082/exporter/e/objects/by-entity-type/' + entity).text)
+        return Response(response=str(len(data)))
