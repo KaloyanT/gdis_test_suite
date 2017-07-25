@@ -20,13 +20,22 @@
         <p ng-show="entity.name">Entity <b>{{entity.name}}</b> soll folgenden Attribute haben:</p>
         <p ng-show="entity.name">(Groß und Kleinschreibung wichtig, mind. ein Attribut angeben!)</p>
         <div layout-gt-xs="row" ng-repeat="attr in getAttrSize() track by $index">
-          <md-input-container class="md-block" flex-gt-xs id="{{$index}}">
-            <label>Attribut {{$index + 1}}</label>
-            <input name="entityAttribute" ng-model="entity.attributes[$index]" value="{{attr}}" ng-required="$index == 0">
-            <div ng-if="$index == 0" ng-messages="entityForm.entityAttribute.$error" ng-show="entityForm.entityAttribute.$dirty">
-              <div ng-message="required">Muss eingeben werden!</div>
-            </div>
-          </md-input-container>
+          <div layout-gt-xs="column">
+            <md-input-container class="md-block" flex-gt-xs id="{{$index}}">
+              <label>Attribut {{$index + 1}}</label>
+              <input name="entityAttribute" ng-model="entity.attributes[$index]" ng-required="$index == 0">
+            </md-input-container>
+          </div>
+          <div layout-gt-xs="column">
+            <md-input-container class="md-block" flex-gt-xs id="{{$index}}">
+              <label>Attributtyp {{$index + 1}}</label>
+              <md-select name="entityAttributeMeta" ng-model="entity.meta[$index]" ng-required="entity.attributes[$index] != ''">
+                <md-option value="string">String</md-option>
+                <md-option value="location">Ort</md-option>
+                <md-option value="age">Alter</md-option>
+              </md-select>
+            </md-input-container>
+          </div>
         </div>
         <div>
           <md-button ng-click="cancel()">Abbrechen</md-button>

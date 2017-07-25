@@ -2,6 +2,10 @@ from flask_restful import Resource, request
 from flask import jsonify, Response
 import requests
 import json
+import ast
+from tinydb import TinyDB, where
+
+db = TinyDB('./db.json')
 
 
 class EntitiesObject(Resource):
@@ -31,6 +35,17 @@ class EntityCreation(Resource):
                     "newTestEntityAttributes": request.args.get('new_attributes').split(',')
                 }
             else:
+                ent_name = request.args.get('entity_name')
+                attr = request.args.get('attributes').split(',')
+                meta = request.args.get('metatypes').split(',')
+
+                for attr, meta in zip(attr, meta):
+                    db.insert({f'{ent_name}.{attr}': meta})
+
+                ret_arr = {
+                    "entityName": ent_name,
+                    "testEntityAttributes": attr
+                }
                 ret_arr = {
                     "entityName": request.args.get('entity_name'),
                     "testEntityAttributes": request.args.get('attributes').split(',')
@@ -51,3 +66,20 @@ class EntityCreation(Resource):
             resp = Response(response=e, status=200)
             resp.headers['Access-Control-Allow-Origin'] = '*'
             return resp
+
+
+class EntityCount(Resource):
+    def get(self, entity):
+        data = ast.literal_eval(requests.get('http://exporter:8082/exporter/e/objects/by-entity-type/' + entity).text)
+        return Response(response=str(len(data)))
+
+class EntityGetAll(Resource):
+    def get(self):
+        data = requests.get('http://exporter:8082/exporter/e/entities').text
+        return Response(response=data, mimetype='application/json')
+
+
+class EntityMeta(Resource):
+    def get(self, attribute):
+        res = db.search(where(attribute).exists())[0][attribute]
+        return Response(response=res)
