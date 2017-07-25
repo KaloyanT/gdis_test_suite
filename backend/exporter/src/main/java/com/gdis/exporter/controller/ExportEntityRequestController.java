@@ -73,4 +73,26 @@ public class ExportEntityRequestController {
 		
 		return new ResponseEntity<>(exportList, HttpStatus.OK);
 	}
+	
+	
+	@RequestMapping(value = "/entities/values-for-attribute/{entityName}/{attribute}", method = RequestMethod.GET)
+	public ResponseEntity<?> getValuesForEntityAttribute(@PathVariable("entityName") String entityName, 
+			@PathVariable("attribute") String attribute) {
+		
+		if( (entityName == null) || (entityName.isEmpty()) || (entityName.trim().length() == 0) ) {
+			return new ResponseEntity<>(new CustomErrorType("Invalid Entity Name to get"), HttpStatus.BAD_REQUEST);
+		}
+		
+		if( (attribute == null) || (attribute.isEmpty()) || (attribute.trim().length() == 0) ) {
+			return new ResponseEntity<>(new CustomErrorType("Invalid attribute to get"), HttpStatus.BAD_REQUEST);
+		}
+			
+		List<String> attributeValuesList = 	dbClient.exportValuesForEntityAttributeFromDB(entityName, attribute); 
+		
+		if(attributeValuesList == null) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+		return new ResponseEntity<>(attributeValuesList, HttpStatus.OK);
+	}
 }

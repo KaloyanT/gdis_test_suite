@@ -120,6 +120,42 @@ public class TestEntityController {
 	}
 	
 	
+	@RequestMapping(value = "/get/values-for-attribute/{entityName}/{attributeName}", method = RequestMethod.GET)
+	public ResponseEntity<?> getValuesForTestEntityAttribute(@PathVariable("entityName") String entityName, 
+			@PathVariable("attributeName") String attributeName) {
+		
+		if( (entityName == null) || (entityName.isEmpty()) || (entityName.trim().length() == 0) ) {
+			return new ResponseEntity<>(new CustomErrorType("Invalid Entity Name"), HttpStatus.NOT_FOUND);
+		}
+		
+		if( (attributeName == null) || (attributeName.isEmpty()) || (attributeName.trim().length() == 0) ) {
+			return new ResponseEntity<>(new CustomErrorType("Invalid Attribute Name"), HttpStatus.NOT_FOUND);
+		}
+		
+		TestEntity testEntity = testEntityRepository.findByEntityName(entityName);
+		
+		if (testEntity == null) {
+			return new ResponseEntity<>(new CustomErrorType("TestEntity with name " + entityName
+					+ " not found"), HttpStatus.NOT_FOUND);
+		}
+		
+		
+		List<TestObject> objectsContainingEntity = testObjectRepository.findByEntityType(testEntity);
+		
+		List<String> valuesForAttribute = new ArrayList<String>();
+		
+		for(TestObject to : objectsContainingEntity) {
+			
+			if(to.getObjectAttributes().containsKey(attributeName)) {
+				valuesForAttribute.add(to.getObjectAttributes().get(attributeName));
+			}
+		}
+		
+		return new ResponseEntity<>(valuesForAttribute, HttpStatus.OK);
+	}
+	
+	
+	
 	@RequestMapping(value = "/get/story-tests-containing-entity/{entityName}", method = RequestMethod.GET)
 	public ResponseEntity<?> getStoryTestsContainingEntity(@PathVariable("entityName") String entityName) {
 		

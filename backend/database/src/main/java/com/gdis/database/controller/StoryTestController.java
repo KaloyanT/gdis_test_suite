@@ -114,6 +114,25 @@ public class StoryTestController {
 	}
 	
 	
+	@RequestMapping(value = "/testNames", method = RequestMethod.GET)
+	public ResponseEntity<?> getTestNamesOfAllStoryTest() {
+		
+		Iterable<StoryTest> storyTestIterable = storyTestRepository.findAll();
+		
+		if(storyTestIterable == null) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+		
+		List<String> storyTestTestNameList = new ArrayList<String>();
+		
+		for(StoryTest st : storyTestIterable) {
+			storyTestTestNameList.add(st.getTestName());
+		}
+		
+		return new ResponseEntity<>(storyTestTestNameList, HttpStatus.OK);
+	}
+	
+	
 	@RequestMapping(value = "/get/{id}", method = RequestMethod.GET)
 	public ResponseEntity<?> getStoryTestByID(@PathVariable("id") long id) {
 		

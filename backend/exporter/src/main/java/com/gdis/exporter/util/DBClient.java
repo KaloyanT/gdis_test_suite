@@ -71,6 +71,40 @@ public class DBClient {
 	}
 	
 	
+	public List<String> exportTestNamesOfAllStoryTestsFromDB() {
+
+		if(getDATABASEAPI_URL() == null) {
+			return null;
+		}
+		
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+
+		RestTemplate restTemplate = new RestTemplate();
+		List<String> res = null;
+		
+		final String url = getDATABASEAPI_URL() + "/storyTest/testNames";
+		
+		ResponseEntity<String[]> response = null; 
+		
+		try {
+			response = restTemplate.getForEntity(url, String[].class);
+		} catch(HttpClientErrorException e) {
+			return new ArrayList<String>();
+		} catch (RestClientException re) {
+			// No DB Connection
+			return null;
+		}
+		
+		if(response != null) {
+			//System.out.println(response.toString());
+			res = new ArrayList<>(Arrays.asList(response.getBody()));
+		}
+		
+		return res;
+	}
+	
+	
 	public List<ObjectNode> exportAllStoryTestsFromDBForExport() {
 
 		if(getDATABASEAPI_URL() == null) {
@@ -341,6 +375,40 @@ public class DBClient {
 	}
 	
 	
+	public List<String> exportValuesForEntityAttributeFromDB(final String entityName, final String attribute) {
+		
+		if(getDATABASEAPI_URL() == null) {
+			return null;
+		}
+		
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
+
+		RestTemplate restTemplate = new RestTemplate();
+	
+		List<String> res = null;
+	
+		final String url = getDATABASEAPI_URL() + "/testEntity/get/values-for-attribute/" + entityName + "/" + attribute; 
+	
+		ResponseEntity<String[]> response = null; 
+		
+		try {
+			response = restTemplate.getForEntity(url, String[].class);
+		} catch(HttpClientErrorException e) {
+			return new ArrayList<String>();
+		} catch (RestClientException re) {
+			// No DB Connection
+			return null;
+		}
+		
+		if(response != null) {
+			res = new ArrayList<>(Arrays.asList(response.getBody()));
+		} 
+		
+		return res;		
+	}
+	
+	
 	
 	public List<ObjectNode> exportAllTestObjectsFromDB() {
 		
@@ -445,6 +513,7 @@ public class DBClient {
 		
 		return res;		
 	}
+	
 	
 	public List<String> exportListOfStoryNamesFromDB() {
 		

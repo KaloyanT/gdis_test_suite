@@ -50,6 +50,18 @@ public class ExportStoryTestRequestController {
 		}
 		
 		return new ResponseEntity<>(response, HttpStatus.OK);
+	}	
+	
+	@RequestMapping(value = "/storyTests/all/testNames", method = RequestMethod.GET)
+	public ResponseEntity<?> getTestNamesOfAllStoryTests() {
+		
+		List<String> response = dbClient.exportTestNamesOfAllStoryTestsFromDB();
+		
+		if(response == null) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 	
 	
@@ -126,7 +138,7 @@ public class ExportStoryTestRequestController {
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 	
-	
+		
 	@RequestMapping(value = "/storyTests/by-entity-name/{entityName}", method = RequestMethod.GET)
 	public ResponseEntity<?> getTestsByEntityName(@PathVariable("entityName") String entityName) {
 		
