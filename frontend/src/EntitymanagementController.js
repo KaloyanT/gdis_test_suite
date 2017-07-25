@@ -75,25 +75,26 @@ angular.module('gdisApp').controller('EntitymanagementController', function($sco
         } 
         $scope.entity = {
             'name': ex_entity.Name,
-            'attributes': ex_entity.Attributes
+            'attributes': ex_entity.Attributes,
+            'meta': []
         };
 
-        $scope.getAttrSize = function(ev) {
-            var items = [];
+        if($scope.entity.attributes.length == 0){
+            $scope.entity.attributes = [''];
+        }
 
-            for (var i = 0; i < $scope.entity.attributes.length + 1; i++) { 
-                let value = $scope.entity.attributes[i];
-                if(value && value != ''){
-                    items.push($scope.entity.attributes[i]);
-                } else if (value == '') {
+        $scope.getAttrSize = function(ev) {
+            for (var i = 0; i < $scope.entity.attributes.length; i++) { 
+                if($scope.entity.attributes[i] == ''){
                     $scope.entity.attributes.splice(i, 1);
                 }
             } 
-            $scope.entity.attributes = items;
-            items.push('');
+            if($scope.entity.attributes[$scope.entity.attributes.length - 1] != ''){
+                $scope.entity.attributes.push('');
+            }
 
-            return items;
-        }        
+            return $scope.entity.attributes;
+        }
 
         $scope.cancel = function() {
             $mdDialog.cancel();
@@ -105,7 +106,8 @@ angular.module('gdisApp').controller('EntitymanagementController', function($sco
 
             let name = $scope.entity.name;
             let attributes = $scope.entity.attributes.filter(function(attr){return (attr && attr != '');});
-            $mdDialog.hide({'old_name': old_name, 'old_attributes': old_attributes, 'new_name': name, 'new_attributes': attributes, 'updated': $scope.update});
+            let new_meta = $scope.entity.meta;
+            $mdDialog.hide({'old_name': old_name, 'old_attributes': old_attributes, 'new_name': name, 'new_attributes': attributes, 'updated': $scope.update, 'new_meta': new_meta});
         };
 
 
@@ -145,10 +147,12 @@ angular.module('gdisApp').controller('EntitymanagementController', function($sco
         if(update){
             let old_data_attr = updated_ent.old_attributes.toString();
             let new_data_attr = updated_ent.new_attributes.toString();
+
             req_url = req_url + `?old_entity_name=${updated_ent.old_name}&old_attributes=${old_data_attr}&new_entity_name=${updated_ent.new_name}&new_attributes=${new_data_attr}&update=${update}`;
         } else {
             let data_attr = updated_ent.new_attributes.toString();
-            req_url = req_url + `?entity_name=${updated_ent.new_name}&attributes=${data_attr}&update=${update}`;
+            let meta = updated_ent.new_meta.toString();
+            req_url = req_url + `?entity_name=${updated_ent.new_name}&attributes=${data_attr}&metatypes=${meta}&update=${update}`;
         }
         console.log(req_url);
         let data = null;

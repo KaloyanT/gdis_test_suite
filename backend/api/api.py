@@ -23,9 +23,12 @@ api.add_resource(record_csv.RecordCsv, '/record/csv')
 api.add_resource(entities.EntitiesObject, '/entities/object')
 api.add_resource(entities.EntitiesMapping, '/entities/mapping')
 api.add_resource(entities.EntityCreation, '/entity')
+api.add_resource(entities.EntityMeta, '/entity/m/<attribute>')
 api.add_resource(entities.EntityCount, '/entity/count/<entity>')
+api.add_resource(entities.EntityGetAll, '/entity/get/all')
 api.add_resource(stories.DefaultStory, '/stories/default')
 api.add_resource(stories.ExportStories, '/stories/list')
+api.add_resource(stories.ExportTestNames, '/stories/testnames')
 api.add_resource(stories.ImportStory, '/story')
 
 if __name__ == '__main__':

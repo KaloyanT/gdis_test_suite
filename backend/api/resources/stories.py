@@ -1,3 +1,4 @@
+import ast
 import io
 import csv
 import json
@@ -35,6 +36,14 @@ class ExportStories(Resource):
     def get(self):
         data = requests.get('http://exporter:8082/exporter/e/stories/list').text
         return Response(response=data, mimetype='application/json')
+
+
+class ExportTestNames(Resource):
+
+    def get(self):
+        data = [test.get('testName')
+                for test in ast.literal_eval(requests.get('http://exporter:8082/exporter/e/storyTest/all').text)]
+        return Response(response=json.dumps(data), mimetype='application/json')
 
 
 class ImportStory(Resource):

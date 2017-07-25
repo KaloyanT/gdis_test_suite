@@ -2,7 +2,7 @@
 
 <md-content layout="row" layout-fill layout>
 
-    <md-card  flex="50">
+    <md-card  flex="40">
         <img ng-src="{{imagePath}}" class="md-card-image" alt="Washed Out" style="height: 50%;width: auto;">
         <md-card-title>
             <md-card-title-text>
@@ -16,15 +16,12 @@
           <p>
             Sie können entweder eine zu exportierende Story auswählen, zu der dann alle passenden Daten exportiert werden, oder aber ein paar Entitys auswählen, zu denen dann entweder passende Storys gefunden werden, oder aber nur die Entitäten als Daten exportiert werden.
           </p>
-          <p>
-            ToDo: Export Endpunkte im Backend einbinden...
-          </p>
         </md-card-content>
       </md-card>
 
 <md-divider></md-divider>
 
-     <md-card flex="50" layout-fill>
+     <md-card flex="60" layout-fill>
     <md-toolbar layout="row" style="background:#C11E0D;">
       <div class="md-toolbar-tools">
         <span>Exports</span>
@@ -34,13 +31,34 @@
         <md-subheader class="md-no-sticky">
           <p>Vorhandene Exports</p>
         </md-subheader>
-        <md-list-item class="md-2-line" ng-repeat="export in exportWays" ng-click="">
-          <img ng-src="imgs/favicon.ico" class="md-avatar" alt="" />
-          <div class="md-list-item-text" layout="column">
-            <h3>{{ export.way }}</h3>
-            <p>{{ export.url }}</p>
+        <md-card-content>
+        <div layout="row" ng-repeat="export in exportWays track by $index">
+          <div layout="column" flex="grow">
+            <md-list-item>
+              <img ng-src="imgs/favicon.ico" class="md-avatar" alt="" />
+              <div class="md-list-item-text" layout="column">
+                <h3>{{ export.way }}</h3>
+                <p>{{ export.url }}</p>
+              </div>
+            </md-list-item>
           </div>
-        </md-list-item>
+          <div layout="column" flex="nogrow" ng-if="export.ident != 'custom'">
+            <md-input-container>
+              <label>{{export.ident}}</label>
+              <md-select ng-model="export.selected" required>
+                <md-option ng-value="sel" ng-repeat="sel in getList(export.select)" ng-selected="$index == 0">{{ sel }}</md-option>
+              </md-select>
+            </md-input-container>
+          </div>
+          <md-divider></md-divider>
+          <div layout="column" flex="nogrow">
+            <md-list-item>
+                <md-button class="md-raised md-primary" ng-href="{{export.url + export.selected}}" target="_blank" ng-if="export.ident != 'custom'">Export</md-button>
+                <md-button class="md-raised md-primary" ng-click="customExport()" ng-if="export.ident == 'custom'">Export</md-button>
+            </md-list-item>
+          </div>
+        </div>
+        </md-card-content>
       </md-list>
     </md-card>
 </md-content>
@@ -62,48 +80,3 @@
             Alert
         </md-button>
     </span>
-
-
-<!-- <div class="jumbotron text-center">
-    <h1>GDIS Export</h1>
-
-    <p>{{ message }}</p>
-    <div class="row">
-        <br />
-    </div>
-    <div class="row">
-        <div class="col-sm-3">
-        	<p>Bitte Storyname auswählen.</p>
-        </div>
-        <div class="input-group col-sm-6">
-		<select ng-model="item" ng-options="item as item for item in storyNames">
- 		</select>
-        </div>
-        <div class="col-sm-3">
-            <p style="float: left"><b>Auswahl</b></p>
-        </div>
-        <div class="col-sm-3">
-            <button class="btn btn-primary" ng-click="upload()" style="float: left;">Import</button>
-        </div>
-    </div>
-    <div class="row">
-        <br />
-    </div>
-    <span ng-show="item.length > 0">
-    <div class="row">
-        <div class="col-sm-9">
-        	<p><b>Placeholder Storydaten Table :(</b></p>
-            <table class="table table-hover">
-
-            </table>
-        </div>
-        <div class="col-sm-3">
-        	<p style="float: left"><b>Storydaten Ausgabe</b></p>
-        </div>
-    </div>
-    </span>
-    <div class="row">
-    </div>
-    <div class="row">
-    </div>
-</div> -->
