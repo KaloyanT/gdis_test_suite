@@ -58,71 +58,42 @@ public class EntityRequestController {
 	}
 	
 	
-	@RequestMapping(value = "/u/entity/attributes", method = RequestMethod.PUT, consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE})		
-	public ResponseEntity<?> handleEntityAttributeImportRequest(@RequestBody EntityImportModel updatedEntity) {	
+	@RequestMapping(value = "/u/entity/entit-name/{entityName}/{newEntityName}", method = RequestMethod.PUT, consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE})		
+	public ResponseEntity<?> handleEntityNameUpdateRequest(@PathVariable("entityName") String entityName, @PathVariable("newEntityName") String newEntityName) {	
 		
-		if(updatedEntity == null) {
-			return new ResponseEntity<>(new CustomErrorType("Invalid Entity JSON"), HttpStatus.BAD_REQUEST);
-		}
-		
-		if( (updatedEntity.getEntityName() == null) || (updatedEntity.getEntityName().isEmpty()) || (updatedEntity.getEntityName().trim().length() == 0) ) {
-			return new ResponseEntity<>(new CustomErrorType("Invalid EntityName"), HttpStatus.BAD_REQUEST);
-		}
-		
-		if( (updatedEntity.getTestEntityAttributes() == null) || (updatedEntity.getTestEntityAttributes().isEmpty()) ) {
-			return new ResponseEntity<>(new CustomErrorType("Invalid Attributes for Entity"), HttpStatus.BAD_REQUEST);
-		}
-		
-		ObjectMapper objectMapper = new ObjectMapper();
-		ObjectNode json = objectMapper.createObjectNode();
-		ArrayNode testEntityAttributes = objectMapper.createArrayNode();
-		
-		updatedEntity.getTestEntityAttributes().forEach(testEntityAttributes::add);
-		
-		json.put("entityName", updatedEntity.getEntityName());
-		json.putArray("testEntityAttributes").addAll(testEntityAttributes);
-		
-		ResponseEntity<String> dbClientResponse = 
-				dbClient.imporTestEntityAttributesInDB(updatedEntity.getEntityName(), json);
-		
-		if(dbClientResponse == null) {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-		
-		return dbClientResponse;
-	}
-	
-	
-	@RequestMapping(value = "/u/entity/{entityName}", method = RequestMethod.PUT, consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE})		
-	public ResponseEntity<?> handleEntityUpdateRequest(@PathVariable("entityName") String entityName, 
-			@RequestBody EntityImportModel updatedEntity) {	
-		
-		if(updatedEntity == null) {
-			return new ResponseEntity<>(new CustomErrorType("Invalid Entity JSON"), HttpStatus.BAD_REQUEST);
-		}
-		
-		if( (updatedEntity.getEntityName() == null) || (updatedEntity.getEntityName().isEmpty()) || (updatedEntity.getEntityName().trim().length() == 0) ) {
-			return new ResponseEntity<>(new CustomErrorType("Invalid EntityName"), HttpStatus.BAD_REQUEST);
-		}
-		
-		if( (updatedEntity.getTestEntityAttributes() == null) || (updatedEntity.getTestEntityAttributes().isEmpty()) ) {
-			return new ResponseEntity<>(new CustomErrorType("Invalid Attributes for Entity"), HttpStatus.BAD_REQUEST);
-		}
-		
+				
 		if( (entityName == null) || (entityName.isEmpty()) || (entityName.trim().length() == 0) ) {
 			return new ResponseEntity<>(new CustomErrorType("Invalid entityName to update"), HttpStatus.BAD_REQUEST);
 		}
 		
-		ObjectMapper objectMapper = new ObjectMapper();
-		ObjectNode json = objectMapper.createObjectNode();
-		ArrayNode testEntityAttributes = objectMapper.createArrayNode();
+		if( (newEntityName == null) || (newEntityName.isEmpty()) || (newEntityName.trim().length() == 0) ) {
+			return new ResponseEntity<>(new CustomErrorType("Invalid newEntityName"), HttpStatus.BAD_REQUEST);
+		}
+				
+		ResponseEntity<String> dbClientResponse = dbClient.updateTestEntityNameInDB(entityName, newEntityName);
+				
+		if(dbClientResponse == null) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+				
+		return dbClientResponse;
+	}
+	
+	
+	@RequestMapping(value = "/u/entity/attribute/{entityName}/{oldAttributeName}/{newAttributeName}", method = RequestMethod.PUT, consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE})		
+	public ResponseEntity<?> handleEntityAttributeUpdateRequest(@PathVariable("entityName") String entityName, 
+			@PathVariable("oldAttributeName") String oldAttributeName, @PathVariable("newAttributeName") String newAttributeName) {	
 		
-		updatedEntity.getTestEntityAttributes().forEach(testEntityAttributes::add);
+				
+		if( (entityName == null) || (entityName.isEmpty()) || (entityName.trim().length() == 0) ) {
+			return new ResponseEntity<>(new CustomErrorType("Invalid entityName to update"), HttpStatus.BAD_REQUEST);
+		}
 		
-		json.put("entityName", updatedEntity.getEntityName());
-		json.putArray("testEntityAttributes").addAll(testEntityAttributes);
-		
-		ResponseEntity<String> dbClientResponse = dbClient.updateTestEntityInDB(entityName, json);
+		if( (oldAttributeName == null) || (oldAttributeName.isEmpty()) || (oldAttributeName.trim().length() == 0) ) {
+			return new ResponseEntity<>(new CustomErrorType("Invalid newEntityName"), HttpStatus.BAD_REQUEST);
+		}
+				
+		ResponseEntity<String> dbClientResponse = dbClient.updateTestEntityAttributeInDB(entityName, oldAttributeName, newAttributeName);
 				
 		if(dbClientResponse == null) {
 			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

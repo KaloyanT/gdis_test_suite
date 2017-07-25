@@ -364,30 +364,6 @@ public class TestEntityController {
 		
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
-
-	
-	@RequestMapping(value = "update/by-id/{id}", method = RequestMethod.PUT)
-	public ResponseEntity<?> updateTestEntity(@PathVariable("id") long id, @RequestBody TestEntity updatedTestEntity) {
-		
-		PreCondition.require(id >= 0, "TestEntity ID can't be negative!");
-			
-		if(updatedTestEntity == null) {
-			return new ResponseEntity<>(new CustomErrorType("Invalid Entity"), HttpStatus.BAD_REQUEST);
-		}
-		
-		TestEntity testEntity = testEntityRepository.findByTestEntityID(id);
-		
-		if (testEntity == null) {
-			return new ResponseEntity<>(new CustomErrorType("TestEntity with id " + id
-					+ " not found"), HttpStatus.NOT_FOUND);
-		}
-		
-		testEntity.setEntityName(updatedTestEntity.getEntityName());
-		
-		testEntityRepository.save(testEntity);
-		
-		return new ResponseEntity<>(HttpStatus.OK);
-	}
 	
 	
 	@RequestMapping(value = "/delete/by-id/{id}", method = RequestMethod.DELETE)
