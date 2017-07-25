@@ -1,6 +1,6 @@
 angular.module('gdisApp').controller('EntitymanagementController', function($scope, $mdDialog, $http) {
     $scope.message = 'Hier können Entities verwaltet werden.';
-    $scope.entities = ['bla', 'blub'];
+
     //Utils
     function showAlert(title, text, aria) {
         $mdDialog.show(
@@ -31,8 +31,10 @@ angular.module('gdisApp').controller('EntitymanagementController', function($sco
                 }
             }
 
-            $scope.availEntities = entNames;
+            $scope.availEntities = entNames;            
             $scope.realEntities = realEnts;
+
+            updateInstanceCounts();
 
             }, function errorCallback(response) {
                 showAlert('Entity Fehler', 'Konnte Entitäten nicht aus Backend laden', 'Entity Fehler');
@@ -41,6 +43,27 @@ angular.module('gdisApp').controller('EntitymanagementController', function($sco
 
     });
     $scope.getAllEntities();
+
+
+    function updateInstanceCounts(){
+
+        let promises = [];
+        $scope.availEntities.forEach(function(ent){
+            promises.push($http.get(`http://localhost:8082/exporter/e/objects/by-entity-type/${ent.Name}`)
+                .then(function(res) {
+                    if(res){
+                        console.log(res);
+                    }
+            }))
+        })
+        
+        Promise.all(promises).then(function() {
+
+          console.log('Done with promises!');
+
+        })
+
+    }
 
     //Hinzufügen
     function DialogController($scope, $mdDialog, ex_entity) {
