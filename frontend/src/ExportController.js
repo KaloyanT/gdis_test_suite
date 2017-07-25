@@ -6,7 +6,7 @@ angular.module('gdisApp').controller('ExportController', function($scope, $http)
     $scope.selEntitytype = [];
     $scope.exportWays = [{
         'way': 'Alle Tests im ganzen System anzeigen.',
-        'url': 'http://localhost:8082/exporter/e/storyTest/',
+        'url': 'http://localhost:8082/exporter/e/storyTest/all',
         'ident': 'Alles',
         'select': 'all'
     }, {
@@ -26,46 +26,52 @@ angular.module('gdisApp').controller('ExportController', function($scope, $http)
         'select': 'entity'
     },{
         'way': 'Mergen u. Bearbeiten von Daten nach bestimmten Richtlinien.',
-        'url': 'Hier können alle Daten nach bestimmten kriterien gefiltert und gemerged werden. Zusätzlich ist verarbeitung von Hand möglich, falls erwünscht.',
+        'url': 'Hier können alle Daten nach bestimmten kriterien gefiltert und gemerged werden.',
         'ident': 'custom'
     }]
 
-    $http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
-
-    let promises = [];
-
-    //get all Story Names
-    promises.push($http.get('http://localhost:40042/stories/list').then(function successCallback(response) {
-        $scope.selStoryname = response.data;
-    }));
-    //get all Entities
-    promises.push($http.get('http://localhost:40042/entity/get/all').then(function successCallback(response) {
-        let res = []
-        response.data.forEach(function(ent){
-            res.push(ent.entityName)
-        })
-        $scope.selEntitytype = res;
-    }));
-    //get all Testnames
-    promises.push($http.get('http://localhost:40042/stories/testnames').then(function successCallback(response) {
-        $scope.selTestname = response.data;
-    }));
-    
-    Promise.all(promises).then(function() {
-        $scope.$digest();
-    });
-
     $scope.getList = function(type){
+        $http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
         if(type == 'all')
             return $scope.selAll;
-        if(type == 'story')
-            return $scope.selStoryname;
-        if(type == 'test')
-            return $scope.selTestname;
-        if(type == 'entity')
-            return $scope.selEntitytype;
+        if($scope.selStory != undefined){
+            return $scope.selStory;
+        }
 
-    };
+        //get all Story Names
+        if(type == 'story' && $scope.selStory == undefined){
+            $http.get('http://localhost:40042/stories/list').then(function successCallback(response) {
+                $scope.selStory = response.data;
+                return response.data;
+            })
+        } else {
+            return $scope.selStory;
+        }
+
+        //get all Testnames
+        if(type == 'test' && $scope.selTestnames == undefined){
+            $http.get('http://localhost:40042/stories/testnames').then(function successCallback(response) {
+                $scope.selTestnames = response.data;
+                return response.data;
+            })
+        } else {
+            return $scope.selTestnames;
+        }
+
+        //get all Entities
+        if(type == 'entity' && $scope.selEntitytype == undefined){
+            $http.get('http://localhost:40042/entity/get/all').then(function successCallback(response) {
+                let res = []
+                response.data.forEach(function(ent){
+                    res.push(ent.entityName)
+                })
+                $scope.selEntitytype = res;
+                return res;
+            })
+        } else {
+            return $scope.selEntitytype.length;
+        }
+    }
 
     $scope.customExport = function(type){
         console.log('bla');

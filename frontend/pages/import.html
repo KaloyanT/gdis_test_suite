@@ -1,15 +1,14 @@
-<div ng-controller="ImportController" ng-cloak layout-gt-sm="row" layout="column">
+<div class="jumbotron text-center">
+<div ng-controller="ImportController" ng-cloak layout="column">
 
 <md-content layout="row" layout-fill layout>
-
-    <md-card  flex="50" layout-fill>
-        <img ng-src="{{imagePath}}" class="md-card-image" alt="Washed Out" style="height: 50%;width: auto;">
-        <md-card-title>
-            <md-card-title-text>
-                <span class="md-headline">GDIS Import</span>
-            </md-card-title-text>
-        </md-card-title>
-        <md-card-content>
+  <md-card flex="35" layout-fill>
+    <br />
+    <br />
+    <md-card-title-text>
+        <span class="md-headline">GDIS Import</span>
+    </md-card-title-text>
+    <md-card-content>
           <p>
             Hier können .csv und .story Dateien importiert werden.
           </p>
@@ -17,18 +16,17 @@
             Wenn Sie eine .story Datei importieren, so werden Sie bei Upload gebeten die Story zur späteren identifizierung zu benennen. Groß- und Kleinschreibung ist hier relevant.
           </p>
           <p>
-            Wenn Sie eine .csv Datei importieren, so werden Sie gebeten den Daten einer Story und einer Entity zuzuordnen. Die Storys können Sie aus den vorher importierten Storys auswählen, bei den Entitys können Sie analog eine vorher erstellte auswählen.
-            Anschließend müssen Sie noch das Mapping der Spalten der Daten auf die Attribute der ausgewählten Entität vornehmen.
+            Wenn Sie eine .csv Datei importieren, so werden Sie gebeten den Daten einer Story und einer Entity zuzuordnen und später zu mappen.
           </p>
           <p>
             Am Ende beider Imports können Sie sich nochmal überlegen ob Sie es wirklich tun wollen und dann mit dem "Upload" Button bestätigen oder mit dem "Clear All" Button verwerfen.
           </p>
-        </md-card-content>
-      </md-card>
+    </md-card-content>
+  </md-card>
 
 <md-divider></md-divider>
 
-    <md-card flex="50" layout-fill>
+    <md-card flex="65" layout-fill>
     <md-toolbar layout="row" style="background:#C11E0D;">
       <div class="md-toolbar-tools">
         <span>Import</span>
@@ -83,9 +81,6 @@
     </md-card>
 
 </md-content>
-
-<div class="row" ng-show="importCsv">
-    CSV
 </div>
 <div class="row" ng-show="importStory">
     <span ng-show="false">
@@ -96,8 +91,8 @@
 </div>
 </div>
 
-    <span ng-show="false">
-        <md-button class="md-primary md-raised" ng-click="showAlert($event)">
-            Alert
-        </md-button>
-    </span>
+<span ng-show="false">
+    <md-button class="md-primary md-raised" ng-click="showAlert($event)">
+        Alert
+    </md-button>
+</span>
