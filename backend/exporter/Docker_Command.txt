@@ -1,5 +1,4 @@
 mvn clean package docker:build
 
 Docker command: 
-docker run -d --name exporter -p 8082:8082 \ 
-					-e DATABASE_URL=192.168.99.100 -e DATABASE_PORT=8081 gdis.exporter/exporter
+docker run --name importer -d -p 8083:8083 --network gdis_network -e DATABASE_URL=database -e DATABASE_PORT=8081 gdis.importer/importer

@@ -12,6 +12,14 @@ the Docker Image can be built with mvn clean package -DskipTests=true or false i
 
 
 Docker command: 
-docker run -d --name database --link gdis_db:mysql -p 8081:8081 \ 
-					-e DATABASE_HOST=gdis_db -e DATABASE_PORT=3306 -e DATABASE_NAME=gdis_db \ 
-					-e DATABASE_USER=gdis_db_user -e DATABASE_PASSWORD=abcd1234 gdis.db/database
+
+First create a network in which we will have the MySQL Database and the Database Microservice: 
+docker network create gdis_network
+
+Create a MySQL Docker Container: 
+docker run --name gdis_db -d -p 3306:3306 --network-alias gdis_db --network gdis_network -e MYSQL_DATABASE=gdis_db \
+		-e MYSQL_USER=gdis_db_user -e MYSQL_PASSWORD=abcd1234 -e MYSQL_ROOT_PASSWORD=abcd1234 mysql/:latest
+
+Create the Database Microservice Container: 
+docker run --name database -d -p 8081:8081 --network gdis_network -e DATABASE_HOST=gdis_db -e DATABASE_PORT=3306 \ 
+			-e DATABASE_NAME=gdis_db -e DATABASE_USER=gdis_db_user -e DATABASE_PASSWORD=abcd1234 gdis.db/database
