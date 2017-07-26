@@ -19,7 +19,7 @@
     </md-card-content>
   </md-card>
 
-<md-divider></md-divider>
+<!-- <md-divider></md-divider> -->
 
   <md-card flex="65" layout-fill>
     <md-toolbar layout="row" style="background:#C11E0D;">
@@ -46,7 +46,7 @@
             <md-input-container>
               <label ng-if="$index != 0">{{export.ident}}</label>
               <md-select ng-model="export.selected" ng-if="$index != 0" required>
-                <md-option ng-value="sel" ng-repeat="sel in getList(export.select)">{{ sel }}</md-option>
+                <md-option ng-value="sel" ng-repeat="sel in export.select">{{ sel }}</md-option>
               </md-select>
             </md-input-container>
           </div>
@@ -56,8 +56,8 @@
           <md-divider></md-divider>
           <div layout="column" flex="15">
             <md-list-item>
-                <md-button class="md-raised md-primary" ng-href="{{export.url + export.selected}}" target="_blank" ng-if="export.ident != 'custom'" ng-disabled="export.selected == undefined">Export</md-button>
-                <md-button class="md-raised md-primary" ng-click="customExport()" ng-if="export.ident == 'custom'">Export</md-button>
+                <md-button class="md-raised md-primary" ng-href="{{export.url + export.selected}}" target="_blank" ng-if="export.ident != 'custom'" ng-disabled="export.selected == undefined && $index != 0">Export</md-button>
+                <md-button class="md-raised md-primary" ng-click="openModal({ modalName: 'Custom GDIS Export' })" ng-if="export.ident == 'custom'">Export</md-button>
             </md-list-item>
           </div>
         </div>

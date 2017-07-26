@@ -199,7 +199,7 @@ paths:
           description: StoryName is empty or null.
         '500':
           description: Internal server error. Can't connect to the database or similar
-  '/exporter/e//storyTests/by-test-name/{testName}':
+  '/exporter/e/storyTests/by-test-name/{testName}':
     get:
       tags:
         - exporter
