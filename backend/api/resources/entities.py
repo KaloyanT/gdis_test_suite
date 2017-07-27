@@ -132,6 +132,8 @@ class EntityDataGetFilterByTestname(Resource):
             resp = Response(response=csv, mimetype='text/csv')
             resp.headers['Content-Disposition'] = 'attachment; filename=test_data.csv'
             return resp
+        elif estimate == 'json':
+            resp = Response(response=df.to_json(), mimetype='application/json')
 
 
 class EntityMeta(Resource):
