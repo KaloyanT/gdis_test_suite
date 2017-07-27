@@ -132,13 +132,6 @@ class EntityDataGetFilterByTestname(Resource):
             resp = Response(response=csv, mimetype='text/csv')
             resp.headers['Content-Disposition'] = 'attachment; filename=test_data.csv'
             return resp
-        elif estimate == 'comb':
-            ents = list(set([k.split('.')[0] for k in df.keys()]))
-            e_ones = df[[k for k in df.keys() if ents[0] in k]]
-            e_twos = df[[k for k in df.keys() if ents[1] in k]]
-                comb = [list(t[0]) + list(t[1]) for t in list(itertools.product(e_ones.values, e_twos.values))]
-                exp = pd.DataFrame([list(set(c)) for c in comb])
-                
 
 
 class EntityMeta(Resource):
