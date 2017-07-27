@@ -1,9 +1,12 @@
 from flask_restful import Resource, request
-from flask import jsonify, Response
+from flask import jsonify, Response, send_file
 import requests
 import json
 import ast
 from tinydb import TinyDB, where
+import pandas as pd
+import urllib.parse
+import itertools
 
 db = TinyDB('./db.json')
 
@@ -73,10 +76,69 @@ class EntityCount(Resource):
         data = ast.literal_eval(requests.get('http://exporter:8082/exporter/e/objects/by-entity-type/' + entity).text)
         return Response(response=str(len(data)))
 
+
 class EntityGetAll(Resource):
     def get(self):
         data = requests.get('http://exporter:8082/exporter/e/entities').text
         return Response(response=data, mimetype='application/json')
+
+
+class EntityGetAllByTestname(Resource):
+    def get(self, testname):
+        data = ast.literal_eval(requests.get('http://exporter:8082/exporter/e/storyTests/by-test-name/' + testname).text)[0].get('data', {})
+        if len(data) > 0:
+            attr = []
+            for row in data:
+                _attr = row.get('entityName') + '.' + row.get('columnName')
+                if _attr not in attr:
+                    attr += [_attr]
+            else:
+                return Response(response=json.dumps(attr), mimetype='application/json')
+        else:
+            return Response(response=json.dumps([]), mimetype='application/json')
+
+
+class EntityDataGetFilterByTestname(Resource):
+    def get(self, testname, filters, estimate):
+        filters_ = json.loads(urllib.parse.unquote(filters))
+        data = ast.literal_eval(requests.get('http://exporter:8082/exporter/e/storyTests/by-test-name/' + testname).text)[0].get('data')
+        index = []
+        unproc_data = []
+        for row in data:
+            index += [row['entityName'] + '.' + row['columnName']]
+            unproc_data += [row['rows']]
+        else:
+            df = pd.DataFrame(unproc_data, index=index).T
+
+        for f in filters_:
+            _col = f['col']
+            _type = f['type']
+            if _type == 'string':
+                df = df[df[_col].str.contains(f['exp'], regex=True)]
+            if _type == 'number':
+                _max = f.get('max')
+                _min = f.get('min')
+                if _max:
+                    df = df[df[_col] <= str(_max)]
+                if _min:
+                    df = df[df[_col] >= str(_min)]
+            if _type == 'location':
+                pass
+
+        if estimate == 'true':
+            return Response(response=json.dumps(len(df)))
+        elif estimate == 'false':
+            csv = df.to_csv(sep=';', index=False)
+            resp = Response(response=csv, mimetype='text/csv')
+            resp.headers['Content-Disposition'] = 'attachment; filename=test_data.csv'
+            return resp
+        elif estimate == 'comb':
+            ents = list(set([k.split('.')[0] for k in df.keys()]))
+            e_ones = df[[k for k in df.keys() if ents[0] in k]]
+            e_twos = df[[k for k in df.keys() if ents[1] in k]]
+                comb = [list(t[0]) + list(t[1]) for t in list(itertools.product(e_ones.values, e_twos.values))]
+                exp = pd.DataFrame([list(set(c)) for c in comb])
+                
 
 
 class EntityMeta(Resource):

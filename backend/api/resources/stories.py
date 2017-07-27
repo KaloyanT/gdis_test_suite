@@ -42,7 +42,7 @@ class ExportTestNames(Resource):
 
     def get(self):
         data = [test.get('testName')
-                for test in ast.literal_eval(requests.get('http://exporter:8082/exporter/e/storyTest/all').text)]
+                for test in ast.literal_eval(requests.get('http://exporter:8082/exporter/e/storyTests/all').text)]
         return Response(response=json.dumps(data), mimetype='application/json')
 
 

@@ -34,17 +34,17 @@ angular.module('gdisApp').controller('ExportController', function($scope, $http,
     })
     $scope.exportWays = [{
         'way': 'Alle Tests im ganzen System anzeigen.',
-        'url': 'http://localhost:8082/exporter/e/storyTest/all',
+        'url': 'http://localhost:8082/exporter/e/storyTests/all',
         'ident': 'Alles',
         'select': ['all']
     }, {
         'way': 'Alle Tests mit <Storynamen> anzeigen.',
-        'url': 'http://localhost:8082/exporter/e/storyTest/by-story-name/',
+        'url': 'http://localhost:8082/exporter/e/storyTests/by-story-name/',
         'ident': 'Storyname',
         'select': $scope.selStories
     },{
         'way': 'Alle Tests mit <Testnamen> anzeigen.',
-        'url': 'http://localhost:8082/exporter/e/storyTest/by-test-name/',
+        'url': 'http://localhost:8082/exporter/e/storyTests/by-test-name/',
         'ident': 'Testname',
         'select': $scope.selTest
     },{
