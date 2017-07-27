@@ -338,6 +338,32 @@ public class StoryTestController {
 	}
 	
 	
+	@RequestMapping(value = "/get/entity-attributes-for-story-test/{testName}", method = RequestMethod.GET)
+	public ResponseEntity<?> getEntityAttributesForStoryTestByTestName(@PathVariable("testName") String testName) {
+		
+		if( (testName == null) || (testName.isEmpty()) || (testName.trim().length() == 0) ) {
+			return new ResponseEntity<>(new CustomErrorType("Invalid Test Name"), HttpStatus.NOT_FOUND);
+		}
+		
+		StoryTest storyTest = storyTestRepository.findByTestName(testName);
+		
+		if (storyTest == null) {
+			return new ResponseEntity<>(new CustomErrorType("Test with name " + testName
+					+ " not found"), HttpStatus.NOT_FOUND);
+		}
+		
+		List<String> entityAttributes = new ArrayList<String>();
+		
+		for(StoryTestElement ste : storyTest.getData()) {
+			
+			entityAttributes.add(ste.getEntityName() + "." + ste.getColumnName());
+		}
+		
+		
+		return new ResponseEntity<>(entityAttributes, HttpStatus.OK);
+	}
+	
+	
 	@RequestMapping(value = "/insert", method = RequestMethod.POST)
 	public ResponseEntity<?> createStoryTest(@RequestBody StoryTest newStoryTest) {
 		

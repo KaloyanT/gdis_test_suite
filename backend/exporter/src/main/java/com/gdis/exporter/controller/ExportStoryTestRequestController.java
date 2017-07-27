@@ -105,7 +105,7 @@ public class ExportStoryTestRequestController {
 	public ResponseEntity<?> getTestsByTestName(@PathVariable("testName") String testName) {
 		
 		if( (testName == null) || (testName.isEmpty()) || (testName.trim().length() == 0) ) {
-			return new ResponseEntity<>(new CustomErrorType("Invalid Story Name"), HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(new CustomErrorType("Invalid Test Name"), HttpStatus.NOT_FOUND);
 		}
 		
 		List<StoryTestExportModel> response = dbClient.exportStoryTestFromDBByTestName(testName);
@@ -125,7 +125,7 @@ public class ExportStoryTestRequestController {
 	public ResponseEntity<?> getTestsByTestNameForExport(@PathVariable("testName") String testName) {
 		
 		if( (testName == null) || (testName.isEmpty()) || (testName.trim().length() == 0) ) {
-			return new ResponseEntity<>(new CustomErrorType("Invalid Story Name"), HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(new CustomErrorType("Invalid Test Name"), HttpStatus.NOT_FOUND);
 		}
 		
 		List<ObjectNode> response = dbClient.exportStoryTestFromDBByTestNameForExport(testName);
@@ -142,6 +142,10 @@ public class ExportStoryTestRequestController {
 	@RequestMapping(value = "/storyTests/by-entity-name/{entityName}", method = RequestMethod.GET)
 	public ResponseEntity<?> getTestsByEntityName(@PathVariable("entityName") String entityName) {
 		
+		if( (entityName == null) || (entityName.isEmpty()) || (entityName.trim().length() == 0) ) {
+			return new ResponseEntity<>(new CustomErrorType("Invalid Entity Name"), HttpStatus.NOT_FOUND);
+		}
+		
 		List<ObjectNode> response = dbClient.exportStoryTestFromDBByEntityName(entityName);
 		
 		if(response == null) {
@@ -151,6 +155,24 @@ public class ExportStoryTestRequestController {
 		
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
+		
+	
+	@RequestMapping(value = "/storyTests/entity-attributes/{testName}", method = RequestMethod.GET)
+	public ResponseEntity<?> getEntityAttributesForTestByTestName(@PathVariable("testName") String testName) {
+		
+		if( (testName == null) || (testName.isEmpty()) || (testName.trim().length() == 0) ) {
+			return new ResponseEntity<>(new CustomErrorType("Invalid Test Name"), HttpStatus.NOT_FOUND);
+		}
+		
+		List<String> response = dbClient.exportEntityAttributesForStoryTestFromDBByTestName(testName);
+		
+		if(response == null) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}	
+		
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+	
 	
 	private void buildJsonElementsToExport(List<StoryTestExportModel> dbEntries) {
 		
