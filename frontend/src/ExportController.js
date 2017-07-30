@@ -66,6 +66,7 @@ angular.module('gdisApp').controller('ExportController', function($scope, $http,
     //custom export modal opener
     $scope.openModal = function(data) {
         data.availTests = $scope.selTest;
+        data.availEntities = $scope.selEntities;
         var modalInstance = $uibModal.open({
             templateUrl: '../dialogSrc/exportModal.html',
             controller: 'CustomExportCtrl',

@@ -136,7 +136,60 @@ class EntityDataGetFilterByTestname(Resource):
             resp = Response(response=df.to_json(), mimetype='application/json')
 
 
+class EntityDataGetFilterByEntities(Resource):
+    def get(self, entities, filters, estimate):
+        # filters_ = json.loads(urllib.parse.unquote(filters))
+        # data = ast.literal_eval(requests.get('http://exporter:8082/exporter/e/storyTests/by-test-name/' + testname).text)[0].get('data')
+        # index = []
+        # unproc_data = []
+        # for row in data:
+        #     index += [row['entityName'] + '.' + row['columnName']]
+        #     unproc_data += [row['rows']]
+        # else:
+        #     df = pd.DataFrame(unproc_data, index=index).T
+
+        # for f in filters_:
+        #     _col = f['col']
+        #     _type = f['type']
+        #     if _type == 'string':
+        #         df = df[df[_col].str.contains(f['exp'], regex=True)]
+        #     if _type == 'number':
+        #         _max = f.get('max')
+        #         _min = f.get('min')
+        #         if _max:
+        #             df = df[df[_col] <= str(_max)]
+        #         if _min:
+        #             df = df[df[_col] >= str(_min)]
+        #     if _type == 'location':
+        #         pass
+
+        # if estimate == 'true':
+        #     return Response(response=json.dumps(len(df)))
+        # elif estimate == 'false':
+        #     csv = df.to_csv(sep=';', index=False)
+        #     resp = Response(response=csv, mimetype='text/csv')
+        #     resp.headers['Content-Disposition'] = 'attachment; filename=test_data.csv'
+        #     return resp
+        # elif estimate == 'json':
+        #     resp = Response(response=df.to_json(), mimetype='application/json')
+        # TODOOOOO
+        pass
+
+
 class EntityMeta(Resource):
     def get(self, attribute):
         res = db.search(where(attribute).exists())[0][attribute]
         return Response(response=res)
+
+
+class EntityGetAttributesByEntity(Resource):
+    def get(self, entity):
+        data = ast.literal_eval(requests.get('http://exporter:8082/exporter/e/entities/as-mappings').text)
+        res = []
+        for m in data:
+            c = m.split('.')[0]
+            if entity == c:
+                res += [m]
+        return Response(response=json.dumps(res), mimetype='application/json')
+
+
