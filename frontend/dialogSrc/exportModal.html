@@ -14,9 +14,9 @@
               <md-card flex="50">
                 <md-card-content>
                   <p>
-                    Export von Entities nach Test.
+                    Export von Entities nach Test, konsistenz per Test wird bewahrt.
                   </p>
-                  <md-button ng-repeat="test in data.availTests" class="row md-raised md-primary" ng-click="fromTest(test)">{{test}}</md-button>
+                  <md-button ng-repeat="test in data.availTests" class="md-raised md-primary" ng-click="getAttributes(true, test)">{{test}}</md-button>
                 </md-card-content>
               </md-card>
 
@@ -25,16 +25,25 @@
               <md-card flex="50">
                 <md-card-content>
                   <p>
-                    Export von Entities nach freier Wahl.
+                    Export von Entities nach freier Wahl, konsistenz per Entity wird bewahrt.
                   </p>
-                  <md-button ng-repeat="ent in data.availEntities" id="{{ent}}" class="row md-raised" ng-click="selEntity(ent)">{{ent}}</md-button>
-                  <md-button ng-if="selectedEntities.length > 0" ng-click="fromEntities()">Weiter</md-button>
+                  <md-button ng-repeat="ent in data.availEntities" id="{{ent}}" class="md-raised" ng-click="selEntity(ent)">{{ent}}</md-button>
+                  <md-button ng-if="selectedEntities.length > 0" ng-click="getAttributes(false, '')">Weiter</md-button>
                 </md-card-content>
               </md-card>
+<!--               <md-card flex="30">
+                <md-card-content>
+                  <p>
+                    Export von Attributen nach freier Wahl.
+                  </p>
+                  <md-button ng-repeat="ent in data.availEntities" id="{{ent}}" class="md-raised" ng-click="selEntity(ent)">{{ent}}</md-button>
+                  <md-button ng-if="selectedEntities.length > 0" ng-click="getAttributes(false, '')">Weiter</md-button>
+                </md-card-content>
+              </md-card> -->
             </md-content>
 
           </div>
-          <div ng-switch-when="fromTest">
+          <div ng-switch-when="filterAttributes">
 
             <div ng-repeat="attr in attributes track by $index">
               
@@ -74,7 +83,7 @@
                         <div ng-switch-when="string">
                             <md-input-container>
                               <label>Regex</label>
-                              <input ng-disabled="!attr.filter" type="text" ng-model="attr.filterRexgexVal">
+                              <input ng-disabled="!attr.filter" type="text" ng-model="attr.filterRegexVal">
                             </md-input-container>
                         </div>
                         <div ng-switch-when="location">
@@ -91,78 +100,65 @@
             </div>
 
           </div>
-          <div ng-switch-when="fromEntities">
-
-            <div ng-repeat="attr in attributes track by $index">
-              
-              <div layout="row" ng-click="toggle($index + 'Attribute')" id="{{$index}}AttributeShort">
-                <md-card flex="100" layout>
-                  <md-card-content class="text-centered">
-                    <p class="text-centered">{{attr.attrName}}</p>
-                  </md-card-content>
-                </md-card>           
-              </div>
-
-              <div layout="row" id="{{$index}}AttributeLong" style="display:none;">
-                <md-card flex="30" layout ng-click="toggle($index + 'Attribute')">
-                  <md-card-content>
-                    <p>{{attr.attrName}}</p>
-                  </md-card-content>
-                </md-card>
-                <md-card flex="30" layout>
-                  <md-switch ng-model="attr.filter" aria-label="Filter" ng-true-value="true" ng-false-value="false" class="md-primary">
-                    {{!attr.filter ? 'Alle Exportieren' : attr.filterName}}
-                  </md-switch>
-                </md-card>
-                <md-card flex="35" layout>
-                  <md-card-content>
-                    <div ng-disabled="!attr.filter">
-                      <div ng-switch="attr.filterType">
-                        <div ng-switch-when="number">
-                          <md-input-container>
-                            <label>Min</label>
-                            <input ng-disabled="!attr.filter" type="text" ng-model="attr.filterRangeValLower">
-                          </md-input-container>
-                          <md-input-container>
-                            <label>Max</label>
-                            <input ng-disabled="!attr.filter" type="text" ng-model="attr.filterRangeValUpper">
-                          </md-input-container>
-                        </div>
-                        <div ng-switch-when="string">
-                            <md-input-container>
-                              <label>Regex</label>
-                              <input ng-disabled="!attr.filter" type="text" ng-model="attr.filterRexgexVal">
-                            </md-input-container>
-                        </div>
-                        <div ng-switch-when="location">
-                          <md-input-container>
-                            <label>Umkreis</label>
-                            <input ng-disabled="!attr.filter" type="text" ng-model="attr.filterRangeVal"">
-                          </md-input-container>
-                        </div>
-                      </div>
-                    </div>
-                  </md-card-content>
-                </md-card>
-              </div>
-            </div>
-
-          </div>
-          <div ng-switch-when="recombination">
+          <div ng-switch-when="recombinationEnt">
 
             <div layout="row" ng-repeat="ent in availEntities track by $index">
               <md-card flex="100" layout ng-click="toggleManipulation($index + 'Attributes')">
                 <md-card-content class="text-centered">
                   <h5>{{ent.name}}</h5>
-                  <p class="text-centered">{{ent.count}} Objekte gefunden.</p>
-                  <div class="text-left" style="display:none;" id="{{$index}}Attributes">
-                    <p ng-repeat="a in ent.data">{{a}}</p>
-                  </div>
+                  <p class="text-centered">{{ent.count}} Instanzen gefunden.</p>
+
+                    <div id="{{$index}}Attributes" style="display: none;height: 150px;overflow-y: scroll;overflow-x: scroll;">
+                      <table ng-table-dynamic="ent.table with ent.cols" show-filter="false" class="table table-bordered table-striped">
+                        <tbody>
+                          <tr ng-repeat="row in $data">
+                            <td ng-repeat="col in $columns">{{row[col.field]}}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+
                 </md-card-content>
               </md-card>           
             </div>
             <md-button class="md-raised md-primary" href="{{downloadLink}}">Download Standard</md-button>
           </div>
+          <div ng-switch-when="recombinationTest">
+
+            <div layout="row">
+              <md-card flex="100" layout ng-click="toggleManipulation('testExport')">
+                <md-card-content class="text-centered">
+                  <h5>{{cEnt.name}}</h5>
+                  <p class="text-centered">{{cEnt.count}} Testobjekte gefunden.</p>
+
+                    <div id="testExport" style="display: none;height: 150px;overflow-y: scroll;overflow-x: scroll;">
+                      <table ng-table-dynamic="cEnt.table with cEnt.cols" show-filter="false" class="table table-bordered table-striped" ng-click="$event.stopPropagation()"">
+                        <tbody>
+                          <tr ng-repeat="row in $data">
+                            <td ng-repeat="col in $columns" ng-if="col.field == 'popover'">
+
+                              <a tabindex="0"
+                                 data-html="true"
+                                 class="btn btn-raised btn-primary" 
+                                 role="button" 
+                                 data-html="true" 
+                                 data-toggle="popover" 
+                                 data-trigger="click"
+                                 data-content='{{row[col.field]}}'>Edit</a>
+
+                            </td>
+                            <td ng-repeat="col in $columns" ng-if="col.field != 'popover'">{{row[col.field]}}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                </md-card-content>
+              </md-card>           
+            </div>
+            <md-button class="md-raised md-primary" href="{{downloadLink}}">Download Standard</md-button>
+          </div>
+
         </div>
 
       </div>
@@ -172,6 +168,6 @@
 </div>
 <div class="modal-footer" ng-if="currentStep.ident != 'init'">
   <md-button class="md-raised" ng-click="cancel()">Abbruch</md-button>
-  <md-button class="md-raised md-primary" ng-click="nextStep(currentStep.next)">{{currentStep.nextText}}</md-button>
+  <md-button class="md-raised md-primary" ng-click="nextStep()">{{currentStep.nextText}}</md-button>
 </div>
 </body>

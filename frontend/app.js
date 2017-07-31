@@ -1,4 +1,4 @@
-var gdisApp = angular.module('gdisApp', ['ngRoute', 'ngMaterial', 'ngAnimate', 'ngMessages', 'ui.bootstrap']);
+var gdisApp = angular.module('gdisApp', ['ngRoute', 'ngMaterial', 'ngAnimate', 'ngMessages', 'ui.bootstrap', 'ngTable']);
 
 
 // routing

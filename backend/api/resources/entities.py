@@ -136,49 +136,107 @@ class EntityDataGetFilterByTestname(Resource):
             resp = Response(response=df.to_json(), mimetype='application/json')
 
 
-class EntityDataGetFilterByEntities(Resource):
-    def get(self, entities, filters, estimate):
-        # filters_ = json.loads(urllib.parse.unquote(filters))
-        # data = ast.literal_eval(requests.get('http://exporter:8082/exporter/e/storyTests/by-test-name/' + testname).text)[0].get('data')
-        # index = []
-        # unproc_data = []
-        # for row in data:
-        #     index += [row['entityName'] + '.' + row['columnName']]
-        #     unproc_data += [row['rows']]
-        # else:
-        #     df = pd.DataFrame(unproc_data, index=index).T
+class EntityGetFilteredData(Resource):
+    def get(self, filter_mode, attrs_raw, filters_raw, mode, test_name):
+        filters = json.loads(urllib.parse.unquote(filters_raw))
+        attributes = ast.literal_eval(attrs_raw)
 
-        # for f in filters_:
-        #     _col = f['col']
-        #     _type = f['type']
-        #     if _type == 'string':
-        #         df = df[df[_col].str.contains(f['exp'], regex=True)]
-        #     if _type == 'number':
-        #         _max = f.get('max')
-        #         _min = f.get('min')
-        #         if _max:
-        #             df = df[df[_col] <= str(_max)]
-        #         if _min:
-        #             df = df[df[_col] >= str(_min)]
-        #     if _type == 'location':
-        #         pass
+        if filter_mode == 'single':
+            data = [ast.literal_eval(requests.get('http://exporter:8082/exporter/e/entities/values-for-attribute/' +
+                    attribute.split('.')[0] + '/' + attribute.split('.')[1]).text)
+                    for attribute in attributes]
+            dfs = [pd.DataFrame(d, columns=[attributes[idx]]) for idx, d in enumerate(data)]
 
-        # if estimate == 'true':
-        #     return Response(response=json.dumps(len(df)))
-        # elif estimate == 'false':
-        #     csv = df.to_csv(sep=';', index=False)
-        #     resp = Response(response=csv, mimetype='text/csv')
-        #     resp.headers['Content-Disposition'] = 'attachment; filename=test_data.csv'
-        #     return resp
-        # elif estimate == 'json':
-        #     resp = Response(response=df.to_json(), mimetype='application/json')
-        # TODOOOOO
-        pass
+        if filter_mode == 'entity':
+            ents = list({a.split('.')[0] for a in attributes})
+            data = []
+            grouped_attributes = []
+            for ent in ents:
+                grouped_attributes.append([attr for attr in attributes if ent == attr.split('.')[0]])
+            for attr_group in grouped_attributes:
+                _d = [ast.literal_eval(requests.get('http://exporter:8082/exporter/e/entities/values-for-attribute/' +
+                      attribute.split('.')[0] + '/' + attribute.split('.')[1]).text)
+                      for attribute in attr_group]
+                data += [_d]
+            dfs = [pd.DataFrame(d, index=grouped_attributes[idx]).T for idx, d in enumerate(data)]
+
+        if filter_mode == 'test':
+            unproc_data = ast.literal_eval(requests.get('http://exporter:8082/exporter/e/storyTests/by-test-name/' + test_name).text)[0].get('data')
+            index = []
+            data = []
+            for row in unproc_data:
+                index += [row['entityName'] + '.' + row['columnName']]
+                data += [row['rows']]
+
+            dfs = [pd.DataFrame(data, index=index).T]
+
+            attributes = dfs[0].keys().tolist()
+            ents = list({a.split('.')[0] for a in attributes})
+            grouped_attributes = []
+            for ent in ents:
+                grouped_attributes.append([attr for attr in attributes if ent == attr.split('.')[0]])
+
+        res = []
+        for d in dfs:
+            for f in filters:
+                _col = f['col']
+                if _col in d:
+                    _type = f['type']
+                    if _type == 'string':
+                        d = d[d[_col].str.contains(f['exp'], regex=True)]
+                    if _type == 'number':
+                        _max = f.get('max')
+                        _min = f.get('min')
+                        if _max:
+                            d = d[d[_col] <= str(_max)]
+                        if _min:
+                            d = d[d[_col] >= str(_min)]
+                    if _type == 'location':
+                        pass
+            res.append(d)
+
+        if mode == 'count':
+            lengths = [len(d) for d in res]
+            resp = Response(response=json.dumps(lengths), mimetype='application/json')
+            return resp
+
+        if mode == 'json':
+            if filter_mode == 'test':
+                d = []
+                for ent, group in zip(ents, grouped_attributes):
+                    d.append({'name': ent, 'attributes': group, 'data': res[0][group].values.tolist(), 'count': len(res[0][group].values.tolist())})
+                d = json.dumps(d)
+            else:
+                d = json.dumps([{'name': e, 'attributes': g, 'data': r.values.tolist(), 'count': len(r.values.tolist())}
+                                for g, e, r in zip(grouped_attributes, ents, res)])
+            resp = Response(response=d, mimetype='application/json')
+            return resp
+
+        if mode == 'csv':
+            if mode == 'test':
+                csv = res[0].to_csv(sep=';', index=False)
+                resp = Response(response=csv, mimetype='text/csv')
+                resp.headers['Content-Disposition'] = 'attachment; filename=test_data.csv'
+                return resp
+
+        else:
+            # ToDo: Recombination
+            if mode == 'csv':
+                csv = res[0].to_csv(sep=';', index=False)  # change
+                resp = Response(response=csv, mimetype='text/csv')
+                resp.headers['Content-Disposition'] = 'attachment; filename=test_data.csv'
+                return resp
+            if mode == 'json':
+                resp = Response(response=json.dumps(res[0].to_json()), mimetype='application/json')  # change
+                return resp
 
 
 class EntityMeta(Resource):
     def get(self, attribute):
-        res = db.search(where(attribute).exists())[0][attribute]
+        try:
+            res = db.search(where(attribute).exists())[0][attribute]
+        except:
+            res = 'string'
         return Response(response=res)
 
 
