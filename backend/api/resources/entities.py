@@ -255,15 +255,57 @@ class EntityDownload(Resource):
     def post(self, mode):
         try:
             sent_data = json.loads(request.data.decode('utf-8'))
+            return json.dumps(sent_data)
             recomb = True if mode == 'true' else False
             if not recomb:
                 df = pd.DataFrame(sent_data[0])
                 return Response(str(df.to_csv(encoding='utf-8', sep=';'))[1:], mimetype="text/csv", headers={"Content-disposition": "attachment; filename=testCase.csv"})
+            else:
+                df = [pd.DataFrame(data) for data in sent_data]
+                if len(df) == 1:
+                    df = df[0]
+                    ents = list({k.split('.')[0] for k in [str(key) for key in df.keys()]})
+                    grouped_attributes = []
+                    for ent in ents:
+                        _attr_group = []
+                        for attr in [str(key) for key in df.keys()]:
+                            if attr.split('.')[0] == ent:
+                                _attr_group.append(attr)
+                        grouped_attributes.append(_attr_group)
+
+                    dfs = [df[group] for group in grouped_attributes]
+                    dfs_even = dfs[::2]
+                    dfs_odd = dfs[1::2]
+                else:
+                    dfs_even = df[::2]
+                    dfs_odd = df[1::2]
+
+
+                return json.dumps(grouped_attributes)
 
         except Exception as e:
             resp = Response(response=e, status=200)
             resp.headers['Access-Control-Allow-Origin'] = '*'
             return resp
 
-        csv = f'{mode},1,2,3\n4,5,6\n'
 
+def df_crossjoin(df1, df2, **kwargs):
+    """
+    Make a cross join (cartesian product) between two dataframes by using a constant temporary key.
+    Also sets a MultiIndex which is the cartesian product of the indices of the input dataframes.
+    See: https://github.com/pydata/pandas/issues/5401
+    :param df1 dataframe 1
+    :param df1 dataframe 2
+    :param kwargs keyword arguments that will be passed to pd.merge()
+    :return cross join of df1 and df2
+    """
+    df1['_tmpkey'] = 1
+    df2['_tmpkey'] = 1
+
+    res = pd.merge(df1, df2, on='_tmpkey', **kwargs).drop('_tmpkey', axis=1)
+    res.index = pd.MultiIndex.from_product((df1.index, df2.index))
+
+    df1.drop('_tmpkey', axis=1, inplace=True)
+    df2.drop('_tmpkey', axis=1, inplace=True)
+
+    return res
