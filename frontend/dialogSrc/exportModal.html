@@ -103,7 +103,8 @@
           <div ng-switch-when="recombinationEnt">
 
             <div layout="row" ng-repeat="ent in availEntities track by $index">
-              <md-card flex="100" layout ng-click="toggleManipulation($index + 'Attributes')">
+
+<!--               <md-card flex="100" layout ng-click="toggleManipulation($index + 'Attributes')">
                 <md-card-content class="text-centered">
                   <h5>{{ent.name}}</h5>
                   <p class="text-centered">{{ent.count}} Instanzen gefunden.</p>
@@ -119,7 +120,39 @@
                     </div>
 
                 </md-card-content>
-              </md-card>           
+              </md-card>   -->   
+
+              <md-card flex="100" layout ng-click="toggleManipulation($index + 'Attributes')">
+                <md-card-content class="text-centered">
+                  <h5>{{ent.name}}</h5>
+                  <p class="text-centered">{{ent.count}} Instanzen gefunden.</p>
+
+                    <div id="{{$index}}Attributes" style="display: none;height: 150px;overflow-y: scroll;overflow-x: scroll;">
+                      <table ng-table-dynamic="ent.table with ent.cols" show-filter="false" class="table table-bordered table-striped" ng-click="$event.stopPropagation()"">
+                        <tbody>
+                          <tr ng-repeat="row in $data">
+                            <td ng-repeat="col in $columns" ng-if="col.field == 'popover'">
+
+                              <a id="{{row['count']}}{{row['entNo']}}Popover"
+                                 tabindex="0"
+                                 data-html="true"
+                                 class="btn btn-raised btn-primary" 
+                                 role="button" 
+                                 data-html="true" 
+                                 data-toggle="popover" 
+                                 data-trigger="click"
+                                 data-content='{{row[col.field]}}'>Edit</a>
+
+                            </td>
+                            <td ng-repeat="col in $columns" ng-if="col.field != 'popover'">{{row[col.field]}}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                </md-card-content>
+              </md-card> 
+
             </div>
             <md-button class="md-raised md-primary" href="{{downloadLink}}">Download Standard</md-button>
           </div>
@@ -137,7 +170,8 @@
                           <tr ng-repeat="row in $data">
                             <td ng-repeat="col in $columns" ng-if="col.field == 'popover'">
 
-                              <a tabindex="0"
+                              <a id="{{row['count']}}Popover"
+                                 tabindex="0"
                                  data-html="true"
                                  class="btn btn-raised btn-primary" 
                                  role="button" 

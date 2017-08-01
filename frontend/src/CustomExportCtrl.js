@@ -105,14 +105,6 @@
                 ent.attrs.forEach(function(a){
                     ent.cols.push({title: a.split('.')[1], field: a, visible: true})
                 })
-
-                ent.table = new NgTableParams({
-                    page: 1,
-                    count: ent._mergedData.length
-                }, { 
-                    counts: [],
-                    dataset: ent._mergedData 
-                });
                  
             });
 
@@ -132,7 +124,7 @@
                     } else {
                         let i = 0;
                         _combinedData.forEach(function(entry){
-                            let _d = Object.assign(entry, ent._mergedData[i]);
+                            let _d = Object.assign(entry, ent._mergedData[i], {count: i});
                             _d = Object.assign(_d, {popover: generateHtmlPopover(i, _d)})
                             _combinedData[i] = _d;
                             i++;
@@ -145,6 +137,7 @@
                     name: $scope.chosenTest + ' - Beteiligte Entitys: ' + _combinedNames, 
                     cols: _combinedCols,
                     attrs: _combinedAttributes,
+                    data: _combinedData,
                     count: _count,
                     table: new NgTableParams({
                         page: 1,
@@ -154,50 +147,123 @@
                         dataset: _combinedData
                     }),
                 }
+                console.log($scope.cEnt);
 
             } else {
+                let j = 0;
                 $scope.availEntities.forEach(function(ent){
-                    ent.cols.unshift({title: '', visible: true});
+                    ent.cols.unshift({title: 'Edit', field: 'popover', visible: true});
+                    let i = 0;
+                    ent._mergedData.forEach(function(entry){
+                        let _d = Object.assign(entry, {count: i, entNo: j});
+                        _d = Object.assign(_d, {popover: generateHtmlPopover(i, _d, j)});
+                        ent._mergedData[i] = _d;
+                        i++;
+                    })
+
+                    ent.table = new NgTableParams({
+                        page: 1,
+                        count: ent._mergedData.length
+                    }, { 
+                        counts: [],
+                        dataset: ent._mergedData 
+                    });
+                    j++;
+
                 })
+
+
+                console.log($scope.availEntities[0]);
             }
 
         });  
      
     }
 
-    function generateHtmlPopover(idx, object){
+    function generateHtmlPopover(idx, object, entNo=''){
         let keys = Object.keys(object);
-        let html_start = `<form id="${idx}Form"><div class="row">`
+        let html_start = `<form id="${idx}${entNo}Form"><div class="row">`
 
         let html_inputs = '';
 
         keys.forEach(function(key){
-            html_inputs = html_inputs.concat(`
-                <div class="form-group col-xs-6">
-                    <label for="${key}">${key}</label>
-                    <input type="text" class="form-control" value="${object[key]}" id="${key}">
-                </div>
-            `)
+            if(key != 'count' && key != 'entNo'){
+                html_inputs = html_inputs.concat(`
+                    <div class="form-group col-xs-6">
+                        <label for="${key}">${key}</label>
+                        <input type="text" class="form-control" value="${object[key]}" id="${key}">
+                    </div>
+                `);
+            }
         });
 
-        let html_end = `</div><div class="row"><div class="form-group col-xs-6"><button type="button" class="btn btn-raised btn-danger">Abbruch</button></div><div class="form-group col-xs-6"><button type="button" class="btn btn-raised btn-primary" ng-click='updateTable(${idx}, ${JSON.stringify(object)})'>Speichern</button></div></div></form> `
+        let html_end = `</div><div class="row"><div class="form-group col-xs-6"><button type="button" class="btn btn-raised btn-danger" onclick="$(&quot;#${idx}${entNo}Popover&quot;).popover(&quot;hide&quot;);">Abbruch</button></div><div class="form-group col-xs-6"><button type="button" class="btn btn-raised btn-primary" ng-click='updateTable(${idx}, ${JSON.stringify(object)}, "${entNo}")'>Speichern</button></div></div></form> `
 
         return html_start.concat(html_inputs).concat(html_end);
     }
 
-    $scope.updateTable = function(idx, obj){
+    $scope.updateTable = function(idx, obj, entNo=''){
+        console.log(idx, entNo, obj);
         let _keys = Object.keys(obj);
-        let $inputs = $(`#${idx}Form :input`);
+        let idxCount = _keys.indexOf('count');
+        _keys.splice(idxCount, 1);
 
-        let new_obj = {};
-        let i = 0;
-        $inputs.each(function(inp) {
-            new_obj[_keys[i]] = i;
-            console.log($(inp).val());
-            i++;
+        let _i = 0;
+        let _new_obj = {count: idx};
+
+        if($scope.cEnt == undefined){
+            _new_obj['entNo'] = entNo;
+            let idxEntNo = _keys.indexOf('entNo');
+            _keys.splice(idxEntNo, 1);
+            
+            
+            $(`#${idx}${entNo}Form :text`).each(function(i){
+                _new_obj[_keys[_i]] = $(this).val();
+                _i++;
+            });     
+
+            _new_obj['popover'] = generateHtmlPopover(idx, _new_obj, entNo);
+
+
+
+            sleep(50).then(() => {
+                console.log(_new_obj);
+                $scope.availEntities[entNo]._mergedData[idx] = _new_obj;
+                $scope.availEntities[entNo].table.data[idx] = _new_obj;
+                $scope.availEntities[entNo].table.reload();                
+
+            });
+
+        } else {
+            $(`#${idx}${entNo}Form :text`).each(function(i){
+                _new_obj[_keys[_i]] = $(this).val();
+                console.log(_new_obj);
+                _i++;
+            });
+
+            _new_obj = Object.assign(_new_obj, {popover: generateHtmlPopover(idx, _new_obj, entNo)});
+
+            sleep(50).then(() => {
+                console.log(_new_obj);
+                $scope.cEnt.data[idx] = _new_obj;
+                $scope.cEnt.table.data[idx] = _new_obj;
+                $scope.cEnt.table.reload();   
+            })
+        }
+
+        $(`#${idx}${entNo}Popover`).popover('hide');
+        sleep(100).then(() => {
+            $('[data-toggle="popover"]').popover({ html : true })
+                .click(function(ev) {
+                 //this is workaround needed in order to make ng-click work inside of popover
+                 $compile($('.popover.in').contents())($scope);
+            });
         });
-        console.log(JSON.stringify(new_obj));
-     }
+    }
+
+    function sleep (time) {
+      return new Promise((resolve) => setTimeout(resolve, time));
+    }
 
     $scope.getAttributes = function(fromTest, testName=''){
         $scope.attributes = [];
@@ -283,138 +349,11 @@
             });        
 
             Promise.all(promisesMetaTypes).then(function() {
-                console.log('Done with All!');
-                console.log($scope.attributes);
-                console.log($scope.availEntities);
 
                 $scope.nextStep();
             });
         });
 
-    }
-
-
-
-    $scope.fromEntities = function(fromTest){
-        $scope.attributes = [];
-        $scope.availEntities = [];
-        $http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
-
-        $scope.selectedEntities.forEach(function(ent){
-            $scope.availEntities.push({name: ent, count: 0, data: []})
-        });
-
-        let promisesAttributeCollection = [];
-        $scope.selectedEntities.forEach(function(ent){
-            promisesAttributeCollection.push($http.get(`http://localhost:40042/entity/a/${ent}`)
-                .then(function(res) {
-                    if(res){
-                        res.data.forEach(function(attr){
-                            $scope.attributes.push({attrName: attr, filter: false})
-                        });
-                    }
-                })
-            );
-        });
-
-        Promise.all(promisesAttributeCollection).then(function() {
-            console.log('Done with Attribute Collection!');
-            console.log($scope.attributes);
-
-            let promisesMetaTypes = [];
-            $scope.attributes.forEach(function(attr){
-                promisesMetaTypes.push($http.get(`http://localhost:40042/entity/m/${attr.attrName}`)
-                    .then(function(res) {
-                        if(res){
-                            attr.filterType = res.data;
-                            if(res.data == 'number'){
-                                attr.filterName = 'Spanne (von bis)';
-                            }
-                            if(res.data == 'string'){
-                                attr.filterName = 'Regex';
-                            }
-                            if(res.data == 'location'){
-                                attr.filterName = 'Umkreis (km)';
-                            }
-                        }
-                    })
-                );
-            });        
-
-            Promise.all(promisesMetaTypes).then(function() {
-                console.log('Done with Meta Type Collection!');
-                console.log($scope.attributes);
-                $scope.nextStep('fromTest');
-                $scope.nextStep('fromTest');
-            })
-
-        })
-
-    }
-
-
-    $scope.fromTest = function(fromTest, testName=''){
-        if(fromTest){
-            $scope.chosenTest = testName;    
-        }
-        
-        $scope.attributes = [];
-        $scope.availEntities = [];
-        $http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
-        $http.get(`http://localhost:40042/entity/get/by-test/${$scope.chosenTest}`).then(function successCallback(response) {
-            let _ents = []
-            response.data.forEach(function(attr){
-                let curEnt = attr.split('.')[0];
-                if(_ents.indexOf(curEnt) < 0){
-                    _ents.push(curEnt);
-                }
-                $scope.attributes.push({attrName: attr, filter: false});   
-            })
-
-            _ents.forEach(function(ent){
-                $scope.availEntities.push({name: ent, count: 0, data: []})
-            });
-
-            //todo get /json from api to display and modify in frontend
-            $scope.availEntities.forEach(function(ent){
-                $scope.attributes.forEach(function(attr){
-                    let curEnt = attr.attrName.split('.')[0];
-                    if(curEnt == ent.name){
-                        ent.data.push(attr.attrName);
-                    }
-                });
-            });
-
-
-            let promises = [];
-            $scope.attributes.forEach(function(attr){
-                promises.push($http.get(`http://localhost:40042/entity/m/${attr.attrName}`)
-                    .then(function(res) {
-                        if(res){
-                            attr.filterType = res.data;
-                            if(res.data == 'number'){
-                                attr.filterName = 'Spanne (von bis)';
-                            }
-                            if(res.data == 'string'){
-                                attr.filterName = 'Regex';
-                            }
-                            if(res.data == 'location'){
-                                attr.filterName = 'Umkreis (km)';
-                            }
-                        }
-                    })
-                );
-            });
-        
-            Promise.all(promises).then(function() {
-                console.log('Done with promises!');
-                console.log($scope.attributes);
-                $scope.nextStep('fromTest');
-            })
-
-             
-        });
-      
     }
 
     $scope.edit = function(idx){
