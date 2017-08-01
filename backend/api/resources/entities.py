@@ -251,3 +251,19 @@ class EntityGetAttributesByEntity(Resource):
         return Response(response=json.dumps(res), mimetype='application/json')
 
 
+class EntityDownload(Resource):
+    def post(self, mode):
+        try:
+            sent_data = json.loads(request.data.decode('utf-8'))
+            recomb = True if mode == 'true' else False
+            if not recomb:
+                df = pd.DataFrame(sent_data[0])
+                return Response(str(df.to_csv(encoding='utf-8', sep=';'))[1:], mimetype="text/csv", headers={"Content-disposition": "attachment; filename=testCase.csv"})
+
+        except Exception as e:
+            resp = Response(response=e, status=200)
+            resp.headers['Access-Control-Allow-Origin'] = '*'
+            return resp
+
+        csv = f'{mode},1,2,3\n4,5,6\n'
+

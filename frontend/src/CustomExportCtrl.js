@@ -54,7 +54,6 @@
     }
 
     $scope.recombination = function(){
-        console.log('recombination');
         $scope.filter = []
         $scope.attributesOnly = [];
 
@@ -80,7 +79,6 @@
         $scope.filter = JSON.stringify($scope.filter);
         $scope.attributesOnly = JSON.stringify($scope.attributesOnly);
         $http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
-        console.log(`http://localhost:40042/entity-data/get/filter/by-entities/${$scope.exportMode}/${$scope.attributesOnly}/${$scope.filter}/json/${testName}`);
         $http.get(`http://localhost:40042/entity-data/get/filter/by-entities/${$scope.exportMode}/${$scope.attributesOnly}/${$scope.filter}/json/${testName}`).then(function successCallback(response) {
             $scope.availEntities.forEach(function(ent){
                 response.data.forEach(function(d){
@@ -120,7 +118,6 @@
                     _combinedAttributes = _combinedAttributes.concat(ent.attrs);
                     if(_combinedData.length < 1){
                         _combinedData = _combinedData.concat(ent._mergedData);
-                        console.log(_combinedData);
                     } else {
                         let i = 0;
                         _combinedData.forEach(function(entry){
@@ -147,7 +144,6 @@
                         dataset: _combinedData
                     }),
                 }
-                console.log($scope.cEnt);
 
             } else {
                 let j = 0;
@@ -172,8 +168,6 @@
 
                 })
 
-
-                console.log($scope.availEntities[0]);
             }
 
         });  
@@ -203,7 +197,7 @@
     }
 
     $scope.updateTable = function(idx, obj, entNo=''){
-        console.log(idx, entNo, obj);
+
         let _keys = Object.keys(obj);
         let idxCount = _keys.indexOf('count');
         _keys.splice(idxCount, 1);
@@ -227,7 +221,6 @@
 
 
             sleep(50).then(() => {
-                console.log(_new_obj);
                 $scope.availEntities[entNo]._mergedData[idx] = _new_obj;
                 $scope.availEntities[entNo].table.data[idx] = _new_obj;
                 $scope.availEntities[entNo].table.reload();                
@@ -237,14 +230,12 @@
         } else {
             $(`#${idx}${entNo}Form :text`).each(function(i){
                 _new_obj[_keys[_i]] = $(this).val();
-                console.log(_new_obj);
                 _i++;
             });
 
             _new_obj = Object.assign(_new_obj, {popover: generateHtmlPopover(idx, _new_obj, entNo)});
 
             sleep(50).then(() => {
-                console.log(_new_obj);
                 $scope.cEnt.data[idx] = _new_obj;
                 $scope.cEnt.table.data[idx] = _new_obj;
                 $scope.cEnt.table.reload();   
@@ -356,10 +347,6 @@
 
     }
 
-    $scope.edit = function(idx){
-        console.log(idx);
-    }
-
     $scope.toggle = function(id){
         $(`#${id}Short`).toggle(300);
         $(`#${id}Long`).toggle(300);
@@ -378,11 +365,27 @@
             $scope.selectedEntities.push(ent);
         } else {
             let idx = $scope.selectedEntities.indexOf(ent);
-            console.log('idx', idx);
             $scope.selectedEntities.splice(idx, 1);
         }
         $(`#${ent}`).toggleClass('md-primary');  
 
+    }
+
+    function cleanData(dataArray){
+        let _res = [];
+        dataArray.forEach(function(entry){
+            if(entry.popover != undefined)
+                delete entry.popover;
+            if(entry.count != undefined)
+                delete entry.count;
+            if(entry.entNo != undefined)
+                delete entry.entNo;
+            if(entry.$$hashKey != undefined)
+                delete entry.$$hashKey;
+
+            _res.push(entry);
+        });
+        return _res;
     }
 
     $scope.download = function(source, exportMode){
@@ -394,16 +397,34 @@
         }
 
         if(source == 'fromTest'){
-            let data = JSON.stringify($scope.cEnt.table.data);
-            var url = `http://localhost:40042/entity/download/${data}/${_exportMode}`;
+            var _data = [cleanData($scope.cEnt.data)];
+            var url = `http://localhost:40042/entity/download/${_exportMode}`;
         } else {
-            let _ents = [];
+            var _data = [];
             $scope.availEntities.forEach(function(ent){
-                _ents.push(entry.table.data);
+                _data.push(cleanData(ent._mergedData));
             });
-            var url = `http://localhost:40042/entity/download/${data}/${_exportMode}`;
+            var url = `http://localhost:40042/entity/download/${_exportMode}`;
         }
-        window.open(url, '_blank');
+
+        var data = JSON.stringify(_data);
+        $http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
+        $http.defaults.headers.post['dataType'] = 'application/json';
+
+        $http.post(url, data).
+            success(function(data, status, headers, config) {
+                var blob = new Blob([data], {type: "text/csv"});
+                var a = document.createElement('a');
+                a.href = window.URL.createObjectURL(blob); // xhr.response is a blob
+                a.download = 'testCase.csv'; // Set the file name.
+                a.style.display = 'none';
+                document.body.appendChild(a);
+                a.click();
+            }).
+            error(function(data, status, headers, config) {
+                console.log(data, status, headers, config);
+            });  
+
     }
 
   }

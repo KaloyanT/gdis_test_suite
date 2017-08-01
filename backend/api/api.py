@@ -30,6 +30,7 @@ api.add_resource(entities.EntityGetAllByTestname, '/entity/get/by-test/<testname
 api.add_resource(entities.EntityDataGetFilterByTestname, '/entity-data/get/filter/by-test/<testname>/<filters>/<estimate>')
 api.add_resource(entities.EntityGetFilteredData, '/entity-data/get/filter/by-entities/<filter_mode>/<attrs_raw>/<filters_raw>/<mode>/<test_name>')  # test_name optional
 api.add_resource(entities.EntityGetAttributesByEntity, '/entity/a/<entity>')
+api.add_resource(entities.EntityDownload, '/entity/download/<mode>')
 api.add_resource(stories.DefaultStory, '/stories/default')
 api.add_resource(stories.ExportStories, '/stories/list')
 api.add_resource(stories.ExportTestNames, '/stories/testnames')
