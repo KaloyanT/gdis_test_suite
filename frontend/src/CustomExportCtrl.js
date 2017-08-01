@@ -384,6 +384,28 @@
         $(`#${ent}`).toggleClass('md-primary');  
 
     }
+
+    $scope.download = function(source, exportMode){
+        console.log(source, exportMode);
+        if(exportMode == 'recombine'){
+            var _exportMode = 'true';
+        } else {
+            var _exportMode = 'false';
+        }
+
+        if(source == 'fromTest'){
+            let data = JSON.stringify($scope.cEnt.table.data);
+            var url = `http://localhost:40042/entity/download/${data}/${_exportMode}`;
+        } else {
+            let _ents = [];
+            $scope.availEntities.forEach(function(ent){
+                _ents.push(entry.table.data);
+            });
+            var url = `http://localhost:40042/entity/download/${data}/${_exportMode}`;
+        }
+        window.open(url, '_blank');
+    }
+
   }
 
 })();

@@ -154,7 +154,7 @@
               </md-card> 
 
             </div>
-            <md-button class="md-raised md-primary" href="{{downloadLink}}">Download Standard</md-button>
+            <md-button class="md-raised md-primary" href="download('fromTest', 'recombine')">Download Rekombination</md-button>
           </div>
           <div ng-switch-when="recombinationTest">
 
@@ -190,7 +190,8 @@
                 </md-card-content>
               </md-card>           
             </div>
-            <md-button class="md-raised md-primary" href="{{downloadLink}}">Download Standard</md-button>
+            <md-button class="md-raised md-primary" ng-click="download('fromTest', 'standard')">Download Standard</md-button>
+            <md-button class="md-raised md-primary" ng-click="download('fromTest', 'recombine')">Download Rekombination</md-button>
           </div>
 
         </div>
