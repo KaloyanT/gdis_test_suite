@@ -89,12 +89,17 @@
         $scope.attributesOnly = JSON.stringify($scope.attributesOnly);
         $http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
         $http.get(`http://localhost:40042/entity-data/get/filter/by-entities/${$scope.exportMode}/${$scope.attributesOnly}/${$scope.filter}/json/${testName}`).then(function successCallback(response) {
+            $scope.expectedComb = 1;
             $scope.availEntities.forEach(function(ent){
                 response.data.forEach(function(d){
                     if(d.name == ent.name){
                         ent.count = d.count;
                         ent.data = d.data; 
-                        ent.attrs = d.attributes;  
+                        ent.attrs = d.attributes;
+
+                        if(parseInt(ent.count) > 0)
+                            $scope.expectedComb = ($scope.expectedComb * parseInt(ent.count));
+
                     }
                 })
                 ent._mergedData = []
