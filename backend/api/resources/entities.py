@@ -119,11 +119,11 @@ class EntityDataGetFilterByTestname(Resource):
                 _max = f.get('max')
                 _min = f.get('min')
                 if _max:
-                    df = df[df[_col] <= str(_max)]
+                    df = df[pd.to_numeric(df[_col]) <= int(_max)]
                 if _min:
-                    df = df[df[_col] >= str(_min)]
+                    df = df[pd.to_numeric(df[_col]) >= int(_min)]
             if _type == 'location':
-                pass
+                df = df[df[_col].str.contains(f['filterRangeVal'], regex=True)]
 
         if estimate == 'true':
             return Response(response=json.dumps(len(df)))

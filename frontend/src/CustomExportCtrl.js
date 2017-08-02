@@ -60,13 +60,14 @@
         $scope.attributes.forEach(function(a){
             if($scope.exportMode == 'entity')
                 $scope.attributesOnly.push(a.attrName);
+            console.log(a.filter);
             if(a.filter){
                 if(a.filterType == 'string' && a.filterRegexVal != undefined && a.filterRegexVal != '')
                     $scope.filter.push({'type': 'string', 'col': a.attrName, 'exp': a.filterRegexVal});
                 if(a.filterType == 'number' && a.filterRangeValLower != undefined && a.filterRangeValUpper != undefined && a.filterRangeValLower != '' && a.filterRangeValUpper != '')
                     $scope.filter.push({'type': 'number', 'col': a.attrName, 'min': a.filterRangeValLower, 'max': a.filterRangeValUpper})
-                if(a.filterType == 'location'  && a.range != undefined && a.range != '')
-                    $scope.filter.push({'type': 'location', 'col': a.attrName, 'city': 'bla', 'range': a.filterRangeVal}) 
+                if(a.filterType == 'location'  && a.filterRangeVal != undefined && a.filterRangeVal != '')
+                    $scope.filter.push({'type': 'location', 'col': a.attrName, 'filterRangeVal': a.filterRangeVal}) 
             }
         });
 
@@ -332,7 +333,7 @@
                                 attr.filterName = 'Regex';
                             }
                             if(res.data == 'location'){
-                                attr.filterName = 'Umkreis (km)';
+                                attr.filterName = 'Regex';
                             }
                         }
                     })
@@ -348,18 +349,31 @@
     }
 
     $scope.toggle = function(id){
+
+        sleep(100).then(() => {
+            $('[data-toggle="popover"]').popover({ html : true })
+                .click(function(ev) {
+                 //this is workaround needed in order to make ng-click work inside of popover
+                 $compile($('.popover.in').contents())($scope);
+            });              
+        });
+
         $(`#${id}Short`).toggle(300);
         $(`#${id}Long`).toggle(300);
     }
     $scope.toggleManipulation = function(id){
-        $('[data-toggle="popover"]').popover({ html : true })
-            .click(function(ev) {
-             //this is workaround needed in order to make ng-click work inside of popover
-             $compile($('.popover.in').contents())($scope);
+
+        sleep(100).then(() => {
+            $('[data-toggle="popover"]').popover({ html : true })
+                .click(function(ev) {
+                 //this is workaround needed in order to make ng-click work inside of popover
+                 $compile($('.popover.in').contents())($scope);
+            });              
         });
 
         $(`#${id}`).toggle(300);
     }
+
     $scope.selEntity = function(ent){
         if($scope.selectedEntities.indexOf(ent) < 0){
             $scope.selectedEntities.push(ent);
@@ -369,6 +383,38 @@
         }
         $(`#${ent}`).toggleClass('md-primary');  
 
+    }
+
+    function redrawTable(){
+        if($scope.cEnt == undefined){
+
+            let j = 0;
+            $scope.availEntities.forEach(function(ent){
+                let i = 0;
+                ent._mergedData.forEach(function(entry){
+                    let _d = Object.assign(entry, {count: i, entNo: j});
+                    _d = Object.assign(_d, {popover: generateHtmlPopover(i, _d, j)});
+                    ent._mergedData[i] = _d;
+                    i++;
+                })
+
+                ent.table.data = ent._mergedData;
+                ent.table.reload();
+                j++;
+            });
+
+        } else {
+            let _combinedData = $scope.cEnt.data.slice();
+            let i = 0;
+            _combinedData.forEach(function(entry){
+                let _d = Object.assign(entry, {count: i});
+                _d = Object.assign(_d, {popover: generateHtmlPopover(i, _d)})
+                _combinedData[i] = _d;
+                i++;
+            })
+            $scope.cEnt.table.data = _combinedData;
+            $scope.cEnt.table.reload();
+        }
     }
 
     function cleanData(dataArray){
