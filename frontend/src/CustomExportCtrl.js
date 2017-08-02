@@ -166,7 +166,7 @@
                     });
                     j++;
 
-                })
+                });
 
             }
 
@@ -397,11 +397,13 @@
         }
 
         if(source == 'fromTest'){
-            var _data = [cleanData($scope.cEnt.data)];
+            let _copiedData = $scope.cEnt.data.slice();
+            var _data = [cleanData(_copiedData)];
             var url = `http://localhost:40042/entity/download/${_exportMode}`;
         } else {
             var _data = [];
-            $scope.availEntities.forEach(function(ent){
+            let entCopy = $scope.availEntities.slice();
+            entCopy.forEach(function(ent){
                 _data.push(cleanData(ent._mergedData));
             });
             var url = `http://localhost:40042/entity/download/${_exportMode}`;
@@ -415,11 +417,42 @@
             success(function(data, status, headers, config) {
                 var blob = new Blob([data], {type: "text/csv"});
                 var a = document.createElement('a');
-                a.href = window.URL.createObjectURL(blob); // xhr.response is a blob
-                a.download = 'testCase.csv'; // Set the file name.
+                a.href = window.URL.createObjectURL(blob);
+                a.download = 'testCase.csv';
                 a.style.display = 'none';
                 document.body.appendChild(a);
                 a.click();
+
+                if($scope.cEnt == undefined){
+
+                    let j = 0;
+                    $scope.availEntities.forEach(function(ent){
+                        let i = 0;
+                        ent._mergedData.forEach(function(entry){
+                            let _d = Object.assign(entry, {count: i, entNo: j});
+                            _d = Object.assign(_d, {popover: generateHtmlPopover(i, _d, j)});
+                            ent._mergedData[i] = _d;
+                            i++;
+                        })
+
+                        ent.table.data = ent._mergedData;
+                        ent.table.reload();
+                        j++;
+                    });
+
+                } else {
+                    let _combinedData = $scope.cEnt.data.slice();
+                    let i = 0;
+                    _combinedData.forEach(function(entry){
+                        let _d = Object.assign(entry, {count: i});
+                        _d = Object.assign(_d, {popover: generateHtmlPopover(i, _d)})
+                        _combinedData[i] = _d;
+                        i++;
+                    })
+                    $scope.cEnt.table.data = _combinedData;
+                    $scope.cEnt.table.reload();
+                }
+
             }).
             error(function(data, status, headers, config) {
                 console.log(data, status, headers, config);

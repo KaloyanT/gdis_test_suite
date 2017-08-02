@@ -255,7 +255,6 @@ class EntityDownload(Resource):
     def post(self, mode):
         try:
             sent_data = json.loads(request.data.decode('utf-8'))
-            return json.dumps(sent_data)
             recomb = True if mode == 'true' else False
             if not recomb:
                 df = pd.DataFrame(sent_data[0])
@@ -274,14 +273,19 @@ class EntityDownload(Resource):
                         grouped_attributes.append(_attr_group)
 
                     dfs = [df[group] for group in grouped_attributes]
-                    dfs_even = dfs[::2]
-                    dfs_odd = dfs[1::2]
                 else:
-                    dfs_even = df[::2]
-                    dfs_odd = df[1::2]
-
-
-                return json.dumps(grouped_attributes)
+                    dfs = df
+                final_df = None
+                for df in dfs:
+                    if final_df is None:
+                        final_df = df
+                    else:
+                        final_df = df_crossjoin(final_df, df)
+                else:
+                    res = final_df.drop_duplicates()
+                    csv = res.to_csv(encoding='utf-8', sep=';')
+                    csv_res = csv if len(dfs) == 1 else csv[2:]
+                return Response(csv_res, mimetype="text/csv", headers={"Content-disposition": "attachment; filename=testCase.csv"})
 
         except Exception as e:
             resp = Response(response=e, status=200)
@@ -290,15 +294,6 @@ class EntityDownload(Resource):
 
 
 def df_crossjoin(df1, df2, **kwargs):
-    """
-    Make a cross join (cartesian product) between two dataframes by using a constant temporary key.
-    Also sets a MultiIndex which is the cartesian product of the indices of the input dataframes.
-    See: https://github.com/pydata/pandas/issues/5401
-    :param df1 dataframe 1
-    :param df1 dataframe 2
-    :param kwargs keyword arguments that will be passed to pd.merge()
-    :return cross join of df1 and df2
-    """
     df1['_tmpkey'] = 1
     df2['_tmpkey'] = 1
 
