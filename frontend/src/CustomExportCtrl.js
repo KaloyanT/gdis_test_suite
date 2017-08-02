@@ -62,10 +62,18 @@
                 $scope.attributesOnly.push(a.attrName);
             console.log(a.filter);
             if(a.filter){
+                console.log(a.filterType)
                 if(a.filterType == 'string' && a.filterRegexVal != undefined && a.filterRegexVal != '')
                     $scope.filter.push({'type': 'string', 'col': a.attrName, 'exp': a.filterRegexVal});
-                if(a.filterType == 'number' && a.filterRangeValLower != undefined && a.filterRangeValUpper != undefined && a.filterRangeValLower != '' && a.filterRangeValUpper != '')
-                    $scope.filter.push({'type': 'number', 'col': a.attrName, 'min': a.filterRangeValLower, 'max': a.filterRangeValUpper})
+                if(a.filterType == 'number'){
+                    let _r = {'type': 'number', 'col': a.attrName};
+                    if (a.filterRangeValLower != undefined && a.filterRangeValLower != '')
+                        _r['min'] = a.filterRangeValLower;
+                    if (a.filterRangeValUpper != undefined && a.filterRangeValUpper != '')
+                        _r['max'] = a.filterRangeValUpper;
+                    if(_r.min != undefined || _r.max != undefined)
+                        $scope.filter.push(_r);
+                }
                 if(a.filterType == 'location'  && a.filterRangeVal != undefined && a.filterRangeVal != '')
                     $scope.filter.push({'type': 'location', 'col': a.attrName, 'filterRangeVal': a.filterRangeVal}) 
             }

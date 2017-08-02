@@ -188,9 +188,9 @@ class EntityGetFilteredData(Resource):
                         _max = f.get('max')
                         _min = f.get('min')
                         if _max:
-                            d = d[d[_col] <= str(_max)]
+                            d = d[pd.to_numeric(d[_col]) <= int(_max)]
                         if _min:
-                            d = d[d[_col] >= str(_min)]
+                            d = d[pd.to_numeric(d[_col]) >= int(_min)]
                     if _type == 'location':
                         pass
             res.append(d)
@@ -255,6 +255,7 @@ class EntityDownload(Resource):
     def post(self, mode):
         try:
             sent_data = json.loads(request.data.decode('utf-8'))
+
             recomb = True if mode == 'true' else False
             if not recomb:
                 df = pd.DataFrame(sent_data[0])
@@ -284,7 +285,7 @@ class EntityDownload(Resource):
                 else:
                     res = final_df.drop_duplicates()
                     csv = res.to_csv(encoding='utf-8', sep=';')
-                    csv_res = csv if len(dfs) == 1 else csv[2:]
+                    csv_res = csv if len(dfs) == 1 else csv[1:]
                 return Response(csv_res, mimetype="text/csv", headers={"Content-disposition": "attachment; filename=testCase.csv"})
 
         except Exception as e:
@@ -294,13 +295,12 @@ class EntityDownload(Resource):
 
 
 def df_crossjoin(df1, df2, **kwargs):
-    df1['_tmpkey'] = 1
-    df2['_tmpkey'] = 1
+    temp_df1 = df1[:]
+    temp_df2 = df2[:]
 
-    res = pd.merge(df1, df2, on='_tmpkey', **kwargs).drop('_tmpkey', axis=1)
-    res.index = pd.MultiIndex.from_product((df1.index, df2.index))
+    temp_df1['_tmpkey'] = 1
+    temp_df2['_tmpkey'] = 1
 
-    df1.drop('_tmpkey', axis=1, inplace=True)
-    df2.drop('_tmpkey', axis=1, inplace=True)
+    res = pd.merge(temp_df1, temp_df2, on='_tmpkey').drop('_tmpkey', axis=1)
 
     return res
