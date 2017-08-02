@@ -259,7 +259,7 @@ class EntityDownload(Resource):
             recomb = True if mode == 'true' else False
             if not recomb:
                 df = pd.DataFrame(sent_data[0])
-                return Response(str(df.to_csv(encoding='utf-8', sep=';'))[1:], mimetype="text/csv", headers={"Content-disposition": "attachment; filename=testCase.csv"})
+                return Response(df.to_csv(encoding='utf-8', sep=';', index=False), mimetype="text/csv", headers={"Content-disposition": "attachment; filename=testCase.csv"})
             else:
                 df = [pd.DataFrame(data) for data in sent_data]
                 if len(df) == 1:
@@ -284,8 +284,8 @@ class EntityDownload(Resource):
                         final_df = df_crossjoin(final_df, df)
                 else:
                     res = final_df.drop_duplicates()
-                    csv = res.to_csv(encoding='utf-8', sep=';')
-                    csv_res = csv if len(dfs) == 1 else csv[1:]
+                    csv = res.to_csv(encoding='utf-8', sep=';', index=False)
+                    csv_res = csv
                 return Response(csv_res, mimetype="text/csv", headers={"Content-disposition": "attachment; filename=testCase.csv"})
 
         except Exception as e:
